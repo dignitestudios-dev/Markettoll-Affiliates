@@ -9,7 +9,9 @@ const PrivacyPolicy = () => {
     <div
       className={`w-full flex flex-col py-6 lg:pt-12 gap-3 px-4 md:px-8 lg:px-24 `}
     >
-      <h1 className="text-4xl font-bold ">Privacy Policy </h1>
+      <h1 className="text-4xl font-bold blue-text pb-4 border-b-2 mb-4">
+        Privacy Policy{" "}
+      </h1>
 
       <p>
         Markettollls ("Company") is committed to protecting your privacy and
