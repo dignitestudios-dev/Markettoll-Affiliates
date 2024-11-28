@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+  font-family: "Satoshi", sans-serif;
+}
+
+.padding-x {
+  @apply px-4 md:px-8 lg:px-16 xl:px-20;
+}
+
+.blue-text {
+  @apply text-[#003DAC];
+}
+
+.light-blue-text {
+  @apply text-[#0098EA];
+}
+
+.blue-bg {
+  @apply bg-[#0098EA];
+}
+
+select {
+  appearance: none;
+}
+
+/* Webkit Browsers (Chrome, Safari, Edge) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* For Internet Explorer (if needed) */
+input[type="number"]::-ms-clear {
+  display: none;
+}
+
+.custom-shadow {
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+.category-buttons::-webkit-scrollbar {
+  display: none;
+}
+
+.chat-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-[#0098EA];
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+#cardDetails {
+  background-color: white !important;
+  @apply p-4 text-sm rounded-3xl text-[#5c5c5c];
+}
+
+.stsearch-box > input {
+  border: none;
+  outline: none;
+}
+
+.stdropdown-container {
+  border-radius: 15px !important;
+  border: 1px solid #dedede;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
