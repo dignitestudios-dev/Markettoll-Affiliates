@@ -23,9 +23,12 @@ const VerifyOtpForm = () => {
   const verificationType = location.state?.type;
   console.log("verificationType >>>", verificationType);
   const { setVerificationStatus } = useContext(AuthContext);
+  const data = JSON.parse(localStorage.getItem("user")) || null;
 
   const { user } = useContext(AuthContext);
-  const userEmail = JSON.parse(Cookies.get("user-email"));
+  const userEmail = JSON.parse(localStorage.getItem("user-email"));
+  console.log("user >>>", data);
+  console.log(data?.email?.value);
 
   const [otp, setOtp] = useState(["", "", "", ""]);
 
@@ -82,10 +85,10 @@ const VerifyOtpForm = () => {
       try {
         const res = await axios.post(
           endpoint,
-          { otp: otp.join(""), email: userEmail },
+          { otp: otp.join(""), email: data?.email?.value },
           {
             headers: {
-              Authorization: `Bearer ${user?.token}`,
+              Authorization: `Bearer ${data?.token}`,
               "Content-Type": "application/json",
             },
           }

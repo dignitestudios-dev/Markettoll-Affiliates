@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import { CartProductContext } from "../../context/cartProductContext";
+import { AuthContext } from "../../context/authContext";
+import { toast } from "react-toastify";
 
 const CartSummary = ({
   onclick,
@@ -8,18 +13,54 @@ const CartSummary = ({
   isOrderPlaced,
   setIsOrderPlaced,
   cartProducts,
+  totalAmount,
 }) => {
-  //   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
-  const handlePlaceOrder = () => {
-    setIsOrderPlaced(!isOrderPlaced);
-  };
-  let totalAmount = cartProducts.reduce((total, cartItem) => {
-    const price = cartItem.product.price;
-    const quantity = cartItem.quantity;
-    return total + price * quantity; // Add price * quantity to the total
-  }, 0);
+  const { data } = useContext(CartProductContext);
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  console.log("count >>>", count);
+  console.log("data >>>", data);
 
-  console.log("Total Amount: $", totalAmount.toFixed(2));
+  const handlePlaceOrder = async () => {
+    console.log("calling place order api");
+    // setIsOrderPlaced(!isOrderPlaced);
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/order-product-transient`,
+        {
+          deliveryAddress: data?.deliveryAddress,
+          paymentMethod: data?.paymentMethod,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("place order res >>>", res);
+      if (res?.status == 201) {
+        try {
+          const response = await axios.post(
+            `${BASE_URL}/users/order-product-purchased`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+          console.log("order placed >>>", response);
+        } catch (error) {
+          console.log("order failed >>>>", error?.response?.data?.message);
+          toast.error(error?.response?.data?.message);
+        }
+      }
+    } catch (error) {
+      console.log("place order err >>>", error?.response?.data?.message);
+    }
+  };
+
+  // console.log("Total Amount: $", totalAmount.toFixed(2));
 
   return (
     <div className="bg-white rounded-[20px] p-6">
@@ -51,7 +92,9 @@ const CartSummary = ({
         {count === 0
           ? "Proceed To Checkout"
           : count === 3
-          ? "Place Order"
+          ? loading
+            ? "Order Placing..."
+            : "Place Order"
           : count === 4
           ? "Continue to Shopping"
           : "Next"}

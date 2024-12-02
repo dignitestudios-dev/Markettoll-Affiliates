@@ -8,6 +8,8 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { loadStripe } from "@stripe/stripe-js";
 import { useStripe, Elements } from "@stripe/react-stripe-js";
+import { toast } from "react-toastify";
+import { IoClose } from "react-icons/io5";
 
 const stripePromise = loadStripe(
   "pk_test_51OsZBgRuyqVfnlHK0Z5w3pTL7ncHPcC75EwkxqQX9BAlmcXeKappekueIzmpWzWYK9L9HEGH3Y2Py2hC7KyVY0Al00przQczPf"
@@ -59,10 +61,14 @@ const PackageCard = ({
   endpoint,
   planType,
 }) => {
-  const { user } = useContext(AuthContext);
-  // console.log("user >>>", user);
+  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleCloseModal = () => {
+    setShowModal(!showModal);
+  };
 
   const SubscribeFreePlan = async () => {
     try {
@@ -92,27 +98,50 @@ const PackageCard = ({
     setLoading(true);
     try {
       if (index === 0) {
-        // Free Plan Logic
         SubscribeFreePlan();
       } else {
-        // Paid Plan Logic
-        const res = await axios.post(
-          `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
-          {
-            subscriptionName: planType,
-            paymentMethodId: user.stripeCustomer.paymentMethod.id,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token}`,
-            },
+        try {
+          const response = await axios.post(
+            `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+          console.log("plan unsubribed successfully >>>>", response);
+          if (response?.status == 200) {
+            const res = await axios.post(
+              `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
+              {
+                subscriptionName: planType,
+                paymentMethodId: user.stripeCustomer.paymentMethod.id,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${user?.token}`,
+                },
+              }
+            );
+            console.log("handle Upgrade subscription res >>>>>", res);
+            if (res?.status == 201) {
+              fetchUserProfile();
+              handleCloseModal();
+            }
+          } else {
+            toast.error("Something went wrong");
           }
-        );
-
-        console.log("handle Upgrade subscription res >>>>>", res);
+        } catch (error) {
+          console.log(
+            "error while plan unsubscribing >>>>",
+            error?.response?.data?.message
+          );
+        }
       }
     } catch (error) {
       console.error("handle Upgrade subscription err >>>>>", error);
+      toast.error(error?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -124,7 +153,7 @@ const PackageCard = ({
         <span className="blue-bg px-6 py-2.5 rounded-full text-center text-white font-medium text-sm float-end">
           {planType}
         </span>
-        {user?.subscriptionPlan?.name == planType ? (
+        {userProfile?.subscriptionPlan?.name == planType ? (
           <span className="bg-red-500 px-3 py-1.5 rounded-full text-center text-white font-medium text-sm float-end">
             Subscribed
           </span>
@@ -158,11 +187,44 @@ const PackageCard = ({
       <button
         type="button"
         onClick={handleSubscription}
-        disabled={user?.subscriptionPlan?.name == planType}
+        disabled={userProfile?.subscriptionPlan?.name == planType}
         className="blue-bg text-white font-bold text-center py-3.5 mt-5 rounded-[20px] disabled:cursor-not-allowed"
       >
         {loading ? "Upgrading..." : "Upgrade"}
       </button>
+      <PlanPurchaseSuccessModal
+        showModal={showModal}
+        onclick={handleCloseModal}
+      />
     </div>
+  );
+};
+
+const PlanPurchaseSuccessModal = ({ onclick, showModal }) => {
+  return (
+    showModal && (
+      <div
+        className={`w-full h-screen bg-[rgba(0,0,0,0.3)] fixed inset-0 z-40 flex items-center justify-center padding-x`}
+      >
+        <div className="w-full bg-white lg:w-[440px] h-[244px] rounded-[16px] flex flex-col items-center justify-center relative gap-2">
+          <button
+            type="button"
+            onClick={onclick}
+            className="w-[30px] h-[30px] bg-gray-200 absolute top-4 right-4 rounded-full p-1"
+          >
+            <IoClose className="w-full h-full" />
+          </button>
+          <div className="w-[69.67px] h-[69.67px] rounded-full blue-bg flex items-center justify-center p-2.5">
+            <FaCheck className="w-full h-full text-white" />
+          </div>
+          <span className="text-[20px] font-bold blue-text">
+            Congratulations!
+          </span>
+          <span className="text-base font-normal text-[#5C5C5C]">
+            You have successfully Purchase plan.
+          </span>
+        </div>
+      </div>
+    )
   );
 };

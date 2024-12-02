@@ -89,7 +89,8 @@ const SignUpForm = () => {
           formattedValues
         );
         console.log("Sign up res >>", res);
-        Cookies.set("market-signup", JSON.stringify(res?.data?.data));
+        Cookies.set("user", JSON.stringify(res?.data?.data));
+        localStorage.setItem("user", JSON.stringify(res?.data?.data));
         if (res.status == 201) {
           setShowModal(true);
           alert(JSON.stringify(formattedValues, null, 2));

@@ -4,13 +4,13 @@ import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
-import { useFormik } from "formik";
 
 const SettingsPayementPage = () => {
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
   const [openForm, setOpenForm] = useState(false);
   const [isCardAdded, setIsCardAdded] = useState(false);
   const [isBankAccountAdded, setIsBankAccountAdded] = useState(false);
+  const [addingAccount, setAddingAccount] = useState(false);
   const [bankDetails, setBankDetails] = useState({
     accountNumber: "",
     routingNumber: "",
@@ -21,6 +21,7 @@ const SettingsPayementPage = () => {
     year: "",
   });
   const [ssn, setSsn] = useState("");
+  console.log("userProfile >>", userProfile);
 
   const handleBankDetailsChange = (e) => {
     const { id, value } = e.target;
@@ -30,7 +31,6 @@ const SettingsPayementPage = () => {
     }));
   };
 
-  // Handle input change for date of birth
   const handleDateOfBirthChange = (e) => {
     const { id, value } = e.target;
     setDateOfBirth((prevState) => ({
@@ -51,6 +51,7 @@ const SettingsPayementPage = () => {
 
   const handleAddbankAccount = async (e) => {
     e.preventDefault();
+    setAddingAccount(true);
     const data = { bankDetails, dateOfBirth, idNumber: ssn };
     try {
       const res = await axios.post(
@@ -64,11 +65,15 @@ const SettingsPayementPage = () => {
       );
       if (res.status == 201) {
         toast.success("Bank account added succesfully");
+        setIsBankAccountAdded(false);
+        fetchUserProfile();
       }
       console.log("add bank accont res >>>>", res);
     } catch (error) {
       console.log("error while adding bank account >>>>>>", error);
       toast.error(error.response.data.message);
+    } finally {
+      setAddingAccount(false);
     }
   };
 
@@ -77,7 +82,7 @@ const SettingsPayementPage = () => {
       <h2 className="font-bold text-[28px] blue-text">Payment</h2>
 
       <div className="w-full border mt-5 mb-4" />
-      {openForm ? (
+      {userProfile && userProfile?.stripeCustomer?.id == null ? (
         <form
           onSubmit={handleSubmit}
           className="w-full flex flex-col items-start gap-5"
@@ -133,9 +138,10 @@ const SettingsPayementPage = () => {
         </form>
       ) : (
         <>
-          {!isCardAdded && (
+          {userProfile && userProfile?.stripeCustomer?.id !== null && (
             <button
               type="button"
+              disabled={userProfile?.stripeCustomer?.id == null}
               onClick={handleOpenForm}
               className="mt-4 flex items-center justify-between custom-shadow py-4 px-5 rounded-2xl w-full"
             >
@@ -146,7 +152,10 @@ const SettingsPayementPage = () => {
                   className="w-5 h-5"
                 />
                 <span className="text-sm text-[#5C5C5C]">
-                  Add Debit/ Credit Card
+                  {userProfile?.stripeCustomer?.id === null ||
+                  userProfile?.stripeCustomer?.id === undefined
+                    ? "Add Debit/ Credit Card"
+                    : `**** **** **** ${userProfile?.stripeCustomer?.paymentMethod?.last4}`}
                 </span>
               </div>
               <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />
@@ -172,7 +181,7 @@ const SettingsPayementPage = () => {
         </button>
       )}
 
-      {isBankAccountAdded ? (
+      {userProfile && userProfile?.stripeConnectedAccount?.id == null ? (
         <form
           onSubmit={handleAddbankAccount}
           className="w-full flex flex-col items-start gap-5 mt-10"
@@ -268,19 +277,21 @@ const SettingsPayementPage = () => {
             type="submit"
             className="text-base font-bold py-3 w-full text-white blue-bg rounded-2xl"
           >
-            Add
+            {addingAccount ? "Adding..." : "Add"}
           </button>
         </form>
       ) : (
         <button
           type="button"
+          disabled={userProfile?.stripeConnectedAccount?.id == null}
           onClick={() => setIsBankAccountAdded(!isBankAccountAdded)}
           className="mt-4 flex items-center justify-between custom-shadow py-4 px-5 rounded-2xl w-full"
         >
           <div className="flex items-center gap-2">
             <img src="/bank.png" alt="bank" className="w-5 h-5" />
             <span className="text-sm text-[#5C5C5C]">
-              Add your bank account
+              **** **** ****{" "}
+              {userProfile?.stripeConnectedAccount?.external_account?.last4}
             </span>
           </div>
           <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />

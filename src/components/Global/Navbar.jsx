@@ -6,6 +6,10 @@ import NotificationsDropdown from "./NotificationsDropdown";
 import { TbMenu2 } from "react-icons/tb";
 import Cookies from "js-cookie";
 import { AuthContext } from "../../context/authContext";
+import { SearchedProductContext } from "../../context/searchedProductContext";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -13,7 +17,10 @@ const Navbar = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [openSidebarDropdown, setOpenSidebarDropdown] = useState(false);
   const navigate = useNavigate();
-  const { user, userProfile } = useContext(AuthContext);
+  const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
+  const { searchQuery, setSearchQuery, searchResults, setSearchResults } =
+    useContext(SearchedProductContext);
+
   // console.log("user from navbar ", user);
 
   const handleLogout = () => {
@@ -23,6 +30,7 @@ const Navbar = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("market-signup");
     setShowProfileDropdown(!showProfileDropdown);
+    // fetchUserProfile();
   };
 
   const handleShowProfileDropdown = () => {
@@ -37,37 +45,61 @@ const Navbar = () => {
     setOpenSidebarDropdown(!openSidebarDropdown);
   };
 
+  const handleSearchProduct = async (e) => {
+    e.preventDefault();
+    if (!searchQuery) {
+      navigate("/");
+      return;
+    }
+    const queryParams = {
+      name: searchQuery,
+      category: "",
+      subCategory: "",
+      page: 1,
+    };
+    navigate(
+      `/search-product?name=${searchQuery}&category=${queryParams?.category}&subCategory=${queryParams?.subCategory}&page=1`
+    );
+  };
+
   return (
-    <nav className="padding-x w-full py-2 flex items-center justify-between border-b relative">
+    <nav className="padding-x w-full py-5 flex items-center justify-between border-b relative blue-bg">
       <Link to="/">
-        <img src="/LOGO-WHITE.jpg" alt="logo" className="w-[85px] h-[85px]" />
+        <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
 
       <div className="hidden lg:flex items-center justify-end gap-3">
-        <div className="w-[357px] h-[42px] flex items-center justify-between gap-2 px-3 rounded-[15px] border">
+        <form
+          onSubmit={handleSearchProduct}
+          className="w-[357px] h-[42px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
+        >
           <input
             type="text"
             placeholder="Search"
-            className="outline-none bg-transparent w-full h-full text-sm text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
           />
-          <IoSearchOutline className="light-blue-text text-2xl" />
-        </div>
+          <button type="submit">
+            <IoSearchOutline className="text-white text-2xl" />
+          </button>
+        </form>
         <Link
           to="/chats"
-          className="w-[32px] h-[32px] rounded-[10px] blue-bg flex items-center justify-center"
+          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
         >
           <img
-            src="/messages-icon.png"
+            src="/message-icon-blue.png"
             alt="messages-icon"
             className="w-[18px] h-[18px]"
           />
         </Link>
         <Link
           to="/favourites"
-          className="w-[32px] h-[32px] rounded-[10px] blue-bg flex items-center justify-center"
+          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
         >
           <img
-            src="/heart-icon.png"
+            src="/heart-icon-blue.png"
             alt="heart-icon"
             className="w-[18px] h-[18px]"
           />
@@ -75,10 +107,10 @@ const Navbar = () => {
         <button
           type="button"
           onClick={handleOpenNotifications}
-          className="w-[32px] h-[32px] rounded-[10px] blue-bg flex items-center justify-center"
+          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
         >
           <img
-            src="/notifications-icon.png"
+            src="/notifications-icon-blue.png"
             alt="notifications-icon"
             className="w-[18px] h-[18px]"
           />
@@ -86,10 +118,10 @@ const Navbar = () => {
         </button>
         <Link
           to="/cart"
-          className="w-[32px] h-[32px] rounded-[10px] blue-bg flex items-center justify-center"
+          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
         >
           <img
-            src="/cart-icon.png"
+            src="/cart-icon-blue.png"
             alt="cart-icon"
             className="w-[18px] h-[18px]"
           />
@@ -101,16 +133,16 @@ const Navbar = () => {
             className="flex items-center gap-2"
           >
             <img
-              src="/profile-image.png"
+              src={userProfile?.profileImage}
               alt="profile-image"
-              className="w-[32px] h-[32px]"
+              className="w-[32px] h-[32px] rounded-full object-cover"
             />
-            <span className="text-base font-medium">
+            <span className="text-base font-medium text-white">
               {userProfile?.name !== "" || userProfile?.name !== null
                 ? userProfile?.name
                 : ""}
             </span>
-            <IoIosArrowDown />
+            <IoIosArrowDown className="text-white" />
           </button>
         )}
         {showProfileDropdown && (
@@ -183,7 +215,7 @@ const Navbar = () => {
         </button>
 
         <button type="button" onClick={() => setOpenSidebar(!openSidebar)}>
-          <TbMenu2 className="text-2xl" />
+          <TbMenu2 className="text-2xl text-white" />
         </button>
       </div>
 

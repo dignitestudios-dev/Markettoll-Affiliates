@@ -6,13 +6,19 @@ import { BrowserRouter } from "react-router-dom";
 import AuthContextProvider from "./context/authContext.jsx";
 import StripeProvider from "./components/Global/StripeProvider.jsx";
 import AddProductProvider from "./context/addProduct.jsx";
+import CartProductContextProvider from "./context/cartProductContext.jsx";
+import SearchedProductProvider from "./context/searchedProductContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <AuthContextProvider>
         <AddProductProvider>
-          <App />
+          <CartProductContextProvider>
+            <SearchedProductProvider>
+              <App />
+            </SearchedProductProvider>
+          </CartProductContextProvider>
         </AddProductProvider>
       </AuthContextProvider>
     </BrowserRouter>

@@ -1,17 +1,79 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaCheck } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
+import { AuthContext } from "../../context/authContext";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import Loader from "../../components/Global/Loader";
 
 const SettingsDeactivateListingPage = () => {
   const [deactivated, setDeactivated] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
+  const [listingCount, setListingCount] = useState("");
+  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [activating, setActivating] = useState(false);
 
-  const handleDeactivation = () => {
-    setDeactivated(!deactivated);
-    if (deactivated) {
-      setIsDeactivated(!isDeactivated);
+  const fetchListingCount = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${BASE_URL}/users/listings-visible-count`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      // console.log("listing count >>>", res?.data);
+      setListingCount(res?.data?.data);
+    } catch (error) {
+      console.log("listing count err >>>", error?.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchListingCount();
+  }, []);
+
+  const handleDeactivation = async () => {
+    const url =
+      userProfile?.status === "active"
+        ? `${BASE_URL}/users/deactivate`
+        : `${BASE_URL}/users/activate`;
+    try {
+      setActivating(true);
+      const res = await axios.post(
+        url,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("activation res >>>", res);
+      if (res?.status == 201) {
+        fetchListingCount();
+        fetchUserProfile();
+        setDeactivated(!deactivated);
+        if (deactivated) {
+          setIsDeactivated(!isDeactivated);
+        }
+      }
+    } catch (error) {
+      console.log("activation error >>", error?.response?.data?.message);
+    } finally {
+      setActivating(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setDeactivated(!deactivated);
+  };
+
+  // if (loading) {
+  //   return <Loader />;
+  // }
 
   return (
     <div className="w-full px-5">
@@ -19,7 +81,7 @@ const SettingsDeactivateListingPage = () => {
       <div className="w-full border mt-5 mb-4" />
 
       <div className="w-full bg-[#F5F5F5] rounded-xl p-5">
-        <h3 className="blue-text font-bold text-[28px]">55</h3>
+        <h3 className="blue-text font-bold text-[28px]">{listingCount}</h3>
         <p className="text-sm mt-2">Total Active Listings</p>
       </div>
 
@@ -36,17 +98,17 @@ const SettingsDeactivateListingPage = () => {
             type="button"
             onClick={handleDeactivation}
             className={`${
-              isDeactivated ? "blue-bg" : "bg-[#FF3B30]"
+              userProfile?.status == "active" ? "blue-bg" : "bg-[#FF3B30]"
             } font-bold text-white py-3 w-full rounded-2xl`}
           >
-            Deactivate
+            {userProfile?.status === "active" ? "Deactivate" : "Activate"}
           </button>
         </div>
       </div>
 
       <DeactivationModal
         showModal={deactivated}
-        onclose={handleDeactivation}
+        onclose={handleCloseModal}
         isDeactivated={isDeactivated}
       />
     </div>

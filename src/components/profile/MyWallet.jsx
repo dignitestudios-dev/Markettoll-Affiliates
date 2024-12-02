@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import WithdrawFundModal from "./WithdrawFundModal";
 import AddFundModal from "./AddFundModal";

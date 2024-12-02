@@ -56,12 +56,14 @@ const ProductDetails = () => {
   };
 
   const handleFetchProduct = async () => {
+    const config = user?.token
+      ? `${BASE_URL}/users/product/${productId}`
+      : `${BASE_URL}/users/product/${productId}`;
     try {
-      const res = await axios.get(`${BASE_URL}/users/product/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
+      const res = await axios.get(
+        `${BASE_URL}/users/product/${productId}`,
+        config
+      );
       console.log("product data >>>", res?.data?.data);
       setProduct(res?.data?.data);
     } catch (error) {

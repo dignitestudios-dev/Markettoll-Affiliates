@@ -7,11 +7,11 @@ import { FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="padding-x w-full py-12 bg-[#F7F7F7] mt-12">
+    <footer className="padding-x w-full py-12 blue-bg text-white mt-12">
       <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3 gap-y-6">
         <div className="flex items-center justify-center lg:justify-start gap-2">
           <img
-            src="/call-icon.png"
+            src="/call-icon-white.png"
             alt="call-icon"
             className="w-[20px] h-[20px]"
           />
@@ -24,9 +24,9 @@ const Footer = () => {
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
           <img
-            src="/markettol-logo.png"
+            src="/logo-white.png"
             alt="logo"
-            className="w-[111px] h-[111px]"
+            className="w-[112px] h-[87px]"
           />
           <div className="flex items-center justify-center gap-2">
             <img
@@ -42,28 +42,25 @@ const Footer = () => {
             </Link>
           </div>
         </div>
-        <div className="flex items-center justify-center lg:justify-end gap-2">
+        <div className="flex items-center justify-center lg:justify-end gap-5">
           <Link target="_blank" to="http://www.facebook.com">
-            <FaFacebook className="light-blue-text w-[24px] h-[24px]" />
+            <FaFacebook className="text-white w-[24px] h-[24px]" />
           </Link>
           <Link target="_blank" to="http://www.twitter.com">
-            <FaXTwitter className="light-blue-text w-[24px] h-[24px]" />
+            <FaXTwitter className="text-white w-[24px] h-[24px]" />
           </Link>
           <Link target="_blank" to="http://www.instagram.com">
-            <FaInstagram className="light-blue-text w-[24px] h-[24px]" />
+            <FaInstagram className="text-white w-[24px] h-[24px]" />
           </Link>
           <Link target="_blank" to="http://www.linkedin.com">
-            <FaLinkedin className="light-blue-text w-[24px] h-[24px]" />
+            <FaLinkedin className="text-white w-[24px] h-[24px]" />
           </Link>
         </div>
       </div>
       <div className="mt-10 text-center">
         <p>
           Copyright 2024 All rights reserved | This is made by{" "}
-          <Link
-            to="https://www.dignitestudios.com"
-            className="light-blue-text font-medium"
-          >
+          <Link to="https://www.dignitestudios.com" className="font-medium">
             Dignite Studios
           </Link>
         </p>

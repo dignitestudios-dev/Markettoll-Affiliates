@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaCheck } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { GoArrowLeft } from "react-icons/go";
 import PlanPurchaseSuccessModal from "./PlanPurchaseSuccessModal";
 import PostBoostedSuccessModal from "./PostBoostedSuccessModal";
+import { AuthContext } from "../../context/authContext";
 
 const packageInfo = {
   title: "2.99",
@@ -24,6 +25,8 @@ const BoostPostComponent = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const navigate = useNavigate();
+  const { userProfile } = useContext(AuthContext);
+  console.log("userProfile >>>", userProfile);
 
   const handleBuyPlan = () => {
     setShowSuccessModal(true);

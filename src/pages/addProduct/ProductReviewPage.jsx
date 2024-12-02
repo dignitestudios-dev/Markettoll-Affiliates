@@ -12,7 +12,7 @@ const ProductReviewPage = () => {
   const { user } = useContext(AuthContext);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  console.log("productData from product review >>>>", user);
+  console.log("productData from product review >>>>", productData);
 
   const handleModal = () => {
     setOpenModal(!openModal);
@@ -54,7 +54,7 @@ const ProductReviewPage = () => {
       // Handle success
       console.log("Product uploaded successfully:", response.data);
       toast.success(response.data.message);
-      navigate("/product-review");
+      navigate("/boost-post");
       return response.data;
     } catch (error) {
       console.error("Error uploading product:", error);

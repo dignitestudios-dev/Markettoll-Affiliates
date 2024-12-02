@@ -20,7 +20,8 @@ const SettingsEditHomeAddress = () => {
   const [selectedCity, setSelectedCity] = useState("");
   const navigate = useNavigate();
   const [addressAdded, setAddressAdded] = useState(false);
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
@@ -34,6 +35,7 @@ const SettingsEditHomeAddress = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.put(
         `${BASE_URL}/users/address`,
@@ -51,13 +53,16 @@ const SettingsEditHomeAddress = () => {
           },
         }
       );
-      console.log("Update address res >>>>", res);
+      // console.log("Update address res >>>>", res);
       setAddressAdded(true);
       if (res.status == 200) {
+        fetchUserProfile();
         navigate("/settings/addresses");
       }
     } catch (error) {
       console.log("Update address error >>>>", error);
+    } finally {
+      setLoading(false);
     }
     // setAddressAdded(!addressAdded);
   };
@@ -88,6 +93,7 @@ const SettingsEditHomeAddress = () => {
             type="text"
             disabled
             placeholder="United States"
+            value={"United States"}
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm bg-white"
           />
         </div>
@@ -137,7 +143,7 @@ const SettingsEditHomeAddress = () => {
           type="submit"
           className="text-base font-bold py-3 w-full text-white blue-bg rounded-2xl"
         >
-          Save
+          {loading ? "Saving..." : "Save"}
         </button>
       </form>
       <AddressModal

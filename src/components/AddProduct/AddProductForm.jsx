@@ -7,14 +7,12 @@ import { STATES } from "../../constants/states";
 import { LuMinus } from "react-icons/lu";
 import { HiPlus } from "react-icons/hi";
 import { productCategories } from "../../constants/productCategories";
-import axios from "axios";
-import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
-import { toast } from "react-toastify";
 import { ProductDataReview } from "../../context/addProduct";
+import { toast } from "react-toastify";
 
 const AddProductForm = () => {
-  const { user } = useContext(AuthContext);
+  const { userProfile } = useContext(AuthContext);
   const [productName, setProductName] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [productSubCategory, setProductSubCategory] = useState("");
@@ -29,11 +27,14 @@ const AddProductForm = () => {
     delivery: false,
   });
   const [pickupAddress, setPickupAddress] = useState("");
+  const [isPickupAddressSameAsProfile, setIsPickupAddressSameAsProfile] =
+    useState(false);
   const [coverImageIndex, setCoverImageIndex] = useState(null);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  console.log(coverImageIndex);
+
+  const productPickupAddress = userProfile?.pickupAddress;
 
   const { setProductData } = useContext(ProductDataReview);
 
@@ -44,10 +45,18 @@ const AddProductForm = () => {
 
   const handleFulfillmentMethodChange = (e) => {
     const { name, checked } = e.target;
-    setFulfillmentMethod((prevState) => ({
-      ...prevState,
-      [name]: checked,
-    }));
+
+    if (name === "selfPickup") {
+      setFulfillmentMethod({
+        selfPickup: checked,
+        delivery: !checked,
+      });
+    } else if (name === "delivery") {
+      setFulfillmentMethod({
+        selfPickup: !checked,
+        delivery: checked,
+      });
+    }
   };
 
   const handleCategoryChange = (e) => {
@@ -74,7 +83,7 @@ const AddProductForm = () => {
     if (productImages.length + files.length <= 5) {
       setProductImages((prevImages) => [...prevImages, ...files]);
     } else {
-      alert("You can only upload up to 5 images.");
+      toast.error("You can only upload up to 5 images.");
     }
   };
 
@@ -90,6 +99,66 @@ const AddProductForm = () => {
 
   const uploadProduct = async (e) => {
     e.preventDefault();
+    if (productImages === null || productImages.length === 0) {
+      toast.error("Please upload product images");
+      return;
+    }
+    if (!coverImageIndex) {
+      toast.error("Please choose a cover image");
+      return;
+    }
+    if (!productName) {
+      toast.error("Please enter product name");
+      return;
+    }
+    if (!productCategory) {
+      toast.error("Please choose a product category");
+      return;
+    }
+    if (!productSubCategory) {
+      toast.error("Please choose a product sub category");
+      return;
+    }
+    if (!description) {
+      toast.error("Please write some description for the product");
+      return;
+    } else if (description.length < 100) {
+      toast.error("Description can not be less than 100 characters");
+      return;
+    }
+    if (!price) {
+      toast.error("Please enter price");
+      return;
+    } else if (description.length <= 0) {
+      toast.error("Price can not be 0");
+      return;
+    }
+    if (!selectedState) {
+      toast.error("Please select a state");
+      return;
+    }
+    if (!selectedCity) {
+      toast.error("Please select a city");
+      return;
+    }
+    if (!quantity) {
+      toast.error("Please enter quantity");
+      return;
+    } else if (quantity <= 0) {
+      toast.error("Quantity can not be 0");
+      return;
+    }
+    if (!fulfillmentMethod?.selfPickup && !fulfillmentMethod?.delivery) {
+      toast.error("Please choose a fulfillment method.");
+      return;
+    }
+    if (!isPickupAddressSameAsProfile && !pickupAddress) {
+      toast.error("Please add a pickup address");
+      return;
+    } else if (pickupAddress.length < 4) {
+      toast.error("Pickup address must be greater than 4 characters");
+    }
+
     setProductData({
       productName,
       description,
@@ -98,7 +167,9 @@ const AddProductForm = () => {
       selectedState,
       selectedCity,
       fulfillmentMethod,
-      pickupAddress,
+      pickupAddress: isPickupAddressSameAsProfile
+        ? productPickupAddress
+        : pickupAddress,
       price,
       quantity,
       productImages,
@@ -362,6 +433,7 @@ const AddProductForm = () => {
               >
                 Fulfillment Method
               </label>
+              {/* Self Pickup Checkbox */}
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -375,6 +447,7 @@ const AddProductForm = () => {
                   Self Pickup
                 </label>
               </div>
+              {/* Delivery Checkbox */}
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -390,30 +463,45 @@ const AddProductForm = () => {
               </div>
             </div>
 
-            <div className="w-full">
-              <label htmlFor="pickupAddress" className="text-sm font-semibold">
-                Pickup Address
-              </label>
-              <input
-                type="text"
-                id="pickupAddress"
-                value={pickupAddress}
-                onChange={(e) => setPickupAddress(e.target.value)}
-                name="pickupAddress"
-                placeholder="16 Maple Avenue, Los Angeles, United States"
-                className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
-              />
-            </div>
-
-            <div>
-              <label className="inline-flex items-center cursor-pointer">
-                <input type="checkbox" value="" className="sr-only peer" />
-                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                <span className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                  Same as profile
-                </span>
-              </label>
-            </div>
+            {fulfillmentMethod?.selfPickup && (
+              <>
+                <div className="w-full">
+                  <label
+                    htmlFor="pickupAddress"
+                    className="text-sm font-semibold"
+                  >
+                    Pickup Address
+                  </label>
+                  <input
+                    type="text"
+                    id="pickupAddress"
+                    value={pickupAddress}
+                    onChange={(e) => setPickupAddress(e.target.value)}
+                    name="pickupAddress"
+                    placeholder="16 Maple Avenue, Los Angeles, United States"
+                    className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                  />
+                </div>
+                {userProfile?.pickupAddress?.state !== "" && (
+                  <div>
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        value={isPickupAddressSameAsProfile}
+                        className="sr-only peer"
+                        onChange={(e) =>
+                          setIsPickupAddressSameAsProfile(e.target.checked)
+                        }
+                      />
+                      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                      <span className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                        Same as profile
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </>
+            )}
 
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
               <button

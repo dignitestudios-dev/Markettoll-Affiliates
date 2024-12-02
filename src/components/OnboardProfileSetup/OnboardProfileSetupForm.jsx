@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ProfilePicture from "./ProfilePicture";
 import AddLocation from "./AddLocation";
 import { GoArrowLeft } from "react-icons/go";
@@ -9,14 +9,17 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const OnboardProfileSetupForm = () => {
-  const [count, setCount] = useState(1);
+  const [count, setCount] = useState(2);
   const [image, setImage] = useState(null);
   const [selectedState, setSelectedState] = useState("");
+  const [stateFullName, setStateFullName] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   console.log(count);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  console.log("selected State >>", stateFullName);
+  console.log("selected city >>", selectedCity);
 
   const handleNext = async () => {
     if (image) {
@@ -54,7 +57,7 @@ const OnboardProfileSetupForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedState || !selectedCity) {
-      // alert("Please select both state and city.");
+      toast.error("Please select both state and city.");
       return;
     }
     setLoading(true);
@@ -62,7 +65,7 @@ const OnboardProfileSetupForm = () => {
       streetAddress: "",
       apartment_suite: "",
       country: "United States",
-      state: selectedState,
+      state: stateFullName,
       city: selectedCity,
       zipCode: "",
     };
@@ -120,6 +123,8 @@ const OnboardProfileSetupForm = () => {
             setSelectedCity={setSelectedCity}
             selectedState={selectedState}
             setSelectedState={setSelectedState}
+            stateFullName={stateFullName}
+            setStateFullName={setStateFullName}
           />
         )}
 

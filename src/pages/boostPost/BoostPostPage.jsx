@@ -3,7 +3,7 @@ import BoostPostComponent from "../../components/BoostPost/BoostPostComponent";
 
 const BoostPostPage = () => {
   return (
-    <div className="padding-x">
+    <div className="padding-x py-6">
       <BoostPostComponent />
     </div>
   );

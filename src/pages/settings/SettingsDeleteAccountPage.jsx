@@ -1,20 +1,45 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FiEyeOff } from "react-icons/fi";
 import { FiEye } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/authContext";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
 
 const SettingsDeleteAccountPage = () => {
   const [showPass, setShowPass] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const navigate = useNavigate();
+  const { userProfile, user } = useContext(AuthContext);
+  // console.log("user >>>", userProfile);
+  const [currentPass, setCurrentPass] = useState("");
+  // console.log("currentPass >>", currentPass);
 
-  const handleDeleteAccount = () => {
-    if (isDeleted) {
-      navigate("/login");
-    } else {
-      setIsDeleted(true);
+  const handleDeleteAccount = async () => {
+    // if (isDeleted) {
+    //   navigate("/login");
+    // } else {
+    //   setIsDeleted(true);
+    // }
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/delete`,
+        {
+          password: currentPass,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("delete account res >>>", res);
+    } catch (error) {
+      console.log("error deleting account >>>", error?.response?.data);
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -26,7 +51,7 @@ const SettingsDeleteAccountPage = () => {
       <div className="w-ful">
         <p className="text-[13px] font-medium mb-1">Current Password</p>
         <div className="w-full border rounded-[20px] px-4 h-[50px] flex items-center justify-between">
-          <div className="flex items-center justify-start gap-2">
+          <div className="flex items-center justify-start gap-2 w-full">
             <img
               src="/lock-icon.png"
               alt="lock-icon"
@@ -34,10 +59,10 @@ const SettingsDeleteAccountPage = () => {
             />
             <input
               type={showPass ? "text" : "password"}
-              disabled
-              value={"Current Password"}
+              value={currentPass}
+              onChange={(e) => setCurrentPass(e.target.value)}
               placeholder="Current Password"
-              className="h-[50px] px-2 text-sm text-[#5c5c5c] bg-transparent outline-none border-none"
+              className="h-[50px] px-2 text-sm text-[#5c5c5c] w-full bg-transparent outline-none"
             />
           </div>
           <button type="button" onClick={() => setShowPass(!showPass)}>
@@ -66,6 +91,7 @@ const SettingsDeleteAccountPage = () => {
       <div className="w-full mt-4">
         <button
           type="button"
+          disabled={!currentPass}
           onClick={handleDeleteAccount}
           className="bg-[#FF3B30] text-white py-3 rounded-[20px] w-full text-base font-bold"
         >

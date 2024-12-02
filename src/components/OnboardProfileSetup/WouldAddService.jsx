@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { IoClose } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { FiPlus } from "react-icons/fi";
+import { AuthContext } from "../../context/authContext";
+import { toast } from "react-toastify";
 
 const WouldAddService = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -43,6 +45,32 @@ const WouldAddService = () => {
 export default WouldAddService;
 
 export const Popup = ({ showPopup, handleShowPopup }) => {
+  const { userProfile } = useContext(AuthContext);
+  console.log("userProfile   >>", userProfile);
+  const navigate = useNavigate();
+
+  const handleNavigateToAddProduct = () => {
+    if (
+      userProfile?.stripeConnectedAccount?.id == null ||
+      userProfile?.stripeConnectedAccount?.id == undefined
+    ) {
+      toast.warn("Add Your Bank Account First");
+      navigate("/settings/payment");
+    } else {
+      navigate("/add-product");
+    }
+  };
+  const handleNavigateToAddService = () => {
+    if (
+      userProfile?.stripeConnectedAccount?.id == null ||
+      userProfile?.stripeConnectedAccount?.id == undefined
+    ) {
+      toast.warn("Add Your Bank Account First");
+      navigate("/settings/payment");
+    } else {
+      navigate("/add-service");
+    }
+  };
   return (
     showPopup && (
       <div className="w-full h-screen fixed z-50 bg-[rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden ">
@@ -57,8 +85,9 @@ export const Popup = ({ showPopup, handleShowPopup }) => {
           </button>
           <h3 className="text-[18px] font-bold blue-text mb-4">Select Type</h3>
 
-          <Link
-            to="/add-product"
+          <button
+            type="button"
+            onClick={() => handleNavigateToAddProduct()}
             className="w-full md:w-[343px] h-[56px] rounded-[14px] p-4 bg-[#F2F2F2] flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
@@ -68,9 +97,10 @@ export const Popup = ({ showPopup, handleShowPopup }) => {
               <span className="text-sm font-medium">Add Product</span>
             </div>
             <MdOutlineKeyboardArrowRight className="text-xl" />
-          </Link>
-          <Link
-            to="/add-service"
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavigateToAddService()}
             className="w-full md:w-[343px] h-[56px] rounded-[14px] p-4 bg-[#F2F2F2] flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
@@ -80,7 +110,7 @@ export const Popup = ({ showPopup, handleShowPopup }) => {
               <span className="text-sm font-medium">Add Service</span>
             </div>
             <MdOutlineKeyboardArrowRight className="text-xl" />
-          </Link>
+          </button>
         </div>
       </div>
     )

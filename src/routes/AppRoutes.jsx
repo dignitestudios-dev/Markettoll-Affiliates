@@ -56,12 +56,17 @@ import AddPayment from "../pages/packages/AddPayment";
 import IdentityVerifiedPage from "../components/Onboarding/IdentityVerifiedPage";
 import SettingsEditHomeAddress from "../pages/settings/SettingsEditHomeAddress";
 import Loader from "../components/Global/Loader";
+import SearchProductList from "../components/Home/SearchedProductList";
 
 const AppRoutes = () => {
   return (
     <Suspense fallback={<Loader />}>
       <Routes>
         <Route path="/" element={<Layout page={<HomePage />} />} />
+        <Route
+          path="/search-product"
+          element={<Layout page={<SearchProductList />} />}
+        />
 
         <Route path="/login" element={<Layout page={<LoginPage />} />} />
         <Route

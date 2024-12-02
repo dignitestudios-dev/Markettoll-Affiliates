@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { GoArrowLeft } from "react-icons/go";
 import { Link } from "react-router-dom";
+import { CartProductContext } from "../../context/cartProductContext";
+import { AuthContext } from "../../context/authContext";
 
 const OrderReview = ({ onclick, isOrderPlaced }) => {
+  const { data, setData } = useContext(CartProductContext);
+  const { userProfile } = useContext(AuthContext);
+  // console.log(data);
+
   return (
     <div className="bg-white rounded-[20px] p-6 flex flex-col items-start gap-5">
       <div>
@@ -24,21 +30,35 @@ const OrderReview = ({ onclick, isOrderPlaced }) => {
         <p className="text-base font-bold">Delivery Address</p>
         <div className="bg-[#F5F5F5] px-5 py-3 rounded-[20px]">
           <span className="text-sm font-normal">
-            Unit 500, Montford Court, Montford Street, Salford, M50 2QP - 123456
+            {data?.deliveryAddress?.apartment_suite}{" "}
+            {data?.deliveryAddress?.streetAddress} {data?.deliveryAddress?.city}{" "}
+            {data?.deliveryAddress?.state} {data?.deliveryAddress?.country}{" "}
+            {data?.deliveryAddress?.zipCode}
           </span>
         </div>
       </div>
 
       <div className="w-full">
         <p className="text-base font-bold">Payment Method</p>
-        <div className="bg-[#fff] border px-5 py-3 rounded-[20px] flex items-center justify-start gap-3">
-          <img
-            src="/mastercard-icon.png"
-            alt="mastercard-icon"
-            className="w-[24px] h-[15px]"
-          />
-          <span className="text-sm font-normal">**** **** **** 8941</span>
-        </div>
+        {data?.paymentMethod == "Card" ? (
+          <div className="bg-[#fff] border px-5 py-3 rounded-[20px] flex items-center justify-start gap-3">
+            <img
+              src="/mastercard-icon.png"
+              alt="mastercard-icon"
+              className="w-[24px] h-[15px]"
+            />
+            <span className="text-sm font-normal">**** **** **** 8941</span>
+          </div>
+        ) : (
+          <div className="bg-[#fff] border px-5 py-3 rounded-[20px] flex items-center justify-start gap-3">
+            <img
+              src="/wallet-icon.png"
+              alt="wallet-icon"
+              className="w-[24px] h-[20px]"
+            />
+            <span className="text-sm font-normal">Pay via Wallet</span>
+          </div>
+        )}
       </div>
 
       <div className="w-full">

@@ -7,6 +7,7 @@ import { IoClose } from "react-icons/io5";
 import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import axios from "axios";
 
 const AddPaymentPage = () => {
   const [addCard, setAddCard] = useState(false);
@@ -14,6 +15,7 @@ const AddPaymentPage = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethodId, setPaymentMethodId] = useState(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,131 +25,6 @@ const AddPaymentPage = () => {
 
   const stripe = useStripe();
   const elements = useElements();
-
-  const handleSaveCard = async () => {
-    if (!stripe || !elements) {
-      console.log("Stripe.js has not loaded yet.");
-      return;
-    }
-
-    // Get the CardElement from the elements context
-    const cardElement = elements.getElement(CardElement);
-
-    if (!cardElement) {
-      console.error("CardElement is not rendered.");
-      return;
-    }
-
-    // Create a payment method with the card details
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardElement,
-    });
-
-    if (error) {
-      console.error(error);
-      setIsProcessing(false);
-      alert("Error processing payment method: " + error.message);
-      return;
-    }
-
-    console.log("PaymentMethod Created:", paymentMethod.id);
-
-    // Now send the paymentMethod.id to your backend for customer creation and subscription handling
-    try {
-      // Send the paymentMethodId to the backend to handle customer creation and subscription
-      const response = await fetch(
-        `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user?.token}`,
-          },
-          body: JSON.stringify({
-            paymentMethodId: paymentMethod.id,
-            subscriptionName: plan?.planType || "", // Include user data if necessary
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (result.success) {
-        setShowSuccessModal(true);
-        setIsProcessing(false);
-      } else {
-        alert("Error processing payment. Please try again.");
-        setIsProcessing(false);
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      setIsProcessing(false);
-      alert("An error occurred while processing the payment.");
-    }
-  };
-
-  // const handleSaveCard = async () => {
-  //   if (!stripe || !elements) {
-  //     console.log("Stripe.js has not loaded yet.");
-  //     return;
-  //   }
-
-  //   // Get the CardElement from the elements context
-  //   const cardElement = elements.getElement(CardElement);
-
-  //   if (!cardElement) {
-  //     console.error("CardElement is not rendered.");
-  //     return;
-  //   }
-
-  //   // Create a payment method with the card details
-  //   const { error, paymentMethod } = await stripe.createPaymentMethod({
-  //     type: "card",
-  //     card: cardElement,
-  //   });
-
-  //   if (error) {
-  //     console.error(error);
-  //     setIsProcessing(false);
-  //     alert("Error processing payment method: " + error.message);
-  //     return;
-  //   }
-
-  //   console.log("PaymentMethod Created:", paymentMethod.id);
-
-  //   // Send paymentMethod.id to your backend for further processing
-  //   try {
-  //     const response = await fetch(
-  //       `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${user?.token}`,
-  //         },
-  //         body: JSON.stringify({
-  //           paymentMethodId: paymentMethod.id,
-  //           subscriptionName: plan?.planType || "", // Include user data if necessary
-  //         }),
-  //       }
-  //     );
-
-  //     const result = await response.json();
-
-  //     if (result.success) {
-  //       setShowSuccessModal(true);
-  //       setIsProcessing(false);
-  //     } else {
-  //       alert("Error processing payment. Please try again.");
-  //       setIsProcessing(false);
-  //     }
-  //   } catch (err) {
-  //     console.error("Error:", err);
-  //     setIsProcessing(false);
-  //     alert("An error occurred while processing the payment.");
-  //   }
-  // };
 
   const handleCloseInfoModal = () => {
     setShowInfoModal(false);
@@ -159,9 +36,68 @@ const AddPaymentPage = () => {
     console.log("addCard >>>>>", addCard);
   };
 
-  const handleAddCardFalse = () => {
-    setAddCard(!addCard);
-    setShowCard(!showCard);
+  const handleAddCardFalse = async () => {
+    try {
+      if (!stripe || !elements) {
+        console.log("Stripe.js has not loaded yet.");
+        return;
+      }
+
+      // Get the CardElement from the elements context
+      const cardElement = elements.getElement(CardElement);
+
+      if (!cardElement) {
+        console.error("CardElement is not rendered.");
+        return;
+      }
+
+      // Create a payment method with the card details
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+      });
+
+      if (error) {
+        console.error(error);
+        setIsProcessing(false);
+        alert("Error processing payment method: " + error.message);
+        return;
+      }
+
+      console.log("PaymentMethod Created:", paymentMethod.id);
+      setPaymentMethodId(paymentMethod?.id);
+      if (paymentMethod?.id) {
+        setAddCard(!addCard);
+      }
+    } catch (error) {
+      console.log("err while adding card >>>", error?.response?.data);
+    }
+  };
+
+  const handleSubscribePlan = async () => {
+    if (paymentMethodId) {
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/stripe/customer-card`,
+          {
+            paymentMethodId: paymentMethodId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        console.log("subscription purchased >>>", response);
+        if (response?.data?.success) {
+          setShowSuccessModal(true);
+        }
+        setShowCard(!showCard);
+      } catch (error) {
+        console.log("error while purchasing plan >>", error?.response?.data);
+      }
+    }
   };
 
   return (
@@ -310,7 +246,7 @@ const AddPaymentPage = () => {
               <button
                 type="button"
                 // disabled={!showCard || isProcessing}
-                onClick={handleSaveCard}
+                onClick={handleSubscribePlan}
                 className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
               >
                 {isProcessing ? "Processing..." : "Continue"}

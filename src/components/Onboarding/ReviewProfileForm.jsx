@@ -8,8 +8,8 @@ import { AuthContext } from "../../context/authContext";
 
 const ReviewProfileForm = () => {
   const navigate = useNavigate();
-  const data = JSON.parse(Cookies.get("market-signup")) || null;
-  // console.log("Cookies data >>>>>", data);
+  const data = JSON.parse(localStorage.getItem("user")) || null;
+  console.log("Cookies data >>>>>", data);
   const { verificationStatus } = useContext(AuthContext);
   console.log("verificationStatus >>", verificationStatus);
 

@@ -6,6 +6,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
+import { SearchedProductContext } from "../../context/searchedProductContext";
 
 const ProductList = () => {
   const [showServices, setShowServices] = useState(false);
@@ -16,6 +17,7 @@ const ProductList = () => {
   const { user } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const { searchResults } = useContext(SearchedProductContext);
 
   const fetchProducts = async () => {
     const options = user?.token
@@ -33,7 +35,7 @@ const ProductList = () => {
       );
       setProducts(res?.data?.data);
       setFilteredProducts(res?.data?.data);
-      console.log("products >>>>>", res?.data?.data);
+      // console.log("products >>>>>", res?.data?.data);
     } catch (error) {
       console.log("home screen products err >>>>", error);
     } finally {

@@ -10,7 +10,7 @@ import { FaHeart } from "react-icons/fa";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  const { user, userProfile } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
 
   const displayImage = product?.images?.find(
     (image) => image.displayImage === true
@@ -34,7 +34,10 @@ const ProductCard = ({ product }) => {
           }
         );
         console.log("product added favorite >>>>>", res);
-        toast.success(res?.data?.message);
+        if (res?.status == 201) {
+          fetchUserProfile();
+          toast.success(res?.data?.message);
+        }
       } catch (error) {
         console.log("product added favorite err >>>>>", error);
         if (error?.status === 409) {
@@ -58,7 +61,10 @@ const ProductCard = ({ product }) => {
           }
         );
         console.log("product removed from favorite >>>>>", res);
-        toast.success(res?.data?.message);
+        if (res?.status == 200) {
+          fetchUserProfile();
+          toast.success(res?.data?.message);
+        }
       } catch (error) {
         console.log("product removed from favorite err >>>>>", error);
         if (error?.status === 409) {

@@ -1,6 +1,30 @@
-import React from "react";
+import axios from "axios";
+import React, { useContext } from "react";
+import { BASE_URL } from "../../api/api";
+import { AuthContext } from "../../context/authContext";
 
-const SettingsAddressDeleteModal = ({ showModal, onclose }) => {
+const SettingsAddressDeleteModal = ({ showModal, onclose, id }) => {
+  const { user, fetchUserProfile } = useContext(AuthContext);
+
+  const deleteAddress = async () => {
+    try {
+      const res = await axios.delete(
+        `${BASE_URL}/users/delivery-address/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("address deleted >>>", res?.data);
+      if (res?.data?.success) {
+        onclose();
+        fetchUserProfile();
+      }
+    } catch (error) {
+      console.log("address delete errr >>>>", error?.response?.data?.message);
+    }
+  };
   return (
     showModal && (
       <div className="w-full h-screen fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)]">
@@ -12,7 +36,7 @@ const SettingsAddressDeleteModal = ({ showModal, onclose }) => {
           <div className="w-full flex justify-end items-center gap-4">
             <button
               type="button"
-              onClick={onclose}
+              onClick={() => deleteAddress()}
               className="text-sm font-semibold text-red-500"
             >
               Yes

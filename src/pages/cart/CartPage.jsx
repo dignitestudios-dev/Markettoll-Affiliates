@@ -7,15 +7,19 @@ import OrderReview from "../../components/Cart/OrderReview";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
+import Loader from "../../components/Global/Loader";
 
 const CartPage = () => {
   const [count, setCount] = useState(0);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
-  // console.log(count);
   const [cartProducts, setCartProducts] = useState([]);
   const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState(0);
+  console.log("cartProducts >>", cartProducts);
 
   const fetchCartProducts = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/users/cart-products`, {
         headers: {
@@ -26,6 +30,8 @@ const CartPage = () => {
       setCartProducts(res?.data?.data);
     } catch (error) {
       console.log("cartProducts err >>>", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,6 +46,16 @@ const CartPage = () => {
   const handleDecrementCount = () => {
     setCount(count - 1);
   };
+
+  let totalAmount = cartProducts.reduce((total, cartItem) => {
+    const price = cartItem.product.price;
+    const quantity = cartItem.quantity;
+    return total + price * quantity;
+  }, 0);
+
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <div className="padding-x py-6 w-full">
       <div className="w-full bg-[#F7F7F7] p-6 rounded-[20px] grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -66,6 +82,7 @@ const CartPage = () => {
             isOrderPlaced={isOrderPlaced}
             setIsOrderPlaced={setIsOrderPlaced}
             cartProducts={cartProducts}
+            totalAmount={totalAmount}
           />
         </div>
       </div>

@@ -1,15 +1,25 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { STATES } from "../../constants/states";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
+import { useFormik } from "formik";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import { AuthContext } from "../../context/authContext";
 
 const SettingsAddAddressPage = () => {
+  const [streetAddress, setStreetAddress] = useState("");
+  const [apartment, setApartment] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [zipCode, setZipCode] = useState("");
+
   const navigate = useNavigate();
+  const { user, fetchUserProfile } = useContext(AuthContext);
   const [addressAdded, setAddressAdded] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
@@ -21,10 +31,41 @@ const SettingsAddAddressPage = () => {
   );
   const cities = selectedStateData ? selectedStateData.cities : [];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setAddressAdded(!addressAdded);
-    // navigate("/settings/addresses");
+    if (!streetAddress || !selectedState || !selectedCity) {
+      alert("Please fill the required fields");
+    }
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/delivery-address`,
+        {
+          streetAddress,
+          apartment_suite: apartment,
+          country: "United States",
+          state: selectedState,
+          city: selectedCity,
+          zipCode,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("address added >>>", res);
+      if (res?.status == 201) {
+        fetchUserProfile();
+        navigate("/settings/addresses");
+      }
+    } catch (error) {
+      console.log("add delivery address err >>>", error?.response?.data);
+    } finally {
+      setLoading(false);
+    }
+
+    // setAddressAdded(!addressAdded);
   };
 
   const handleCloseModalAndNaivigate = () => {
@@ -50,6 +91,8 @@ const SettingsAddAddressPage = () => {
           <input
             type="text"
             placeholder="Street address"
+            value={streetAddress}
+            onChange={(e) => setStreetAddress(e.target.value)}
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -60,6 +103,8 @@ const SettingsAddAddressPage = () => {
           <input
             type="text"
             placeholder="Apartment/ Suite"
+            value={apartment}
+            onChange={(e) => setApartment(e.target.value)}
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -70,7 +115,9 @@ const SettingsAddAddressPage = () => {
           <input
             type="text"
             placeholder="Country"
-            className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
+            disabled
+            value={"United States"}
+            className="border bg-white rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -121,6 +168,8 @@ const SettingsAddAddressPage = () => {
           <input
             type="text"
             placeholder="Zip Code"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -128,7 +177,7 @@ const SettingsAddAddressPage = () => {
           type="submit"
           className="text-base font-bold py-3 w-full text-white blue-bg rounded-2xl"
         >
-          Add
+          {loading ? "Adding..." : "Add"}
         </button>
       </form>
       <AddressModal

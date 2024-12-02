@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { GoArrowLeft } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { FaCheck } from "react-icons/fa6";
+import { CartProductContext } from "../../context/cartProductContext";
+import { AuthContext } from "../../context/authContext";
 
 const SelectPaymentMethod = ({ onclick }) => {
   const [state, setState] = useState(false);
   const [openFundModal, setOpenFundMOdal] = useState(false);
+  const { data, setData } = useContext(CartProductContext);
+  const [paymentMethod, setPaymentMethod] = useState(null);
+  const { userProfile } = useContext(AuthContext);
+  // console.log("paymentMethod >>>", paymentMethod);
+  // console.log("data >>>", data);
 
   const handleToggleState = () => {
     setState(!state);
@@ -14,6 +21,11 @@ const SelectPaymentMethod = ({ onclick }) => {
 
   const handleToggleFundModal = () => {
     setOpenFundMOdal(!openFundModal);
+  };
+
+  const handlePaymentMethodSelect = (method) => {
+    setPaymentMethod(method);
+    setData({ ...data, paymentMethod: method });
   };
 
   return (
@@ -38,6 +50,8 @@ const SelectPaymentMethod = ({ onclick }) => {
             type="radio"
             name="address1"
             id="address1"
+            value={"Card"}
+            onChange={() => handlePaymentMethodSelect("Card")}
             className="w-5 h-5"
           />
           <label
@@ -50,7 +64,10 @@ const SelectPaymentMethod = ({ onclick }) => {
                 alt="mastercard-icon"
                 className="w-[24.79px] h-[15.33px]"
               />
-              <span className="text-[#5C5C5C]">**** **** **** 8941</span>
+              <span className="text-[#5C5C5C]">
+                **** **** ****{" "}
+                {userProfile?.stripeCustomer?.paymentMethod?.last4}
+              </span>
             </div>
             <MdOutlineKeyboardArrowRight className="text-2xl light-blue-text" />
           </label>
@@ -61,6 +78,8 @@ const SelectPaymentMethod = ({ onclick }) => {
             type="radio"
             name="address1"
             id="address1"
+            value={"Pay via wallet"}
+            onChange={() => handlePaymentMethodSelect("Pay via wallet")}
             className="w-5 h-5"
           />
           <label
@@ -76,7 +95,9 @@ const SelectPaymentMethod = ({ onclick }) => {
               <span className="text-[#5C5C5C]">Pay via Wallet</span>
             </div>
             <div className="flex items-center gap-5">
-              <span className="text-[18px] font-medium">$240.00</span>
+              <span className="text-[18px] font-medium">
+                ${userProfile?.walletBalance.toFixed(2)}
+              </span>
               <button
                 type="button"
                 onClick={handleToggleFundModal}

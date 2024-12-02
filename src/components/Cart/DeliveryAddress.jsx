@@ -9,15 +9,23 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
+import { CartProductContext } from "../../context/cartProductContext";
 
 const DeliveryAddress = ({ onclick }) => {
   const [state, setState] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const { user } = useContext(AuthContext);
+  const { user, userProfile } = useContext(AuthContext);
+  const { setData, data } = useContext(CartProductContext);
+  console.log(userProfile?.deliveryAddresses);
+
   const handleAddressSelect = (address) => {
-    setSelectedAddress(address); // set selected address object
+    setSelectedAddress(address);
+    setData({ deliveryAddress: address });
   };
+
   console.log("selectedAddress >>>>>", selectedAddress);
+  console.log("setData >>>>>", data);
+
   const handleState = () => {
     setState(!state);
   };
@@ -45,7 +53,7 @@ const DeliveryAddress = ({ onclick }) => {
         </button>
       ) : (
         <div className="flex flex-col items-start gap-3 mt-5">
-          {user?.deliveryAddresses?.map((address, index) => {
+          {userProfile?.deliveryAddresses?.map((address, index) => {
             return (
               <div className="flex items-center gap-2" key={index}>
                 <input
@@ -53,8 +61,8 @@ const DeliveryAddress = ({ onclick }) => {
                   name="address1"
                   id="address1"
                   className="w-5 h-5"
-                  value={address?.streetAddress} // Optional: you can set value as streetAddress or id
-                  onChange={() => handleAddressSelect(address)} // Update selected address
+                  value={address?.streetAddress}
+                  onChange={() => handleAddressSelect(address)}
                   checked={
                     selectedAddress?.streetAddress === address?.streetAddress
                   }
