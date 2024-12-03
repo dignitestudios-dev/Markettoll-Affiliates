@@ -1,30 +1,150 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
-import { STATES } from "../../constants/states";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
+import { Country, State, City } from "country-state-city";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../context/authContext";
 
 const SettingsAddressEditPage = () => {
+  const { id } = useParams();
+  console.log(id);
+  const location = useLocation();
+  console.log(location?.state);
+  const [streetAddress, setStreetAddress] = useState("");
+  const [apartmentSuite, setApartmentSuite] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const navigate = useNavigate();
   const [addressAdded, setAddressAdded] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const { user, fetchUserProfile } = useContext(AuthContext);
+
+  const [stateFullName, setStateFullName] = useState("");
+  const [fullStateName, setFullStateName] = useState("");
+  const [states, setStates] = useState([]);
+  const [stateCities, setStateCities] = useState([]);
+
+  useEffect(() => {
+    const allCountries = Country.getAllCountries();
+    const usStates = State.getStatesOfCountry("US");
+    setStates(usStates);
+  }, []);
+
+  useEffect(() => {
+    if (selectedState) {
+      const allCities = City.getCitiesOfState("US", selectedState);
+      setStateCities(allCities);
+    } else {
+      setStateCities([]);
+    }
+  }, [selectedState]);
+
+  const getStateFullName = (abbreviation) => {
+    const state = states.find((state) => state.isoCode === abbreviation);
+    return state ? state.name : abbreviation;
+  };
+
+  useEffect(() => {
+    if (selectedState) {
+      const fullState = getStateFullName(selectedState);
+      setFullStateName(fullState);
+      setStateFullName(fullState);
+    } else {
+      setFullStateName("");
+    }
+  }, [selectedState]);
 
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
     setSelectedCity("");
   };
 
-  const selectedStateData = STATES.find(
-    (state) => state.name === selectedState
-  );
-  const cities = selectedStateData ? selectedStateData.cities : [];
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setAddressAdded(!addressAdded);
-    // navigate("/settings/addresses");
+    setLoading(true);
+    if (!streetAddress) {
+      toast.error("Add street address");
+      return;
+    }
+    if (!selectedState) {
+      toast.error("Please choose a state");
+      return;
+    }
+    if (!selectedCity) {
+      toast.error("Please choose a city");
+      return;
+    }
+    if (location?.state?.type == "pickupAddress") {
+      try {
+        const res = await axios.put(
+          `${BASE_URL}/users/pickup-address`,
+          {
+            streetAddress,
+            apartment_suite: apartmentSuite,
+            country: "United States",
+            state: stateFullName,
+            city: selectedCity,
+            zipCode,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        // console.log("pickup address added >>>", res);
+        if (res?.status == 200) {
+          setAddressAdded(!addressAdded);
+          fetchUserProfile();
+        }
+      } catch (error) {
+        // console.log(
+        //   "error while adding pickup address >>>",
+        //   error?.response?.data
+        // );
+        toast.error(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
+    } else if (location?.state?.type == "deliveryAddress") {
+      try {
+        const res = await axios.put(
+          `${BASE_URL}/users/delivery-address/${id}`,
+          {
+            streetAddress,
+            apartment_suite: apartmentSuite,
+            country: "United States",
+            state: stateFullName,
+            city: selectedCity,
+            zipCode,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        // console.log("pickup address added >>>", res);
+        if (res?.status == 200) {
+          setAddressAdded(!addressAdded);
+          fetchUserProfile();
+        }
+      } catch (error) {
+        // console.log(
+        //   "error while adding pickup address >>>",
+        //   error?.response?.data
+        // );
+        toast.error(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const handleCloseModalAndNaivigate = () => {
@@ -49,6 +169,8 @@ const SettingsAddressEditPage = () => {
           </label>
           <input
             type="text"
+            value={streetAddress}
+            onChange={(e) => setStreetAddress(e.target.value)}
             placeholder="Street address"
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
@@ -60,6 +182,8 @@ const SettingsAddressEditPage = () => {
           <input
             type="text"
             placeholder="Apartment/ Suite"
+            value={apartmentSuite}
+            onChange={(e) => setApartmentSuite(e.target.value)}
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -70,7 +194,9 @@ const SettingsAddressEditPage = () => {
           <input
             type="text"
             placeholder="Country"
-            className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
+            disabled
+            value={"United State"}
+            className="border bg-white rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -86,8 +212,8 @@ const SettingsAddressEditPage = () => {
               onChange={handleStateChange}
             >
               <option value="">Select a State</option>
-              {STATES.map((state, index) => (
-                <option key={index} value={state.name}>
+              {states.map((state) => (
+                <option key={state.isoCode} value={state.isoCode}>
                   {state.name}
                 </option>
               ))}
@@ -106,9 +232,9 @@ const SettingsAddressEditPage = () => {
               disabled={!selectedState}
             >
               <option value="">Select a City</option>
-              {cities.map((city, index) => (
-                <option key={index} value={city}>
-                  {city}
+              {stateCities.map((city) => (
+                <option key={city.name} value={city.name}>
+                  {city.name}
                 </option>
               ))}
             </select>
@@ -121,6 +247,8 @@ const SettingsAddressEditPage = () => {
           <input
             type="text"
             placeholder="Zip Code"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -128,7 +256,7 @@ const SettingsAddressEditPage = () => {
           type="submit"
           className="text-base font-bold py-3 w-full text-white blue-bg rounded-2xl"
         >
-          Save
+          {loading ? "Saving..." : "Save"}
         </button>
       </form>
       <AddressModal

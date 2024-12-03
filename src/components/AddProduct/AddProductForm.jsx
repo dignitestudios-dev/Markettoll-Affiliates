@@ -152,12 +152,12 @@ const AddProductForm = () => {
       toast.error("Please choose a fulfillment method.");
       return;
     }
-    if (!isPickupAddressSameAsProfile && !pickupAddress) {
-      toast.error("Please add a pickup address");
-      return;
-    } else if (pickupAddress.length < 4) {
-      toast.error("Pickup address must be greater than 4 characters");
-    }
+    // if (!pickupAddress) {
+    //   toast.error("Please add a pickup address");
+    //   return;
+    // } else if (pickupAddress.length < 4) {
+    //   toast.error("Pickup address must be greater than 4 characters");
+    // }
 
     setProductData({
       productName,

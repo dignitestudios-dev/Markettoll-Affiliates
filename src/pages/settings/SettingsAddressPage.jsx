@@ -1,17 +1,24 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SettingsAddressDeleteModal from "../../components/Settings/SettingsAddressDeleteModal";
 import { AuthContext } from "../../context/authContext";
 
 const SettingsAddressPage = () => {
   const [showModal, setShowModal] = useState(false);
   const { userProfile } = useContext(AuthContext);
-  console.log("userProfile >>>", userProfile);
   const [addressId, setAddressId] = useState(null);
+  // console.log(userProfile?.pickupAddress?._id);
+  const navigate = useNavigate();
 
   const handleShowDeleteModal = async (id) => {
     setShowModal(!showModal);
     setAddressId(id);
+  };
+
+  const handleNavigateToEdit = (id, type) => {
+    navigate(`/settings/addresses/edit-addresses/${id}`, {
+      state: { from: window.location.href, type: type },
+    });
   };
 
   return (
@@ -58,12 +65,19 @@ const SettingsAddressPage = () => {
                 Pickup Address
               </label>
             </div>
-            <Link
-              to="/settings/addresses/edit-addresses"
+            <button
+              type="button"
+              onClick={() =>
+                handleNavigateToEdit(
+                  userProfile?.pickupAddress?._id,
+                  "pickupAddress"
+                )
+              }
+              // to={`/settings/addresses/edit-addresses/${userProfile?.pickupAddress?._id}`}
               className="text-sm font-medium"
             >
               Edit
-            </Link>
+            </button>
           </div>
           <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
             {userProfile?.apartment_suite} {userProfile?.pickupAddress?.city},{" "}
@@ -106,12 +120,16 @@ const SettingsAddressPage = () => {
                 return (
                   <div className="mb-1">
                     <div className="flex items-center justify-end gap-3">
-                      <Link
-                        to="/settings/addresses/edit-addresses"
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleNavigateToEdit(address?._id, "deliveryAddress")
+                        }
+                        // to={`/settings/addresses/edit-addresses/${address?._id}`}
                         className="text-sm font-medium"
                       >
                         Edit
-                      </Link>
+                      </button>
                       <button
                         type="button"
                         onClick={() => handleShowDeleteModal(address?._id)}

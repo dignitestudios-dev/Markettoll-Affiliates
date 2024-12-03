@@ -49,14 +49,14 @@ const ServiceDetailsPage = () => {
 
   return (
     <div className="padding-x py-6 w-full">
-      <div className="w-full bg-[#F7F7F7]">
+      <div className="w-full bg-[#F7F7F7] p-5 rounded-[30px]">
         <div className="w-full bg-white px-4 md:px-8 lg:px-12 py-12 rounded-[30px]">
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
             <div className="w-full">
               <img
                 src={displayImage?.url}
                 alt="product image"
-                className="w-full h-auto lg:h-[376px] object-cover rounded-xl"
+                className="w-full h-auto lg:h-[376px] object-contain rounded-xl"
               />
               <div className="w-full max-h-[109px] flex items-start mt-3 gap-3 overflow-x-scroll scrollbar-hide">
                 {service?.images?.map((image, index) => (

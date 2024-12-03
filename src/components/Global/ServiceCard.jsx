@@ -31,7 +31,6 @@ const ServiceCard = ({ service }) => {
       </div>
       <div className="w-full">
         <h4 className="mt-2.5 font-medium text-base">{service?.name}</h4>
-        {/* <p className="my-1 text-sm text-[#9D9D9DDD]">Pick/Delivery</p> */}
         <div className="w-full flex items-center justify-center mt-1">
           <div className="flex items-center gap-1 w-full">
             <IoIosStar className="text-yellow-400 text-lg" />

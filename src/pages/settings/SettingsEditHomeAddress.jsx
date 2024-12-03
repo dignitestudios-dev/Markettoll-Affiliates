@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { STATES } from "../../constants/states";
@@ -7,13 +7,7 @@ import { FaCheck } from "react-icons/fa6";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
-import {
-  CitySelect,
-  CountrySelect,
-  LanguageSelect,
-  RegionSelect,
-  StateSelect,
-} from "react-country-state-city";
+import { Country, State, City } from "country-state-city";
 
 const SettingsEditHomeAddress = () => {
   const [selectedState, setSelectedState] = useState("");
@@ -23,15 +17,45 @@ const SettingsEditHomeAddress = () => {
   const { user, fetchUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
+  const [stateFullName, setStateFullName] = useState("");
+  const [fullStateName, setFullStateName] = useState("");
+  const [states, setStates] = useState([]);
+  const [stateCities, setStateCities] = useState([]);
+
+  useEffect(() => {
+    const allCountries = Country.getAllCountries();
+    const usStates = State.getStatesOfCountry("US");
+    setStates(usStates);
+  }, []);
+
+  useEffect(() => {
+    if (selectedState) {
+      const allCities = City.getCitiesOfState("US", selectedState);
+      setStateCities(allCities);
+    } else {
+      setStateCities([]);
+    }
+  }, [selectedState]);
+
+  const getStateFullName = (abbreviation) => {
+    const state = states.find((state) => state.isoCode === abbreviation);
+    return state ? state.name : abbreviation;
+  };
+
+  useEffect(() => {
+    if (selectedState) {
+      const fullState = getStateFullName(selectedState);
+      setFullStateName(fullState);
+      setStateFullName(fullState);
+    } else {
+      setFullStateName("");
+    }
+  }, [selectedState]);
+
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
     setSelectedCity("");
   };
-
-  const selectedStateData = STATES.find(
-    (state) => state.name === selectedState
-  );
-  const cities = selectedStateData ? selectedStateData.cities : [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,8 +67,8 @@ const SettingsEditHomeAddress = () => {
           country: "United States",
           streetAddress: "",
           apartment_suite: "",
-          state: "Alabama",
-          city: "Abbeville",
+          state: stateFullName,
+          city: selectedCity,
           zipCode: "",
         },
         {
@@ -53,7 +77,7 @@ const SettingsEditHomeAddress = () => {
           },
         }
       );
-      // console.log("Update address res >>>>", res);
+      console.log("Update address res >>>>", res);
       setAddressAdded(true);
       if (res.status == 200) {
         fetchUserProfile();
@@ -110,8 +134,8 @@ const SettingsEditHomeAddress = () => {
               onChange={handleStateChange}
             >
               <option value="">Select a State</option>
-              {STATES.map((state, index) => (
-                <option key={index} value={state.name}>
+              {states.map((state) => (
+                <option key={state.isoCode} value={state.isoCode}>
                   {state.name}
                 </option>
               ))}
@@ -130,9 +154,9 @@ const SettingsEditHomeAddress = () => {
               disabled={!selectedState}
             >
               <option value="">Select a City</option>
-              {cities.map((city, index) => (
-                <option key={index} value={city}>
-                  {city}
+              {stateCities.map((city) => (
+                <option key={city.name} value={city.name}>
+                  {city.name}
                 </option>
               ))}
             </select>

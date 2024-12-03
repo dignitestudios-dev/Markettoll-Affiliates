@@ -1,59 +1,233 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/authContext";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import { toast } from "react-toastify";
+import { IoClose } from "react-icons/io5";
 
-const ServiceBoostPackageCard = ({ index, title, features, duration }) => {
+const ServiceBoostPackageCard = ({
+  index,
+  title,
+  features,
+  duration,
+  boostName,
+}) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { userProfile, user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showSuccessMoal, setShowSuccessModal] = useState(false);
 
-  const handleNavigate = () => {
-    navigate("/boost-post");
+  const handleNavigate = async () => {
+    if (
+      userProfile?.stripeCustomer?.id === null ||
+      userProfile?.stripeCustomer?.id === undefined
+    ) {
+      navigate("/boost-post", {
+        state: {
+          plan: {
+            title,
+            duration,
+            // endpoint,
+            // planType,
+            features,
+            index,
+          },
+        },
+      });
+    } else {
+      const service = JSON.parse(localStorage.getItem("serviceId"));
+      console.log("serviceId >>", service?._id);
+      setLoading(true);
+      if (location?.state?.from == "sericeReview") {
+        try {
+          const res = await axios.post(
+            `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${service?._id}`,
+            {
+              boostName,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+          console.log("servide boost res >>>", res);
+          if (res?.status == 201) {
+            setShowPlanModal(true);
+            setTimeout(() => {
+              setShowPlanModal(false);
+              setShowSuccessModal(true);
+            }, 2000); // Wait for a while before showing success modal
+            toast.success(res?.data?.message);
+          }
+        } catch (error) {
+          console.log(
+            "error while boosting service >>>>",
+            error?.response?.data
+          );
+          toast.error(error?.response?.data?.message);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        try {
+          const res = await axios.post(
+            `${BASE_URL}/stripe/product-boost-paid-plan-stripe/${product?.data?._id}`,
+            {
+              boostName,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+          console.log("product boost res >>>", res);
+          if (res?.status == 201) {
+            setShowPlanModal(true);
+            setTimeout(() => {
+              setShowPlanModal(false);
+              setShowSuccessModal(true);
+            }, 2000); // Wait for a while before showing success modal
+            toast.success(res?.data?.message);
+          }
+        } catch (error) {
+          console.log(
+            "error while boosting product >>>>",
+            error?.response?.data
+          );
+          toast.error(error?.response?.data?.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+  };
+
+  const handleClosePlanModal = () => {
+    setShowPlanModal(false);
+    setShowSuccessModal(true);
+  };
+  const handleClosePlanModal2 = () => {
+    setShowPlanModal(false);
+    setShowSuccessModal(false);
   };
 
   return (
-    <div
-      className={`border relative rounded-[30px] p-6 lg:p-7 flex flex-col gap-1 w-full lg:w-[366px] ${
-        index == 0 && "blue-bg"
-      }`}
-    >
-      <div className="w-full absolute top-4 right-4">
-        <span
-          className={`${
-            index == 0 ? "bg-white" : "blue-bg text-white"
-          } px-6 lg:px-10 py-2.5 rounded-full text-center font-medium text-sm float-end`}
-        >
-          Plan {index + 1}
-        </span>
-      </div>
-      <h3
-        className={`${
-          index == 0 ? "text-white" : "blue-text"
-        } font-bold text-[81px]`}
+    <>
+      <div
+        className={`relative rounded-[30px] p-6 lg:p-7 flex flex-col gap-1 w-full lg:w-[366px] ${
+          index == 0 ? "blue-bg" : "bg-white"
+        }`}
       >
-        <span className="text-[22px] relative -top-10">$</span>
-        <span className="mx-1">{title}</span>
-        <span className="text-[22px]">/ {duration}</span>
-      </h3>
-      <ul className={`${index == 0 && "bg-white p-4 rounded-xl"} p-4`}>
-        {features?.map((p, index) => {
-          return (
-            <li key={index} className="flex items-center w-full gap-2 my-5">
-              <div className="w-[17px] h-[17px] blue-bg p-0.5 rounded-full block">
-                <FaCheck className="text-white w-full h-full" />
-              </div>
-
-              <span className="text-sm">{p}</span>
-            </li>
-          );
-        })}
-        <Link
-          to={"/boost-post"}
-          className={`blue-bg text-white font-bold text-center py-3.5 mt-5 rounded-[20px] w-full block`}
+        <div className="w-full ">
+          <span
+            className={`${
+              index == 0 ? "bg-white" : "blue-bg text-white"
+            } px-6 py-2.5 rounded-full text-center font-medium text-sm float-end`}
+          >
+            {boostName}
+          </span>
+        </div>
+        <h3
+          className={`${
+            index == 0 ? "text-white" : "blue-text"
+          } font-bold text-[61px]`}
         >
-          Subscribe Now
-        </Link>
-      </ul>
-    </div>
+          <span className="text-[22px] relative -top-7">$</span>
+          <span className="mx-1">{title}</span>
+          <span className="text-[22px]">/ {duration}</span>
+        </h3>
+        <ul className={`${index == 0 && "bg-white p-4 rounded-xl"} p-4`}>
+          {features?.map((p, index) => {
+            return (
+              <li key={index} className="flex items-center w-full gap-2 my-5">
+                <div className="w-[10%]">
+                  <div className="w-[17px] h-[17px] blue-bg p-1 rounded-full block">
+                    <FaCheck className="text-white w-full h-full" />
+                  </div>
+                </div>
+
+                <span className="text-sm">{p}</span>
+              </li>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => handleNavigate()}
+            className={`blue-bg text-white font-bold text-center py-3.5 mt-5 rounded-[20px] w-full block`}
+          >
+            {loading ? "Subscribing" : "Subscribe Now"}
+          </button>
+        </ul>
+      </div>
+      <Modal1
+        showPlanModal={showPlanModal}
+        handleClose={handleClosePlanModal}
+      />
+      <Modal2
+        showSuccessMoal={showSuccessMoal}
+        handleClose={handleClosePlanModal2}
+      />
+    </>
   );
 };
 
 export default ServiceBoostPackageCard;
+
+const Modal1 = ({ showPlanModal, handleClose }) => {
+  return (
+    showPlanModal && (
+      <div className="w-full h-screen fixed inset-0 z-50 bg-[rgba(0,0,0,0.2)] flex items-center justify-center">
+        <div className="w-full lg:w-[440px] p-10 rounded-[20px] bg-white relative flex flex-col items-center justify-center gap-3">
+          <button
+            type="button"
+            onclick={handleClose}
+            className="w-6 h-6 bg-gray-200 rounded-full p-1 absolute top-5 right-5"
+          >
+            <IoClose className="w-full h-full" />
+          </button>
+
+          <div className="w-[69.67px] h-[69.67px] blue-bg rounded-full p-4">
+            <FaCheck className="text-white w-full h-full" />
+          </div>
+          <h2 className="font-bold blue-text text-xl">Congratulations!</h2>
+          <p className="text-base text-[#5C5C5C]">
+            You have successfully Purchase plan.
+          </p>
+        </div>
+      </div>
+    )
+  );
+};
+
+const Modal2 = ({ showSuccessMoal, handleClose }) => {
+  console.log("eofieoi");
+  return (
+    showSuccessMoal && (
+      <div className="w-full h-screen fixed inset-0 z-50 bg-[rgba(0,0,0,0.2)] flex items-center justify-center">
+        <div className="w-full lg:w-[440px] p-10 rounded-[20px] bg-white relative flex flex-col items-center justify-center gap-3">
+          <button
+            type="button"
+            onclick={handleClose}
+            className="w-6 h-6 bg-gray-200 rounded-full p-1 absolute top-5 right-5"
+          >
+            <IoClose className="w-full h-full" />
+          </button>
+
+          <div className="w-[69.67px] h-[69.67px] blue-bg rounded-full p-4">
+            <FaCheck className="text-white w-full h-full" />
+          </div>
+          <h2 className="font-bold blue-text text-xl">Post Boosted</h2>
+          <p className="text-base text-[#5C5C5C]">
+            Your post has been boosted successfully!
+          </p>
+        </div>
+      </div>
+    )
+  );
+};

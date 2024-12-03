@@ -22,7 +22,7 @@ const MyProductsList = () => {
           },
         }
       );
-      //   console.log("my products res >>>>>", res?.data);
+      // console.log("my products res >>>>>", res?.data);
       setMyProducts(res?.data?.data);
     } catch (error) {
       console.log("my products err >>>>", error);
@@ -49,14 +49,9 @@ const MyProductsList = () => {
   }
   return (
     <div className="mt-10 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <ProductCard />
-      <ProductCard />
-      <ProductCard />
-      <ProductCard />
-      <ProductCard />
-      <ProductCard />
-      <ProductCard />
-      <ProductCard />
+      {myProducts?.map((product, index) => {
+        return <ProductCard product={product} key={index} />;
+      })}
     </div>
   );
 };

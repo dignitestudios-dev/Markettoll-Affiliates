@@ -1,48 +1,44 @@
 import React from "react";
-// import { SUBSCRIPTION_PLANS } from "../../constants/subscriptions";
 import ServiceBoostPackageCard from "../../components/AddService/ServiceBoostPackageCard";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 
 const SUBSCRIPTION_PLANS = [
   {
-    title: "2.99",
+    title: "28.99",
     duration: "7 days",
+    boostName: "Quick Start",
     features: [
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
+      "7-day visibility: Elevate your listing for a week to capture maximum attention.",
+      "Prioritized placement: Enjoy prominent positioning within your category.",
+      "No automatic renewal: Maintain control over your spending.",
     ],
   },
   {
-    title: "5.99",
+    title: "43.99",
     duration: "14 days",
+    boostName: "Extended Exposure",
     features: [
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
+      "14-day visibility: Double your listing's exposure for a sustained impact.",
+      "Enhanced visibility: Gain greater prominence compared to standard listings.",
+      "No recurring charges: Flexibility to choose when to boost again.",
     ],
   },
   {
-    title: "9.99",
-    duration: "month",
+    title: "84.99",
+    duration: "30 days",
+    boostName: "Maximum Impact",
     features: [
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
-      "Lorem ipsum dolor sit amet consectetur.",
+      "30-day visibility: Dominate your category with extended exposure.",
+      "Premium placement: Enjoy top-tier positioning for optimal visibility.",
+      "Non-renewable term: Take advantage of this limited-time offer to maximize your listing's reach.",
     ],
   },
 ];
 
 const ServiceBoostPackagesPage = () => {
   return (
-    <div className="padding-x w-full">
+    <div className="padding-x w-full py-6">
       <div className="w-full bg-[#F7F7F7] rounded-[30px] px-4 lg:px-10 py-12 lg:py-16 relative flex flex-col items-center gap-4">
         <Link
           to="/service-review"
@@ -65,6 +61,7 @@ const ServiceBoostPackagesPage = () => {
           {SUBSCRIPTION_PLANS.map((p, index) => {
             return (
               <ServiceBoostPackageCard
+                boostName={p.boostName}
                 key={index}
                 index={index}
                 title={p.title}

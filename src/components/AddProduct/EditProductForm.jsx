@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
@@ -8,10 +8,14 @@ import { ProductDataReview } from "../../context/addProduct";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import { Country, State, City } from "country-state-city";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import { AuthContext } from "../../context/authContext";
 
-const AddServiceForm = () => {
+const EditProductForm = () => {
+  const [service, setService] = useState(null);
   const [productImages, setProductImages] = useState([]);
-  const [serviceName, setServiceName] = useState("");
+  const [serviceName, setServiceName] = useState(service?.name || "");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [selectedState, setSelectedState] = useState("");
@@ -19,35 +23,63 @@ const AddServiceForm = () => {
   const [coverImageIndex, setCoverImageIndex] = useState(null);
   const { setServiceData } = useContext(ProductDataReview);
   const navigate = useNavigate();
+  const { serviceId } = useParams();
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
-  const [fullStateName, setFullStateName] = useState(""); // New state for full state name
+  const [fullStateName, setFullStateName] = useState("");
   const [states, setStates] = useState([]);
-  const [stateCities, setStateCities] = useState([]); // Corrected name for cities state
+  const [stateCities, setStateCities] = useState([]);
 
-  // Fetch states when the component mounts
+  const handleFetchService = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/users/service/${serviceId}`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      //   console.log("service details >>>>", res?.data?.data);
+      setService(res?.data?.data);
+    } catch (error) {
+      console.log("service details err >>>", error);
+    }
+  };
+
   useEffect(() => {
-    const allCountries = Country.getAllCountries(); // Ensure this is correctly imported
-    const usStates = State.getStatesOfCountry("US"); // Ensure this is correctly imported
+    const allCountries = Country.getAllCountries();
+    const usStates = State.getStatesOfCountry("US");
     setStates(usStates);
+    handleFetchService();
   }, []);
 
-  // Fetch cities when the selected state changes
+  useEffect(() => {
+    if (service) {
+      setServiceName(service?.name);
+      setDescription(service?.description);
+      setPrice(service?.price);
+      setSelectedState(service?.state);
+      setSelectedCity(service?.city);
+      setProductImages(service?.images);
+      // Fetching and setting the existing images from the service (URLs)
+      const existingImages = service?.images || [];
+      setProductImages(existingImages);
+    }
+  }, [service]);
+
   useEffect(() => {
     if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState); // Ensure this is correctly imported
-      setStateCities(allCities); // Correctly set the fetched cities here
+      const allCities = City.getCitiesOfState("US", selectedState);
+      setStateCities(allCities);
     } else {
-      setStateCities([]); // Clear cities if no state is selected
+      setStateCities([]);
     }
   }, [selectedState]);
 
-  // Function to get the full state name by its abbreviation
   const getStateFullName = (abbreviation) => {
     const state = states.find((state) => state.isoCode === abbreviation);
     return state ? state.name : abbreviation;
   };
 
-  // Update fullStateName whenever selectedState changes
   useEffect(() => {
     if (selectedState) {
       const fullState = getStateFullName(selectedState);
@@ -58,26 +90,28 @@ const AddServiceForm = () => {
   }, [selectedState]);
 
   const handleStateChange = (event) => {
-    setSelectedState(event.target.value); // Update selected state
-    setSelectedCity(""); // Clear selected city when state changes
+    setSelectedState(event.target.value);
+    setSelectedCity("");
   };
-
-  const selectedStateData = STATES.find(
-    (state) => state.name === selectedState
-  );
-  const cities = selectedStateData ? selectedStateData.cities : [];
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (productImages.length + files.length <= 5) {
-      setProductImages((prevImages) => [...prevImages, ...files]);
+      // Add new images to state
+      const newImages = files.map((file) => ({
+        file,
+        url: URL.createObjectURL(file),
+        displayImage: false,
+      }));
+      setProductImages((prevImages) => [...prevImages, ...newImages]);
     } else {
       toast.error("You can only upload up to 5 images.");
     }
   };
-
   const handleDeleteImage = (index) => {
-    setProductImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    const updatedImages = productImages.filter((_, i) => i !== index);
+    setProductImages(updatedImages);
+
     if (coverImageIndex === index) {
       setCoverImageIndex(null);
     }
@@ -86,7 +120,7 @@ const AddServiceForm = () => {
     setCoverImageIndex(index);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (productImages.length == 0) {
       toast.error("Please upload service images");
@@ -123,16 +157,54 @@ const AddServiceForm = () => {
       toast.error("Please select a city");
       return;
     }
-    setServiceData({
-      productImages,
-      serviceName,
-      description,
-      price,
-      selectedState: fullStateName,
-      selectedCity,
-      coverImageIndex,
-    });
-    navigate("/service-review");
+    try {
+      const formData = new FormData();
+
+      productImages.forEach((productImages) => {
+        formData.append("images", productImages);
+      });
+
+      formData.append("displayImageIndex", coverImageIndex);
+      formData.append("name", serviceName);
+      formData.append("description", description);
+      formData.append("country", "United States");
+      formData.append("state", fullStateName);
+      formData.append("city", selectedCity);
+
+      formData.append("price", price);
+
+      const response = await axios.put(
+        `${BASE_URL}/users/service/${serviceId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Handle success
+      console.log("Service uploaded successfully:", response.data);
+      if (response.data.success) {
+        toast.success(response.data.message);
+        navigate(`/services/${response?.data?.data?._id}`);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error uploading service:", error);
+      if (error.status == 409) {
+        // navigate("/subscriptions");
+        setOpenModal(true);
+      }
+      if (error.status == 403) {
+        handleModal();
+      }
+      toast.error(error?.response?.data?.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -186,35 +258,40 @@ const AddServiceForm = () => {
 
             {/* Image Preview and Selection */}
             <div className="flex gap-6">
-              {productImages.map((image, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt={`product-image-${index}`}
-                    className="h-[170px] w-[170px] rounded-[20px] object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteImage(index)}
-                    className="w-5 h-5 z-20 rounded-full bg-gray-300 p-1 absolute top-2 right-2"
-                  >
-                    <IoClose className="w-full h-full" />
-                  </button>
-
-                  {/* Checkbox for selecting cover photo */}
-                  <div className="flex items-center gap-1 mt-1">
-                    <input
-                      type="checkbox"
-                      checked={coverImageIndex === index}
-                      onChange={() => handleCoverPhotoChange(index)}
-                      className="w-[14px] h-[14px]"
+              {productImages.map((image, index) => {
+                const imageUrl =
+                  image.url ||
+                  (image.file ? URL.createObjectURL(image.file) : "");
+                return (
+                  <div key={index} className="relative">
+                    <img
+                      src={imageUrl}
+                      alt={`product-image-${index}`}
+                      className="h-[170px] w-[170px] rounded-[20px] object-cover"
                     />
-                    <label className="text-sm font-medium">
-                      Select as cover photo
-                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(index)}
+                      className="w-5 h-5 z-20 rounded-full bg-gray-300 p-1 absolute top-2 right-2"
+                    >
+                      <IoClose className="w-full h-full" />
+                    </button>
+
+                    {/* Checkbox for selecting cover photo */}
+                    <div className="flex items-center gap-1 mt-1">
+                      <input
+                        type="checkbox"
+                        checked={coverImageIndex === index}
+                        onChange={() => handleCoverPhotoChange(index)}
+                        className="w-[14px] h-[14px]"
+                      />
+                      <label className="text-sm font-medium">
+                        Select as cover photo
+                      </label>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -317,7 +394,7 @@ const AddServiceForm = () => {
                 type="submit"
                 className="blue-bg text-white font-semibold text-sm py-3 rounded-[20px]"
               >
-                Review
+                Save
               </button>
             </div>
           </div>
@@ -327,4 +404,4 @@ const AddServiceForm = () => {
   );
 };
 
-export default AddServiceForm;
+export default EditProductForm;

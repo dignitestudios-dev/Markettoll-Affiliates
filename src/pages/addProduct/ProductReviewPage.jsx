@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ProductDataReview } from "../../context/addProduct";
 import { AuthContext } from "../../context/authContext";
@@ -13,6 +13,20 @@ const ProductReviewPage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
   console.log("productData from product review >>>>", productData);
+  const [displayImage, setDisplayImage] = useState(null);
+  useEffect(() => {
+    if (productData?.productImages?.length > 0) {
+      const defaultDisplayImage =
+        productData.productImages.find(
+          (image) => image.displayImage === true
+        ) || productData.productImages[0];
+      setDisplayImage(defaultDisplayImage);
+    }
+  }, [productData]);
+
+  const handleThumbnailClick = (image) => {
+    setDisplayImage(image);
+  };
 
   const handleModal = () => {
     setOpenModal(!openModal);
@@ -54,7 +68,8 @@ const ProductReviewPage = () => {
       // Handle success
       console.log("Product uploaded successfully:", response.data);
       toast.success(response.data.message);
-      navigate("/boost-post");
+      navigate("/would-you-boost-your-product");
+      localStorage.setItem("product", JSON.stringify(response.data));
       return response.data;
     } catch (error) {
       console.error("Error uploading product:", error);
@@ -79,26 +94,28 @@ const ProductReviewPage = () => {
             {productData.productImages &&
               productData.productImages.length > 0 && (
                 <img
-                  src={URL.createObjectURL(
-                    productData.productImages[productData?.coverImageIndex]
-                  )}
+                  src={
+                    productData?.productImages[productData?.coverImageIndex]
+                      ?.name
+                  }
                   alt="product image"
                   className="w-full h-auto lg:h-[336px] rounded-[20px]"
                 />
               )}
             <div className="w-full grid grid-cols-4 mt-3 gap-3">
-              {productData.productImages &&
-                productData.productImages
-                  .slice(1)
-                  .map((file, index) => (
-                    <img
-                      key={index}
-                      src={URL.createObjectURL(file)}
-                      alt={`Product Thumbnail ${index + 1}`}
-                      className="rounded-xl object-cover"
-                      style={{ width: "100%", height: "97px" }}
-                    />
-                  ))}
+              {productData?.productImages?.map((image, index) => (
+                <img
+                  key={index}
+                  src={image?.name}
+                  alt={`Thumbnail ${index + 1}`}
+                  className={`rounded-xl h-[97px] w-full object-cover cursor-pointer ${
+                    image?.url === displayImage?.url
+                      ? "border-2 border-blue-500"
+                      : ""
+                  }`}
+                  onClick={() => handleThumbnailClick(image)}
+                />
+              ))}
             </div>
           </div>
 

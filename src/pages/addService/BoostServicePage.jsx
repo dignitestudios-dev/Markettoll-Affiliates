@@ -1,6 +1,6 @@
 import React from "react";
 import { BsCheckLg } from "react-icons/bs";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 
 const serviceFeatures = [
@@ -14,8 +14,12 @@ const serviceFeatures = [
 
 const BoostServicePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "Unknown";
+  console.log("from >>", from);
+
   const handleNavigate = () => {
-    navigate("/choose-package-to-boost-service");
+    navigate("/choose-package-to-boost-service", { state: { from: from } });
   };
   return (
     <div className="padding-x w-full">

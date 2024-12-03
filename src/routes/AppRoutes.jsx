@@ -57,6 +57,8 @@ import IdentityVerifiedPage from "../components/Onboarding/IdentityVerifiedPage"
 import SettingsEditHomeAddress from "../pages/settings/SettingsEditHomeAddress";
 import Loader from "../components/Global/Loader";
 import SearchProductList from "../components/Home/SearchedProductList";
+import WouldYouBoostProduct from "../components/BoostPost/WouldYouBoostProduct";
+import EditServicePage from "../pages/addService/EditServicePage";
 
 const AppRoutes = () => {
   return (
@@ -126,6 +128,11 @@ const AppRoutes = () => {
         />
 
         <Route
+          path="/would-you-boost-your-product"
+          element={<Layout page={<WouldYouBoostProduct />} />}
+        />
+
+        <Route
           path="/add-service"
           element={<Layout page={<AddServicePage />} />}
         />
@@ -167,6 +174,10 @@ const AppRoutes = () => {
         <Route
           path="/services/:serviceId"
           element={<Layout page={<ServiceDetailsPage />} />}
+        />
+        <Route
+          path="/services/edit-service/:serviceId"
+          element={<Layout page={<EditServicePage />} />}
         />
 
         <Route
@@ -248,7 +259,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/settings/addresses/edit-addresses"
+          path="/settings/addresses/edit-addresses/:id"
           element={
             <Layout
               page={<SettingsPage page={<SettingsAddressEditPage />} />}

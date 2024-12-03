@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { STATES } from "../../constants/states";
@@ -8,6 +8,7 @@ import { useFormik } from "formik";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
+import { Country, State, City } from "country-state-city";
 
 const SettingsAddAddressPage = () => {
   const [streetAddress, setStreetAddress] = useState("");
@@ -21,15 +22,45 @@ const SettingsAddAddressPage = () => {
   const [addressAdded, setAddressAdded] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [stateFullName, setStateFullName] = useState("");
+  const [fullStateName, setFullStateName] = useState("");
+  const [states, setStates] = useState([]);
+  const [stateCities, setStateCities] = useState([]);
+
+  useEffect(() => {
+    const allCountries = Country.getAllCountries();
+    const usStates = State.getStatesOfCountry("US");
+    setStates(usStates);
+  }, []);
+
+  useEffect(() => {
+    if (selectedState) {
+      const allCities = City.getCitiesOfState("US", selectedState);
+      setStateCities(allCities);
+    } else {
+      setStateCities([]);
+    }
+  }, [selectedState]);
+
+  const getStateFullName = (abbreviation) => {
+    const state = states.find((state) => state.isoCode === abbreviation);
+    return state ? state.name : abbreviation;
+  };
+
+  useEffect(() => {
+    if (selectedState) {
+      const fullState = getStateFullName(selectedState);
+      setFullStateName(fullState);
+      setStateFullName(fullState);
+    } else {
+      setFullStateName("");
+    }
+  }, [selectedState]);
+
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
     setSelectedCity("");
   };
-
-  const selectedStateData = STATES.find(
-    (state) => state.name === selectedState
-  );
-  const cities = selectedStateData ? selectedStateData.cities : [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +75,7 @@ const SettingsAddAddressPage = () => {
           streetAddress,
           apartment_suite: apartment,
           country: "United States",
-          state: selectedState,
+          state: stateFullName,
           city: selectedCity,
           zipCode,
         },
@@ -56,16 +87,15 @@ const SettingsAddAddressPage = () => {
       );
       console.log("address added >>>", res);
       if (res?.status == 201) {
+        setAddressAdded(!addressAdded);
         fetchUserProfile();
-        navigate("/settings/addresses");
+        // navigate("/settings/addresses");
       }
     } catch (error) {
       console.log("add delivery address err >>>", error?.response?.data);
     } finally {
       setLoading(false);
     }
-
-    // setAddressAdded(!addressAdded);
   };
 
   const handleCloseModalAndNaivigate = () => {
@@ -133,8 +163,8 @@ const SettingsAddAddressPage = () => {
               onChange={handleStateChange}
             >
               <option value="">Select a State</option>
-              {STATES.map((state, index) => (
-                <option key={index} value={state.name}>
+              {states.map((state) => (
+                <option key={state.isoCode} value={state.isoCode}>
                   {state.name}
                 </option>
               ))}
@@ -153,9 +183,9 @@ const SettingsAddAddressPage = () => {
               disabled={!selectedState}
             >
               <option value="">Select a City</option>
-              {cities.map((city, index) => (
-                <option key={index} value={city}>
-                  {city}
+              {stateCities.map((city) => (
+                <option key={city.name} value={city.name}>
+                  {city.name}
                 </option>
               ))}
             </select>

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { GoArrowLeft } from "react-icons/go";
 import PlanPurchaseSuccessModal from "./PlanPurchaseSuccessModal";
@@ -24,9 +24,11 @@ const BoostPostComponent = () => {
   const [showCard, setShowCard] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
   const { userProfile } = useContext(AuthContext);
-  console.log("userProfile >>>", userProfile);
+  const { plan } = location?.state;
+  console.log("plan >>>", plan);
 
   const handleBuyPlan = () => {
     setShowSuccessModal(true);
@@ -151,11 +153,11 @@ const BoostPostComponent = () => {
                 <span className="text-[22px] relative -top-2.5 lg:-top-10">
                   $
                 </span>
-                <span className="mx-1">{packageInfo.title}</span>
-                <span className="text-[22px]">/ {packageInfo.duration}</span>
+                <span className="mx-1">{plan?.title}</span>
+                <span className="text-[22px]">/ {plan?.duration}</span>
               </h3>
               <ul className={`bg-white px-4 rounded-xl`}>
-                {packageInfo.features?.map((p, index) => {
+                {plan?.features?.map((p, index) => {
                   return (
                     <li
                       key={index}
@@ -179,8 +181,10 @@ const BoostPostComponent = () => {
               <p className="text-base font-normal">Credit/Debit Card</p>
               <p className="text-base font-normal">
                 Total Amount:{" "}
-                <span className="blue-text font-bold text-[24px]">$18</span>{" "}
-                <span className="text-[12px]">/month</span>
+                <span className="blue-text font-bold text-[24px]">
+                  ${plan?.title}
+                </span>{" "}
+                <span className="text-[12px]">/ {plan?.duration}</span>
               </p>
             </div>
 

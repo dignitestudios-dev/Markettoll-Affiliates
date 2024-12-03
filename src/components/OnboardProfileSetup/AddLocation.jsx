@@ -9,52 +9,43 @@ const AddLocation = ({
   stateFullName,
   setStateFullName,
 }) => {
-  const [fullStateName, setFullStateName] = useState(""); // New state for full state name
+  const [fullStateName, setFullStateName] = useState("");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
-  // console.log("selectedState >>>", selectedState);
-  // console.log("selectedCity >>>", selectedCity);
-  // console.log("fullStateName >>>", fullStateName);
-
-  // Fetch countries and states on component mount
   useEffect(() => {
     const allCountries = Country.getAllCountries();
     const usStates = State.getStatesOfCountry("US");
     setStates(usStates);
   }, []);
 
-  // Fetch cities when selected state changes
   useEffect(() => {
     if (selectedState) {
       const allCities = City.getCitiesOfState("US", selectedState);
       setCities(allCities);
     } else {
-      setCities([]); // Clear cities if no state is selected
+      setCities([]);
     }
   }, [selectedState]);
 
-  // Function to get the full state name by its abbreviation (isoCode)
   const getStateFullName = (abbreviation) => {
     const state = states.find((state) => state.isoCode === abbreviation);
     return state ? state.name : abbreviation;
   };
 
-  // Update fullStateName whenever selectedState changes
   useEffect(() => {
     if (selectedState) {
       const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState); // Set the full state name in the state
+      setFullStateName(fullState);
       setStateFullName(fullState);
     } else {
-      setFullStateName(""); // Clear full state name if no state is selected
+      setFullStateName("");
     }
   }, [selectedState]);
 
-  // Handle state change and update selected state
   const handleStateChange = (event) => {
-    setSelectedState(event.target.value); // Set selected state abbreviation
-    setSelectedCity(""); // Clear selected city when state changes
+    setSelectedState(event.target.value);
+    setSelectedCity("");
   };
 
   return (
