@@ -1,8 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoSend } from "react-icons/io5";
+import {
+  addDoc,
+  collection,
+  db,
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "../../firebase/firebase";
 
-const MessageBoard = () => {
+const MessageBoard = ({ messages, userId, seller,fetchMessages }) => {
+  const [message, setMessage] = useState("");
+  const handleSendMessage = async () => {
+    if (message.trim() === "") return;
+    const chatId = seller?.lastMessage?.senderId;
+    const lastMessage = {
+      senderId: userId,
+      receiverId: chatId,
+      content: message,
+      contentType: "text",
+      isRead: false,
+      profileImage: seller?.lastMessage?.profileImage,
+      profileName: seller?.lastMessage?.profileName,
+      timestamp: serverTimestamp(),
+    };
+    const messageData = {
+      senderId: userId,
+      receiverId: chatId,
+      content: message,
+      contentType: "text",
+      timestamp: serverTimestamp(),
+    };
+    try {
+      const messagesRef = collection(db, "chats", chatId, userId);
+      await addDoc(messagesRef, messageData);
+      await setDoc(doc(db, "chats", chatId, "myUsers", userId), {
+        lastMessage: lastMessage,
+      });
+      fetchMessages(seller);
+      setMessage("");
+    } catch (error) {
+      console.error("Error sending message: ", error);
+    }
+  };
+
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
@@ -13,70 +55,60 @@ const MessageBoard = () => {
             alt="user profile"
             className="w-[42px] h-[42px]"
           />
-          <span className="text-sm font-semibold">Carlos Tremblay</span>
+          <span className="text-sm font-semibold">
+            {seller?.lastMessage?.profileName}
+          </span>
         </div>
         <button type="button">
           <TbDotsVertical className="text-lg" />
         </button>
       </div>
-
       {/* Messages Box */}
-      <div className="w-full h-[68vh] overflow-y-auto chat-list">
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
-        <div className="p-4">
-          <p>Message 1</p>
-          <p>Message 2</p>
-        </div>
+      {/* <div className="w-full h-[68vh] overflow-y-auto chat-list"> */}
+      <div className="w-full h-[68vh] overflow-y-auto chat-list overflow-x-hidden">
+        <p className="text-sm text-[#5c5c5c] text-center font-medium mb-2">
+          Today
+        </p>
+        {messages
+          .sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate())
+          .map((item) => (
+            <div
+              className={`w-full px-2 flex flex-col ${
+                item.senderId !== userId ? "items-start" : "items-end" 
+              }`}
+            >
+              <div
+                className={`w-[80%] lg:w-[307px] ${
+                  item.senderId !== userId
+                    ? "bg-[#F7F7F7] text-[#000000]"
+                    : "blue-bg text-white" 
+                } p-3 rounded-xl text-wrap break-words text-xs lg:text-sm`}
+              >
+                {item.content}
+              </div>
+              <span className="text-[10px] text-[#5c5c5c]">
+                {new Date(item?.timestamp?.toDate()).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          ))}
       </div>
+      {/* </div> */}
 
       {/* Input Box */}
-      <div className="w-full h-[8%] px-5 flex items-center justify-center border-t">
+      <div className="w-full  px-5 flex items-center justify-center bg-white">
         <div className="border rounded-[20px] w-full flex items-center gap-2 px-4 py-2">
           <input
             type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             className="w-full text-sm outline-none border-none"
             placeholder="Type here..."
           />
           <button
+            onClick={handleSendMessage}
             type="button"
             className="w-[40px] h-[40px] rounded-full bg-blue-500 p-2.5"
           >

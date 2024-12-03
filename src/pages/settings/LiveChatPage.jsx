@@ -1,9 +1,74 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { GoArrowLeft } from "react-icons/go";
 import { Link } from "react-router-dom";
 import { IoSend } from "react-icons/io5";
+import { AuthContext } from "../../context/authContext";
+import {
+  addDoc,
+  collection,
+  db,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+} from "../../firebase/firebase";
 
 const LiveChatPage = () => {
+  const { user } = useContext(AuthContext);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const adminId = "67351d5724efdd69e5728f5c";
+  const userId = user?._id;
+  const handleSendMessage = async () => {
+    if (message.trim() === "") return;
+
+    const chatId = `chat_${userId}_${adminId}`;
+
+    const messageData = {
+      senderId: userId,
+      text: message,
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      const messagesRef = collection(db, "Adminchats", chatId, "messages");
+      await addDoc(messagesRef, messageData);
+      await setDoc(doc(db, "userChats", userId), {
+        user: {
+          name: user?.name,
+          pic: user?.profileImage,
+        },
+        chatId,
+        lastMessage: message,
+        timestamp: new Date().toISOString(),
+      });
+      setMessage("");
+      fetchMessages();
+    } catch (error) {
+      console.error("Error sending message: ", error);
+    }
+  };
+
+  const fetchMessages = async () => {
+    const chatId = `chat_${userId}_${adminId}`;
+    const messagesRef = collection(db, "Adminchats", chatId, "messages");
+
+    try {
+      const messagesQuery = query(messagesRef);
+      const querySnapshot = await getDocs(messagesQuery);
+
+      const messagesList = querySnapshot.docs.map((doc) => doc.data());
+      console.log(messagesList, "messageList");
+
+      setMessages(messagesList);
+    } catch (error) {
+      console.error("Error fetching messages: ", error);
+    }
+  };
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
   return (
     <div className="w-full px-0 md:px-5">
       <div className="flex items-center gap-2">
@@ -18,21 +83,32 @@ const LiveChatPage = () => {
         <p className="text-sm text-[#5c5c5c] text-center font-medium mb-2">
           Today
         </p>
-
-        <div className="w-full flex flex-col items-end">
-          <div className="w-[80%] lg:w-[307px] blue-bg p-3 rounded-xl text-xs lg:text-sm text-white">
-            Lorem ipsum dolor sit amet consectetur. Viverra ultrices aliquet
-            quisque non justo augue malesuada enim. Vitae nunc duis.
-          </div>
-          <span className="text-[10px] text-[#5c5c5c]">12:30 PM</span>
-        </div>
-        <div className="w-full flex flex-col items-start mt-2">
-          <div className="w-[80%] lg:w-[307px] bg-[#F7F7F7] p-3 rounded-xl text-xs lg:text-sm text-black">
-            Lorem ipsum dolor sit amet consectetur. Viverra ultrices aliquet
-            quisque non justo augue malesuada enim. Vitae nunc duis.
-          </div>
-          <span className="text-[10px] text-[#5c5c5c]">12:30 PM</span>
-        </div>
+        {messages
+          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) 
+          .map((item) => (
+            <div
+              key={item.timestamp}
+              className={`w-full flex flex-col ${
+                item.senderId !== userId ? "items-start" : "items-end"
+              }`}
+            >
+              <div
+                className={`w-[80%] lg:w-[307px] ${
+                  item.senderId !== userId
+                    ? "bg-[#F7F7F7] text-[#000000]"
+                    : "blue-bg text-white"
+                } p-3 rounded-xl text-xs lg:text-sm `}
+              >
+                {item.text}
+              </div>
+              <span className="text-[10px] text-[#5c5c5c]">
+                {new Date(item.timestamp).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          ))}
       </div>
 
       <div className="w-full bg-white border-t h-16 absolute bottom-0 flex items-center justify-between gap-2">
@@ -44,10 +120,13 @@ const LiveChatPage = () => {
           />
           <input
             type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             placeholder="Message"
             className="bg-white outline-none h-full text-sm text-[#5c5c5c] w-full px-3"
           />
           <button
+            onClick={handleSendMessage}
             type="submit"
             className="h-[40px] w-[40px] blue-bg rounded-full p-2"
           >
