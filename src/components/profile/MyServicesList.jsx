@@ -82,7 +82,11 @@ const MyServicesList = () => {
     navigate(`/services/${id}`);
   };
 
-  const handleDeleteService = async () => {};
+  const handleNavigateToBostPost = (serviceId) => {
+    navigate("/choose-package-to-boost-service", {
+      state: { from: "/my-listings", serviceId: serviceId },
+    });
+  };
 
   return (
     <div className="w-full min-h-[50vh]">
@@ -101,7 +105,7 @@ const MyServicesList = () => {
                         type="button"
                         ref={buttonRef}
                         onClick={() => toggleDropdown(service._id)}
-                        className="absolute z-10 top-4 right-4 w-[34px] h-[34px] bg-white rounded-[10px]"
+                        className="absolute z-10 top-4 right-2 flex justify-center items-center shadow w-[34px] h-[34px] bg-white rounded-[10px]"
                       >
                         <HiOutlineDotsVertical className="text-black text-2xl" />
                       </button>
@@ -124,6 +128,9 @@ const MyServicesList = () => {
                             Delete
                           </button>
                           <button
+                            onClick={() =>
+                              handleNavigateToBostPost(service._id)
+                            }
                             type="button"
                             className="font-medium text-base"
                           >

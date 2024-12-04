@@ -1,8 +1,14 @@
 import React from "react";
 import { IoIosStar } from "react-icons/io";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ProductSeller = ({ productData }) => {
+  const navigate = useNavigate();
+  const handleNavigateToSellerProfile = () => {
+    navigate(`/seller-profile/${productData?.sellerDetails?._id}`, {
+      state: { from: window.location.href },
+    });
+  };
   return (
     <div className="w-full">
       <p className="blue-text text-sm font-bold mb-3">Seller</p>
@@ -28,12 +34,13 @@ const ProductSeller = ({ productData }) => {
               <IoIosStar className="text-yellow-400" /> 4.8
             </span> */}
           </div>
-          <Link
-            to={`/seller-profile/${productData?.sellerDetails?._id}`}
+          <button
+            type="button"
+            onClick={() => handleNavigateToSellerProfile()}
             className="text-[13px] font-semibold underline"
           >
             View Profile
-          </Link>
+          </button>
         </div>
       </div>
     </div>

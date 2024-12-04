@@ -59,6 +59,7 @@ import Loader from "../components/Global/Loader";
 import SearchProductList from "../components/Home/SearchedProductList";
 import WouldYouBoostProduct from "../components/BoostPost/WouldYouBoostProduct";
 import EditServicePage from "../pages/addService/EditServicePage";
+import OptinFlowPage from "../pages/optInFlow/OptinFlowPage";
 
 const AppRoutes = () => {
   return (
@@ -317,8 +318,15 @@ const AppRoutes = () => {
           }
         />
 
-        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route
+          path="/terms-and-conditions"
+          element={<Layout page={<TermsAndConditions />} />}
+        />
+        <Route
+          path="/privacy-policy"
+          element={<Layout page={<PrivacyPolicy />} />}
+        />
+        <Route path="/optin-flow" element={<OptinFlowPage />} />
       </Routes>
     </Suspense>
   );

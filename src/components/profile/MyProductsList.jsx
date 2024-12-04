@@ -7,22 +7,22 @@ import Loader from "../Global/Loader";
 
 const MyProductsList = () => {
   const [myProducts, setMyProducts] = useState([]);
-  const { user } = useContext(AuthContext);
+  const { userProfile, user } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const fetchMyProducts = async () => {
+    console.log(userProfile?._id);
+    const API = `${BASE_URL}/users/products?page=${page}`;
+    console.log("API >>>", API);
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${BASE_URL}/users/seller-products/${user?._id}?page=${page}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
-      // console.log("my products res >>>>>", res?.data);
+      const res = await axios.get(API, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      console.log("my products res >>>>>", res?.data);
       setMyProducts(res?.data?.data);
     } catch (error) {
       console.log("my products err >>>>", error);

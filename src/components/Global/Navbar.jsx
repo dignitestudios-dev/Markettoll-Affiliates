@@ -21,8 +21,6 @@ const Navbar = () => {
   const { searchQuery, setSearchQuery, searchResults, setSearchResults } =
     useContext(SearchedProductContext);
 
-  // console.log("user from navbar ", user);
-
   const handleLogout = () => {
     navigate("/login");
     Cookies.remove("market-signup");
@@ -30,7 +28,7 @@ const Navbar = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("market-signup");
     setShowProfileDropdown(!showProfileDropdown);
-    // fetchUserProfile();
+    fetchUserProfile();
   };
 
   const handleShowProfileDropdown = () => {
@@ -126,7 +124,7 @@ const Navbar = () => {
             className="w-[18px] h-[18px]"
           />
         </Link>
-        {user && (
+        {user ? (
           <button
             type="button"
             onClick={handleShowProfileDropdown}
@@ -144,6 +142,13 @@ const Navbar = () => {
             </span>
             <IoIosArrowDown className="text-white" />
           </button>
+        ) : (
+          <Link
+            to="/login"
+            className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
+          >
+            Login
+          </Link>
         )}
         {showProfileDropdown && (
           <div className="w-auto h-auto p-4 bg-white z-50 shadow-lg rounded-lg absolute top-20">

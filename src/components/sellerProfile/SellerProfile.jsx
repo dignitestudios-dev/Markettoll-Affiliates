@@ -1,17 +1,59 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import SellerProducts from "./SellerProducts";
 import SellerServices from "./SellerServices";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoIosStar } from "react-icons/io";
+import { AuthContext } from "../../context/authContext";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import Loader from "../Global/Loader";
 
 const SellerProfile = () => {
   const [category, setCategory] = useState("Products");
+  const [myProfile, setMyProfile] = useState(null);
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+
+  const fetchUserPrfile = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/users/profile-details/${user?._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("user profile >>", res?.data?.data);
+      setMyProfile(res?.data?.data);
+    } catch (error) {
+      console.log(
+        "err while fetching user profile >>>>",
+        error?.response?.data
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserPrfile();
+  }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <div className="padding-x py-6">
       <div className="w-full bg-[#F7F7F7] rounded-[20px] p-6 lg:p-12 relative">
         <div>
-          <Link to="/products/12324356" className="flex items-center gap-1">
+          <Link
+            to={location?.state ? location?.state?.from : "/"}
+            className="flex items-center gap-1"
+          >
             <GoArrowLeft className="light-blue-text text-xl" />
             <span className="text-[#5C5C5C] text-sm font-medium">Back</span>
           </Link>
@@ -20,12 +62,16 @@ const SellerProfile = () => {
         <div className="w-full mt-5 flex items-start justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="/seller-profile-img.png"
+              src={
+                myProfile ? myProfile?.profileImage : "/seller-profile-img.png"
+              }
               alt="seller profile"
-              className="w-[89.1px] h-[95.53px]"
+              className="w-[89.1px] h-[89.1px] object-cover rounded-full"
             />
             <div className="flex flex-col items-start gap-1">
-              <span className="text-[26px] font-bold">Adam Mill</span>
+              <span className="text-[26px] font-bold">
+                {myProfile && myProfile?.name}
+              </span>
               <div className="flex items-center gap-1">
                 <IoIosStar className="text-xl text-yellow-400" />
                 <IoIosStar className="text-xl text-yellow-400" />

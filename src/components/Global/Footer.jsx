@@ -64,6 +64,18 @@ const Footer = () => {
             Dignite Studios
           </Link>
         </p>
+
+        <div className="flex items-center justify-center gap-x-4">
+          <Link to="/privacy-policy" className="text-white underline text-sm">
+            Privacy Policy
+          </Link>
+          <Link
+            to="/terms-and-conditions"
+            className="text-white underline text-sm"
+          >
+            Terms & Conditions
+          </Link>
+        </div>
       </div>
     </footer>
   );

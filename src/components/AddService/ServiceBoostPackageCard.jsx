@@ -16,12 +16,14 @@ const ServiceBoostPackageCard = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  // console.log("location >>", location?.state?.from);
   const { userProfile, user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showSuccessMoal, setShowSuccessModal] = useState(false);
 
   const handleNavigate = async () => {
+    console.log("eoinoin");
     if (
       userProfile?.stripeCustomer?.id === null ||
       userProfile?.stripeCustomer?.id === undefined
@@ -42,10 +44,47 @@ const ServiceBoostPackageCard = ({
       const service = JSON.parse(localStorage.getItem("serviceId"));
       console.log("serviceId >>", service?._id);
       setLoading(true);
+      let URL;
+      if (location?.state?.from === "/my-listings") {
+        URL = `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${location?.state?.serviceId}`;
+      } else {
+        URL = `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${service?._id}`;
+      }
       if (location?.state?.from == "sericeReview") {
         try {
           const res = await axios.post(
-            `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${service?._id}`,
+            URL,
+            {
+              boostName,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+          console.log("servide boost res >>>", res);
+          if (res?.status == 201) {
+            setShowPlanModal(true);
+            setTimeout(() => {
+              setShowPlanModal(false);
+              setShowSuccessModal(true);
+            }, 2000); // Wait for a while before showing success modal
+            toast.success(res?.data?.message);
+          }
+        } catch (error) {
+          console.log(
+            "error while boosting service >>>>",
+            error?.response?.data
+          );
+          toast.error(error?.response?.data?.message);
+        } finally {
+          setLoading(false);
+        }
+      } else if (location?.state?.from === "/my-listings") {
+        try {
+          const res = await axios.post(
+            URL,
             {
               boostName,
             },
@@ -206,7 +245,6 @@ const Modal1 = ({ showPlanModal, handleClose }) => {
 };
 
 const Modal2 = ({ showSuccessMoal, handleClose }) => {
-  console.log("eofieoi");
   return (
     showSuccessMoal && (
       <div className="w-full h-screen fixed inset-0 z-50 bg-[rgba(0,0,0,0.2)] flex items-center justify-center">
