@@ -4,13 +4,13 @@ import { FaRegCircle } from "react-icons/fa6";
 
 const OptinFlowPage = () => {
   return (
-    <div className="w-full padding-x py-6">
+    <div className="w-full padding-x py-10">
       <div className="w-full flex flex-col items-start gap-4">
         <h2 className="blue-text font-bold text-xl">
-          Markettoll Onboarding Process
+          Markettollls Opt-in Process
         </h2>
         <p>
-          Our app's onboarding process ensures secure user authentication by
+          Our app's opt-in process ensures secure user authentication by
           incorporating Two-Factor Authentication (2FA). During sign-up, users
           explicitly give consent to receive messages for 2FA purposes on their
           phone number. This is achieved through a clear and transparent flow

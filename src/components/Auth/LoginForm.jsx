@@ -72,7 +72,6 @@ const LoginForm = () => {
           throw new Error(response.data.message);
         }
       } catch (error) {
-        // console.error("Error logging in:", error);
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         throw new Error(error.message);

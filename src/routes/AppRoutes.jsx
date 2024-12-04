@@ -326,10 +326,7 @@ const AppRoutes = () => {
           path="/privacy-policy"
           element={<Layout page={<PrivacyPolicy />} />}
         />
-        <Route
-          path="/optin-flow"
-          element={<Layout page={<OptinFlowPage />} />}
-        />
+        <Route path="/optin-flow" element={<OptinFlowPage />} />
       </Routes>
     </Suspense>
   );
