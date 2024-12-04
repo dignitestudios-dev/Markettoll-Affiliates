@@ -7,9 +7,9 @@ import Cookies from "js-cookie";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
-// import GoogleLoginButton from "./GoogleLoginButton";
-// import FacebookLoginButton from "./FacebookLoginButton";
-// import AppleLoginButton from "./AppleLoginButton";
+import GoogleLoginButton from "./GoogleLoginButton";
+import FacebookLoginButton from "./FacebookLoginButton";
+import AppleLoginButton from "./AppleLoginButton";
 import { toast } from "react-toastify";
 
 const validate = (values) => {
@@ -187,11 +187,11 @@ const LoginForm = () => {
 
         <p className="text-center text-xs text-[#8B8B8B] mx-auto mt-2.5">OR</p>
 
-        {/* <div className="w-full flex items-center justify-between">
+        <div className="w-full flex items-center justify-between">
           <GoogleLoginButton />
           <AppleLoginButton />
           <FacebookLoginButton />
-        </div> */}
+        </div>
 
         <p className="text-sm text-center w-full mt-4">
           <span>Don't Have An Account? </span>
