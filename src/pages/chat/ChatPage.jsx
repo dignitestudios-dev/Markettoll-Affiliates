@@ -101,12 +101,13 @@ const ChatPage = () => {
               />
             ) : (
               <>
-                <div className="text-center h-[82vh] space-y-4">
+                <div className="text-center h-[82vh]  space-y-4">
+                  <div className="flex items-center h-full flex-col justify-center" >
                   <img
                     src="/nochats-image.png"
                     alt="nochats-image"
                     className="w-[389.25px] h-[205px]"
-                  />
+                    />
                   <h3 className="font-bold text-lg blue-text">
                     Its nice to chat with someone
                   </h3>
@@ -114,6 +115,7 @@ const ChatPage = () => {
                     Pick a person from left menu and start your conversation
                   </p>
                 </div>
+                    </div>
               </>
             )}
           </div>
