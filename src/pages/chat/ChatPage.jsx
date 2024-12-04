@@ -2,41 +2,84 @@ import React, { useContext, useState } from "react";
 import ChatList from "../../components/Chat/ChatList";
 import MessageBoard from "../../components/Chat/MessageBoard";
 import { AuthContext } from "../../context/authContext";
-import { collection, db, getDocs, query } from "../../firebase/firebase";
+import {
+  collection,
+  db,
+  getDocs,
+  onSnapshot,
+  query,
+} from "../../firebase/firebase";
+import { useLocation } from "react-router-dom";
 
 const ChatPage = () => {
   const { user } = useContext(AuthContext);
   const userId = user?._id;
   const [messages, setMessages] = useState([]);
-  const [seller, setSeller] = useState();
+  const location = useLocation();
+  const [seller, setSeller] = useState(location?.state?.data);
   const fetchMessages = async (senderId) => {
     setSeller(senderId);
+    console.log(
+      userId,
+      senderId,
+      senderId.lastMessage?.receiverId,
+      "checkSenderId"
+    );
+
+    // Define the message collections for both sender and receiver
     const messagesRef = collection(
       db,
       "chats",
       userId,
-      senderId.lastMessage.senderId
-    );
-    const reciverRef = collection(
+      senderId.lastMessage?.receiverId
+    ); // Sender's collection
+    const receiverRef = collection(
       db,
       "chats",
-      senderId.lastMessage.senderId,
+      senderId.lastMessage?.receiverId,
       userId
-    );
+    ); // Receiver's collection
+
+    // Real-time updates using onSnapshot
     try {
       const messagesQuery = query(messagesRef);
-      const reciverQuery = query(reciverRef);
-      const querySnapshot = await getDocs(messagesQuery);
-      const receiverSnapshot = await getDocs(reciverQuery);
-      const messagesList = querySnapshot.docs.map((doc) => doc.data());
-      const ReveivermessagesList = receiverSnapshot.docs.map((doc) => doc.data());
-      const mergedMessages = [...messagesList, ...ReveivermessagesList]; 
-      setMessages(mergedMessages);
+      const receiverQuery = query(receiverRef);
+
+      // Using onSnapshot to listen to real-time changes for sender's messages
+      onSnapshot(messagesQuery, (querySnapshot) => {
+        const messagesList = querySnapshot.docs.map((doc) => doc.data());
+        setMessages((prevMessages) => {
+          // Merge new messages with the previous ones, ensuring no duplicates
+          const mergedMessages = [...prevMessages, ...messagesList];
+          console.log(mergedMessages,"merged");
+          
+          const uniqueMessages = mergedMessages.filter(
+            (message, index, self) =>
+              index === self.findIndex((m) => m.messageId === message.messageId)
+          );
+          return messagesList;
+        });
+      });
+
+      // // Using onSnapshot to listen to real-time changes for receiver's messages
+      // onSnapshot(receiverQuery, (receiverSnapshot) => {
+      //   const receiverMessagesList = receiverSnapshot.docs.map((doc) =>
+      //     doc.data()
+      //   );
+      //   setMessages((prevMessages) => {
+      //     // Merge new receiver messages with the previous ones, ensuring no duplicates
+      //     const mergedMessages = [...prevMessages, ...receiverMessagesList];
+      //     const uniqueMessages = mergedMessages.filter(
+      //       (message, index, self) =>
+      //         index === self.findIndex((m) => m.messageId === message.messageId)
+      //     );
+      //     return mergedMessages;
+      //   });
+      // });
     } catch (error) {
       console.error("Error fetching messages: ", error);
     }
   };
-  
 
   return (
     <div className="py-6 padding-x">
@@ -50,14 +93,15 @@ const ChatPage = () => {
           >
             {seller ? (
               <MessageBoard
-              fetchMessages={fetchMessages}
+                fetchMessages={fetchMessages}
                 messages={messages}
                 userId={userId}
+                userInfo={user}
                 seller={seller}
               />
             ) : (
               <>
-                <div className="text-center space-y-4">
+                <div className="text-center h-[82vh] space-y-4">
                   <img
                     src="/nochats-image.png"
                     alt="nochats-image"

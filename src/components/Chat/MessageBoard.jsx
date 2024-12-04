@@ -10,14 +10,24 @@ import {
   setDoc,
 } from "../../firebase/firebase";
 
-const MessageBoard = ({ messages, userId, seller,fetchMessages }) => {
+const MessageBoard = ({
+  messages,
+  userId,
+  seller,
+  fetchMessages,
+  userInfo,
+}) => {
+  console.log(userInfo, "seller");
+
   const [message, setMessage] = useState("");
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
     const chatId = seller?.lastMessage?.senderId;
+
+    // Prepare the new message objects for both the sender and receiver
     const lastMessage = {
       senderId: userId,
-      receiverId: chatId,
+      receiverId: seller?.lastMessage?.receiverId,
       content: message,
       contentType: "text",
       isRead: false,
@@ -25,19 +35,53 @@ const MessageBoard = ({ messages, userId, seller,fetchMessages }) => {
       profileName: seller?.lastMessage?.profileName,
       timestamp: serverTimestamp(),
     };
+
+    const RecReflastMessage = {
+      senderId: seller?.lastMessage?.receiverId,
+      receiverId: userId,
+      content: message,
+      contentType: "text",
+      isRead: false,
+      profileImage: userInfo?.profileImage,
+      profileName: userInfo?.name,
+      timestamp: serverTimestamp(),
+    };
+
     const messageData = {
       senderId: userId,
-      receiverId: chatId,
+      receiverId: seller?.lastMessage?.receiverId,
       content: message,
       contentType: "text",
       timestamp: serverTimestamp(),
     };
+
     try {
-      const messagesRef = collection(db, "chats", chatId, userId);
+      const messagesRef = collection(
+        db,
+        "chats",
+        chatId,
+        seller?.lastMessage?.receiverId
+      );
       await addDoc(messagesRef, messageData);
-      await setDoc(doc(db, "chats", chatId, "myUsers", userId), {
-        lastMessage: lastMessage,
-      });
+      await setDoc(
+        doc(db, "chats", chatId, "myUsers", seller?.lastMessage?.receiverId),
+        {
+          lastMessage: lastMessage,
+        }
+      );
+      const recRef = collection(
+        db,
+        "chats",
+        seller?.lastMessage?.receiverId,
+        chatId
+      );
+      await addDoc(recRef, messageData);
+      await setDoc(
+        doc(db, "chats", seller?.lastMessage?.receiverId, "myUsers", chatId),
+        {
+          lastMessage: RecReflastMessage,
+        }
+      );
       fetchMessages(seller);
       setMessage("");
     } catch (error) {
@@ -70,18 +114,18 @@ const MessageBoard = ({ messages, userId, seller,fetchMessages }) => {
           Today
         </p>
         {messages
-          .sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate())
-          .map((item) => (
+          .sort((a, b) => a?.timestamp?.toDate() - b?.timestamp?.toDate())
+          ?.map((item) => (
             <div
               className={`w-full px-2 flex flex-col ${
-                item.senderId !== userId ? "items-start" : "items-end" 
+                item.senderId !== userId ? "items-start" : "items-end"
               }`}
             >
               <div
                 className={`w-[80%] lg:w-[307px] ${
                   item.senderId !== userId
                     ? "bg-[#F7F7F7] text-[#000000]"
-                    : "blue-bg text-white" 
+                    : "blue-bg text-white"
                 } p-3 rounded-xl text-wrap break-words text-xs lg:text-sm`}
               >
                 {item.content}

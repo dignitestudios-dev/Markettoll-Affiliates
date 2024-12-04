@@ -46,6 +46,15 @@ const ServiceDetailsPage = () => {
   const handleAddService = () => {
     navigate("/boost-service");
   };
+  
+  const userDetail={
+    lastMessage:{
+      profileImage:service?.sellerDetails?.profileImage,
+      profileName:service?.sellerDetails?.name,
+      receiverId:service?.sellerDetails?._id,
+      senderId:user?._id
+    }
+  }
 
   return (
     <div className="padding-x py-6 w-full">
@@ -141,6 +150,7 @@ const ServiceDetailsPage = () => {
                   <div>
                     <Link
                       to="/chats"
+                      state={{data:userDetail}}
                       className="flex items-center justify-end gap-2 w-[127px]"
                     >
                       <img
