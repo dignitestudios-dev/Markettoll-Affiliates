@@ -13,7 +13,7 @@ const MyProductsList = () => {
 
   const fetchMyProducts = async () => {
     console.log(userProfile?._id);
-    const API = `${BASE_URL}/users/seller-products/${userProfile?._id}?page=${page}`;
+    const API = `${BASE_URL}/users/products?page=${page}`;
     console.log("API >>>", API);
     setLoading(true);
     try {

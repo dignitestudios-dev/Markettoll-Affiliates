@@ -14,7 +14,7 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [services, setServices] = useState([]);
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { searchResults } = useContext(SearchedProductContext);
@@ -66,6 +66,7 @@ const ProductList = () => {
   };
 
   useEffect(() => {
+    fetchUserProfile();
     fetchProducts();
     fetchServices();
   }, []);

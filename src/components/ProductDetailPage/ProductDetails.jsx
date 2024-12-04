@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoIosStar } from "react-icons/io";
 import { FaMinus, FaPlus } from "react-icons/fa6";
@@ -24,12 +24,21 @@ const ProductDetails = () => {
     selfPickup: null,
     delivery: null,
   });
+  const navigate = useNavigate();
 
   const handleShowPopup = () => {
+    if (!user) {
+      toast.error("You must be logged in");
+      return navigate("/login");
+    }
     setShowPopup(!showPopup);
   };
 
   const handleAddToCart = async (method) => {
+    if (!user) {
+      toast.error("You must be logged in");
+      return navigate("/login");
+    }
     setFulfillmentMethod(method);
     try {
       const res = await axios.post(

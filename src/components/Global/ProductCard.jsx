@@ -7,6 +7,7 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import { FaHeart } from "react-icons/fa";
+import { HiOutlineDotsVertical } from "react-icons/hi";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -79,25 +80,34 @@ const ProductCard = ({ product }) => {
   return (
     <div className="bg-white rounded-[20px] p-3 relative w-full custom-shadow cursor-pointer">
       <div className="w-full relative h-[276px] 2xl:h-[320px]">
-        <button
-          type="button"
-          className="absolute z-10 top-4 right-4"
-          onClick={() =>
-            product?.isWishListed
-              ? handleRemoveFromFavorite()
-              : handleAddToFavorite()
-          }
-        >
-          {product?.isWishListed ? (
-            <FaHeart className="text-white text-2xl" />
-          ) : (
-            <FiHeart className="text-white text-2xl" />
-          )}
-        </button>
+        {product?.seller === user?._id ? (
+          <button
+            type="button"
+            className="absolute z-10 top-4 right-4 bg-white w-[34px] h-[34px] rounded-lg flex items-center justify-center"
+          >
+            <HiOutlineDotsVertical className="text-xl" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="absolute z-10 top-4 right-4"
+            onClick={() =>
+              product?.isWishListed
+                ? handleRemoveFromFavorite()
+                : handleAddToFavorite()
+            }
+          >
+            {product?.isWishListed ? (
+              <FaHeart className="text-white text-2xl" />
+            ) : (
+              <FiHeart className="text-white text-2xl" />
+            )}
+          </button>
+        )}
         <img
           src={displayImage?.url}
           alt="product"
-          className="w-full h-[276px] 2xl:h-[320px]"
+          className="w-full h-[276px] 2xl:h-[320px] object-cover rounded-[15px]"
           onClick={handleNavigateToProductDetails}
         />
       </div>

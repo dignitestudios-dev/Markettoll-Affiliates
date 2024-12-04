@@ -32,7 +32,7 @@ const validate = (values) => {
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -64,6 +64,7 @@ const LoginForm = () => {
             resetForm();
           }, 500);
           toast.success("Login successfull");
+          fetchUserProfile();
           navigate("/");
           return response.data;
         } else {

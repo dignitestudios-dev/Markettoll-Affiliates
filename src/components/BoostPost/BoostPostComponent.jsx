@@ -7,18 +7,6 @@ import PlanPurchaseSuccessModal from "./PlanPurchaseSuccessModal";
 import PostBoostedSuccessModal from "./PostBoostedSuccessModal";
 import { AuthContext } from "../../context/authContext";
 
-const packageInfo = {
-  title: "2.99",
-  duration: "7 days",
-  features: [
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-  ],
-};
-
 const BoostPostComponent = () => {
   const [addCard, setAddCard] = useState(false);
   const [showCard, setShowCard] = useState(false);
