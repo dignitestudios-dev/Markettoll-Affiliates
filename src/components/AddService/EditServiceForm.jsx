@@ -11,6 +11,7 @@ import { Country, State, City } from "country-state-city";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
+import Loader from "../Global/Loader";
 
 const EditServiceForm = () => {
   const [service, setService] = useState(null);
@@ -20,35 +21,29 @@ const EditServiceForm = () => {
   const [price, setPrice] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
-  const [coverImageIndex, setCoverImageIndex] = useState(null);
-  const { setServiceData } = useContext(ProductDataReview);
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-
-  const [fullStateName, setFullStateName] = useState("");
-  const [states, setStates] = useState([]);
-  const [stateCities, setStateCities] = useState([]);
+  const [update, setUpdate] = useState(false);
 
   const handleFetchService = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/users/service/${serviceId}`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      //   console.log("service details >>>>", res?.data?.data);
       setService(res?.data?.data);
     } catch (error) {
       console.log("service details err >>>", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const allCountries = Country.getAllCountries();
-    const usStates = State.getStatesOfCountry("US");
-    setStates(usStates);
     handleFetchService();
   }, []);
 
@@ -60,131 +55,37 @@ const EditServiceForm = () => {
       setSelectedState(service?.state);
       setSelectedCity(service?.city);
       setProductImages(service?.images);
-      // Fetching and setting the existing images from the service (URLs)
       const existingImages = service?.images || [];
       setProductImages(existingImages);
     }
   }, [service]);
 
-  useEffect(() => {
-    if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState);
-      setStateCities(allCities);
-    } else {
-      setStateCities([]);
-    }
-  }, [selectedState]);
-
-  const getStateFullName = (abbreviation) => {
-    const state = states.find((state) => state.isoCode === abbreviation);
-    return state ? state.name : abbreviation;
-  };
-
-  useEffect(() => {
-    if (selectedState) {
-      const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState); // Set the full state name in the state
-    } else {
-      setFullStateName(""); // Clear full state name if no state is selected
-    }
-  }, [selectedState]);
-
-  const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
-    setSelectedCity("");
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (productImages.length + files.length <= 5) {
-      // Add new images to state
-      const newImages = files.map((file) => ({
-        file,
-        url: URL.createObjectURL(file),
-        displayImage: false,
-      }));
-      setProductImages((prevImages) => [...prevImages, ...newImages]);
-    } else {
-      toast.error("You can only upload up to 5 images.");
-    }
-  };
-  const handleDeleteImage = (index) => {
-    const updatedImages = productImages.filter((_, i) => i !== index);
-    setProductImages(updatedImages);
-
-    if (coverImageIndex === index) {
-      setCoverImageIndex(null);
-    }
-  };
-  const handleCoverPhotoChange = (index) => {
-    setCoverImageIndex(index);
-  };
+  if (loading) {
+    return <Loader />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (productImages.length == 0) {
-      toast.error("Please upload service images");
-    } else if (productImages.length < 3) {
-      toast.error("At least three images are required");
-      return;
-    }
-    if (!coverImageIndex) {
-      toast.error("Please choose a cover image");
-      return;
-    }
-    if (!serviceName) {
-      toast.error("Please enter service name");
-      return;
-    }
-    if (!description) {
-      toast.error("Please add description");
-      return;
-    } else if (description.length < 100) {
-      toast.error("Description can not be less than 100 characters");
-      return;
-    }
+    setUpdate(true);
+
     if (!price) {
       toast.error("Please add price");
       return;
     } else if (price <= 0) {
       toast.error("Price can not be 0");
     }
-    if (!selectedState) {
-      toast.error("Please select a state");
-      return;
-    }
-    if (!selectedCity) {
-      toast.error("Please select a city");
-      return;
-    }
+
     try {
-      const formData = new FormData();
-
-      productImages.forEach((productImages) => {
-        formData.append("images", productImages);
-      });
-
-      formData.append("displayImageIndex", coverImageIndex);
-      formData.append("name", serviceName);
-      formData.append("description", description);
-      formData.append("country", "United States");
-      formData.append("state", fullStateName);
-      formData.append("city", selectedCity);
-
-      formData.append("price", price);
-
       const response = await axios.put(
         `${BASE_URL}/users/service/${serviceId}`,
-        formData,
+        { price: price },
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
-            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      // Handle success
       console.log("Service uploaded successfully:", response.data);
       if (response.data.success) {
         toast.success(response.data.message);
@@ -194,7 +95,6 @@ const EditServiceForm = () => {
     } catch (error) {
       console.error("Error uploading service:", error);
       if (error.status == 409) {
-        // navigate("/subscriptions");
         setOpenModal(true);
       }
       if (error.status == 403) {
@@ -203,7 +103,7 @@ const EditServiceForm = () => {
       toast.error(error?.response?.data?.message);
       throw error;
     } finally {
-      setLoading(false);
+      setUpdate(false);
     }
   };
 
@@ -229,11 +129,11 @@ const EditServiceForm = () => {
 
         <div className="w-full padding-x mt-6">
           <label htmlFor="productImage" className="text-sm font-semibold">
-            Upload Photos
+            Photos
           </label>
           <div className="w-full flex items-start justify-start mt-2 gap-6">
             {/* Image Upload Area */}
-            <div className="flex items-start flex-col justify-start">
+            {/* <div className="flex items-start flex-col justify-start">
               <label
                 htmlFor="dropzone-file"
                 className="flex flex-col items-center justify-center h-[170px] w-[170px] rounded-[20px] cursor-pointer bg-white hover:bg-gray-100 relative"
@@ -254,7 +154,7 @@ const EditServiceForm = () => {
               <span className="text-sm font-normal mt-1 mx-auto">
                 Upload Product Photo
               </span>
-            </div>
+            </div> */}
 
             {/* Image Preview and Selection */}
             <div className="flex gap-6">
@@ -269,16 +169,16 @@ const EditServiceForm = () => {
                       alt={`product-image-${index}`}
                       className="h-[170px] w-[170px] rounded-[20px] object-cover"
                     />
-                    <button
+                    {/* <button
                       type="button"
                       onClick={() => handleDeleteImage(index)}
                       className="w-5 h-5 z-20 rounded-full bg-gray-300 p-1 absolute top-2 right-2"
                     >
                       <IoClose className="w-full h-full" />
-                    </button>
+                    </button> */}
 
                     {/* Checkbox for selecting cover photo */}
-                    <div className="flex items-center gap-1 mt-1">
+                    {/* <div className="flex items-center gap-1 mt-1">
                       <input
                         type="checkbox"
                         checked={coverImageIndex === index}
@@ -288,7 +188,7 @@ const EditServiceForm = () => {
                       <label className="text-sm font-medium">
                         Select as cover photo
                       </label>
-                    </div>
+                    </div> */}
                   </div>
                 );
               })}
@@ -306,6 +206,7 @@ const EditServiceForm = () => {
                 type="text"
                 id="serviceName"
                 name="serviceName"
+                disabled
                 value={serviceName}
                 onChange={(e) => setServiceName(e.target.value)}
                 placeholder="Xbox Series X 1 TB"
@@ -322,6 +223,7 @@ const EditServiceForm = () => {
                 name="description"
                 id="description"
                 rows={6}
+                disabled
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
@@ -346,40 +248,27 @@ const EditServiceForm = () => {
                 <label htmlFor="state" className="text-sm font-medium">
                   State
                 </label>
-                <select
-                  name="state"
-                  id="state"
-                  className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
+                <input
+                  type="text"
+                  placeholder="$199.00"
                   value={selectedState}
-                  onChange={handleStateChange}
-                >
-                  <option value="">Select a State</option>
-                  {states.map((state) => (
-                    <option key={state.isoCode} value={state.isoCode}>
-                      {state.name}
-                    </option>
-                  ))}
-                </select>
+                  disabled
+                  //   onChange={(e) => setPrice(e.target.value)}
+                  className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                />
               </div>
               <div className="flex flex-col items-start gap-1 w-full">
                 <label htmlFor="city" className="text-sm font-medium">
                   City
                 </label>
-                <select
-                  name="city"
-                  id="city"
-                  className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
+                <input
+                  type="text"
+                  placeholder="$199.00"
                   value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  disabled={!selectedState} // Disable city dropdown if no state is selected
-                >
-                  <option value="">Select a City</option>
-                  {stateCities.map((city) => (
-                    <option key={city.name} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
+                  disabled
+                  //   onChange={(e) => setPrice(e.target.value)}
+                  className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                />
               </div>
             </div>
 
@@ -394,7 +283,7 @@ const EditServiceForm = () => {
                 type="submit"
                 className="blue-bg text-white font-semibold text-sm py-3 rounded-[20px]"
               >
-                Save
+                {update ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
