@@ -1,8 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 
 const WouldYouBoostProduct = () => {
+  const product = JSON.parse(localStorage.getItem("product"));
+  console.log(product.data);
+  const navigate = useNavigate();
+  const handleNavigate = () => {
+    navigate("/choose-package-to-boost-service", {
+      state: {
+        from: window.location.href,
+        type: product,
+        id: product?.data?._id,
+      },
+    });
+  };
   return (
     <div className="w-full padding-x py-6">
       <div className="w-full p-5 lg:p-6 rounded-[30px] bg-[#F7F7F7]">
@@ -22,12 +34,13 @@ const WouldYouBoostProduct = () => {
             className="w-[157px] h-[157px]"
           />
 
-          <Link
-            to="/choose-package-to-boost-service"
+          <button
+            type="button"
+            onClick={() => handleNavigate()}
             className="blue-bg text-white py-3.5 rounded-3xl w-full lg:w-[635px] text-center font-bold text-sm"
           >
             Yes, I Would Like To Boost My Post
-          </Link>
+          </button>
           <Link to="/" className="font-bold blue-text text-sm">
             No, I Would Boost Later
           </Link>

@@ -3,6 +3,8 @@ import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import WithdrawFundModal from "./WithdrawFundModal";
 import AddFundModal from "./AddFundModal";
 import { AuthContext } from "../../context/authContext";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
 
 const MyWallet = () => {
   const [connectCard, setConnectCard] = useState(true);
@@ -10,6 +12,7 @@ const MyWallet = () => {
   const [showModal, setShowModal] = useState(false);
   const [showFundModal, setShowFundModal] = useState(false);
   const { user, userProfile } = useContext(AuthContext);
+  const [transactionHistory, setTransactionHistory] = useState([]);
 
   const handleTogglwWithdrawModal = () => {
     setShowModal(!showModal);
@@ -28,6 +31,29 @@ const MyWallet = () => {
     setConnectCard(!connectCard);
     setCardAdded(true);
   };
+
+  const fetchTransactionhistory = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/users/transaction-history?page=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      setTransactionHistory(res?.data?.data);
+    } catch (error) {
+      console.log(
+        "erro while fetching transaction history >>>",
+        error?.response?.data
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactionhistory();
+  }, []);
 
   return (
     <div className="w-full p-4 rounded-xl bg-[#F5F5F5]">
@@ -73,52 +99,49 @@ const MyWallet = () => {
                 Withdraw History
               </h4>
 
-              <div className="w-full grid grid-cols-3 border-b py-3">
-                <div>
-                  <span className="text-[#646565] text-[13px]">
-                    Dec 12 2023
-                  </span>
+              {transactionHistory?.length > 0 ? (
+                <>
+                  {transactionHistory?.map((history, index) => {
+                    return (
+                      <div
+                        className="w-full grid grid-cols-3 border-b py-3"
+                        key={index}
+                      >
+                        <div>
+                          <span className="text-[#646565] text-[13px]">
+                            {history?.createdAt
+                              ? new Date(history.createdAt).toLocaleDateString(
+                                  "en-GB"
+                                )
+                              : "N/A"}
+                          </span>
+                        </div>
+                        <div className="text-center">
+                          <span className="text-[#646565] text-[13px]">
+                            {history?.type == "credit" ? "Credit" : "Debit"}
+                          </span>
+                        </div>
+                        <div className="text-end">
+                          <span className="text-[#000] text-[13px]">
+                            ${history?.amount?.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                <div className="w-full">
+                  <h2>No Transactions </h2>
                 </div>
-                <div className="text-center">
-                  <span className="text-[#646565] text-[13px]">Withdraw</span>
-                </div>
-                <div className="text-end">
-                  <span className="text-[#000] text-[13px]">$100.00</span>
-                </div>
-              </div>
-              <div className="w-full grid grid-cols-3 border-b py-3">
-                <div>
-                  <span className="text-[#646565] text-[13px]">
-                    Dec 12 2023
-                  </span>
-                </div>
-                <div className="text-center">
-                  <span className="text-[#646565] text-[13px]">Withdraw</span>
-                </div>
-                <div className="text-end">
-                  <span className="text-[#000] text-[13px]">$100.00</span>
-                </div>
-              </div>
-              <div className="w-full grid grid-cols-3 border-b py-3">
-                <div>
-                  <span className="text-[#646565] text-[13px]">
-                    Dec 12 2023
-                  </span>
-                </div>
-                <div className="text-center">
-                  <span className="text-[#646565] text-[13px]">Withdraw</span>
-                </div>
-                <div className="text-end">
-                  <span className="text-[#000] text-[13px]">$100.00</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
           <div>
             <h3 className="blue-text text-base font-bold mb-4">Connect Card</h3>
 
-            {connectCard ? (
+            {userProfile && !userProfile?.stripeCustomer?.paymentMethodId ? (
               <div className="w-full flex flex-col items-start gap-3">
                 <button
                   type="button"
@@ -139,10 +162,13 @@ const MyWallet = () => {
                       }
                     </span>
                   </div>
-                  <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
+                  {userProfile?.stripeCustomer?.paymentMethodId && (
+                    <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
+                  )}
                 </button>
-                {user?.stripeConnectedAccount?.external_account?.id !== "" ||
-                  (user?.stripeConnectedAccount?.external_account?.id !==
+                {userProfile?.stripeConnectedAccount?.external_account?.id !==
+                  "" ||
+                  (userProfile?.stripeConnectedAccount?.external_account?.id !==
                     null && (
                     <button
                       type="button"

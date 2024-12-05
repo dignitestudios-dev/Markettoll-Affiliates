@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import CategoriesSidebar from "../../components/Categories/CategoriesSidebar";
-import CategoriesList from "../../components/Categories/CategoriesList";
 import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
 import axios from "axios";
 import Loader from "../../components/Global/Loader";
+import { useParams } from "react-router-dom";
 
-const CategoriesPage = () => {
+const CategoriesPage = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useContext(AuthContext);
@@ -14,7 +14,7 @@ const CategoriesPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/users/home-screen-products`, {
+      const res = await axios.get(`${BASE_URL}/users/product-categories`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
@@ -37,13 +37,11 @@ const CategoriesPage = () => {
   }
 
   return (
-    <div className="padding-x flex items-start gap-6 py-12">
-      <div className="lg:w-[290px]">
+    <div className="padding-x flex items-start gap-6 py-12 w-full">
+      <div className="lg:max-w-[40%]">
         <CategoriesSidebar products={products} />
       </div>
-      <div className="">
-        <CategoriesList />
-      </div>
+      <div className="w-full lg:w-[60%]">{children}</div>
     </div>
   );
 };

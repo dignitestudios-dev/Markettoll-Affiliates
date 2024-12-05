@@ -12,7 +12,6 @@ const ProductReviewPage = () => {
   const { user } = useContext(AuthContext);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  console.log("productData from product review >>>>", productData);
   const [displayImage, setDisplayImage] = useState(null);
   useEffect(() => {
     if (productData?.productImages?.length > 0) {

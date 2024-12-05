@@ -1,13 +1,13 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-const SubCategoryCard = () => {
+const SubCategoryCard = ({ subCategory }) => {
   const navigate = useNavigate();
-  const category = "consoles";
+  const { category } = useParams();
 
   const handleNavigate = () => {
-    navigate(`/categories/${category}`, {
-      state: { from: `/categories/${category}` },
+    navigate(`/categories/${category}/${subCategory?.name}`, {
+      state: { from: `/categories/${subCategory?.name}` },
     });
   };
   return (
@@ -17,12 +17,12 @@ const SubCategoryCard = () => {
     >
       <div className="w-full h-[276px]">
         <img
-          src="/sub-category-img.png"
+          src={subCategory?.image}
           alt="sub-category-img"
           className="w-full h-full rounded-[15px]"
         />
       </div>
-      <h3 className="text-[18px] font-medium my-2">Mobile</h3>
+      <h3 className="text-[18px] font-medium my-2">{subCategory?.name}</h3>
     </div>
   );
 };

@@ -9,17 +9,15 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const OnboardProfileSetupForm = () => {
-  const [count, setCount] = useState(2);
+  const [count, setCount] = useState(1);
   const [image, setImage] = useState(null);
   const [selectedState, setSelectedState] = useState("");
   const [stateFullName, setStateFullName] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   console.log(count);
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  console.log("selected State >>", stateFullName);
-  console.log("selected city >>", selectedCity);
 
   const handleNext = async () => {
     if (image) {
@@ -38,8 +36,11 @@ const OnboardProfileSetupForm = () => {
           }
         );
         console.log("Profile Image Updated Successfully:", response.data);
-        setCount(2);
-        return response.data;
+        if (response?.data?.success) {
+          fetchUserProfile();
+          setCount(2);
+          return response.data;
+        }
       } catch (error) {
         console.error(
           "Error Updating Profile Image:",
@@ -50,7 +51,7 @@ const OnboardProfileSetupForm = () => {
         setLoading(false);
       }
     } else {
-      alert("Please upload a profile picture before proceeding.");
+      toast.error("Please upload a profile picture before proceeding.");
     }
   };
 
@@ -81,9 +82,12 @@ const OnboardProfileSetupForm = () => {
         }
       );
       console.log("Address Updated Successfully:", response.data);
-      toast.success("Address added successfully");
-      navigate("/add-service-or-product");
-      return response.data;
+      if (response?.data?.success) {
+        fetchUserProfile();
+        toast.success("Address added successfully");
+        navigate("/add-service-or-product");
+        return response.data;
+      }
     } catch (error) {
       console.error(
         "Error Updating Address:",

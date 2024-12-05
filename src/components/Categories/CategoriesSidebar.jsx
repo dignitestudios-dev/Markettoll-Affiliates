@@ -1,13 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
-import axios from "axios";
-import { BASE_URL } from "../../api/api";
-import { AuthContext } from "../../context/authContext";
-import Loader from "../Global/Loader";
 
 const CategoriesSidebar = ({ products }) => {
+  const { category } = useParams();
   return (
     <div className="">
       <Link to="/" className="flex items-center gap-1">
@@ -19,12 +16,12 @@ const CategoriesSidebar = ({ products }) => {
         {products?.map((l, index) => {
           return (
             <Link
-              to={`/categories/${l?.category}`}
+              to={`/categories/${l?.name}`}
               className={`w-full flex items-center justify-between ${
                 index !== 12 && "border-b border-[#9D9D9DDD]"
-              } py-3.5 ${l.category == "Electronics" && "blue-text"}`}
+              } py-3.5 ${l.name == category && "blue-text"}`}
             >
-              <span className="text-base font-medium">{l?.category}</span>
+              <span className="text-base font-medium">{l?.name}</span>
               <MdOutlineKeyboardArrowRight className="light-blue-text text-xl" />
             </Link>
           );

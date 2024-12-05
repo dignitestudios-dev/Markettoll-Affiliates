@@ -10,7 +10,6 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useContext(AuthContext);
-  console.log(user);
 
   const [amount, setAmount] = useState(0);
 

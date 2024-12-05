@@ -8,6 +8,7 @@ import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const AddPaymentPage = () => {
   const [addCard, setAddCard] = useState(false);
@@ -22,6 +23,7 @@ const AddPaymentPage = () => {
   const { user } = useContext(AuthContext);
   console.log(user);
   const { plan } = location.state;
+  console.log("plan >>", plan);
 
   const stripe = useStripe();
   const elements = useElements();
@@ -67,7 +69,29 @@ const AddPaymentPage = () => {
       console.log("PaymentMethod Created:", paymentMethod.id);
       setPaymentMethodId(paymentMethod?.id);
       if (paymentMethod?.id) {
-        setAddCard(!addCard);
+        // setAddCard(!addCard);
+        try {
+          const response = await axios.post(
+            `${BASE_URL}/stripe/customer-card`,
+            {
+              paymentMethodId: paymentMethod?.id,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+
+          console.log("subscription purchased >>>", response);
+          if (response?.data?.success) {
+            // setShowSuccessModal(true);
+            setAddCard(!addCard);
+          }
+          // setShowCard(!showCard);
+        } catch (error) {
+          console.log("error while purchasing plan >>", error?.response?.data);
+        }
       }
     } catch (error) {
       console.log("err while adding card >>>", error?.response?.data);
@@ -75,28 +99,25 @@ const AddPaymentPage = () => {
   };
 
   const handleSubscribePlan = async () => {
-    if (paymentMethodId) {
-      try {
-        const response = await axios.post(
-          `${BASE_URL}/stripe/customer-card`,
-          {
-            paymentMethodId: paymentMethodId,
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
+        {
+          subscriptionName: plan?.planType || "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token}`,
-            },
-          }
-        );
-
-        console.log("subscription purchased >>>", response);
-        if (response?.data?.success) {
-          setShowSuccessModal(true);
         }
-        setShowCard(!showCard);
-      } catch (error) {
-        console.log("error while purchasing plan >>", error?.response?.data);
+      );
+      console.log("subscription successfull >>", res?.data);
+      if (res?.data?.success) {
+        setShowSuccessModal(true);
       }
+    } catch (error) {
+      console.log("error while subscribing >>>", error);
+      toast.error(error?.response?.data?.message);
     }
   };
 

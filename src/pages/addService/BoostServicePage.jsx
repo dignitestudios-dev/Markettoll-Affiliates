@@ -14,12 +14,18 @@ const serviceFeatures = [
 
 const BoostServicePage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from || "Unknown";
-  console.log("from >>", from);
+
+  const serviceId = JSON.parse(localStorage.getItem("serviceId"));
+  console.log(serviceId);
 
   const handleNavigate = () => {
-    navigate("/choose-package-to-boost-service", { state: { from: from } });
+    navigate("/choose-package-to-boost-service", {
+      state: {
+        from: window.location.href,
+        type: "service",
+        id: serviceId?._id,
+      },
+    });
   };
   return (
     <div className="padding-x w-full">

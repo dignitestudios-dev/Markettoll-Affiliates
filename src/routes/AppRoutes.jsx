@@ -61,6 +61,8 @@ import WouldYouBoostProduct from "../components/BoostPost/WouldYouBoostProduct";
 import EditServicePage from "../pages/addService/EditServicePage";
 import OptinFlowPage from "../pages/optInFlow/OptinFlowPage";
 import EditProductPage from "../pages/addProduct/EditProductPage";
+import SubCategoriesPage from "../pages/categoryProducts/SubCategoriesPage";
+import CategoriesList from "../components/Categories/CategoriesList";
 
 const AppRoutes = () => {
   return (
@@ -166,7 +168,14 @@ const AppRoutes = () => {
 
         <Route
           path="/categories/:category"
-          element={<Layout page={<CategoryProductsPage />} />}
+          element={
+            <Layout page={<CategoriesPage children={<CategoriesList />} />} />
+          }
+        />
+
+        <Route
+          path="/categories/:category/:subCategory"
+          element={<Layout page={<SubCategoriesPage />} />}
         />
 
         <Route

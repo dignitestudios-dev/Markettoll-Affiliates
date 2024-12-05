@@ -131,7 +131,11 @@ const Navbar = () => {
             className="flex items-center gap-2"
           >
             <img
-              src={userProfile?.profileImage}
+              src={
+                userProfile?.profileImage
+                  ? userProfile?.profileImage
+                  : "/upload-profile-image-icon.png"
+              }
               alt="profile-image"
               className="w-[32px] h-[32px] rounded-full object-cover"
             />
