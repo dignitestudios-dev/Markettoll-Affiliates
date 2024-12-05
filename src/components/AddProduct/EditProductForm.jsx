@@ -11,6 +11,8 @@ import { Country, State, City } from "country-state-city";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
+import { LuMinus } from "react-icons/lu";
+import { HiPlus } from "react-icons/hi";
 
 const EditProductForm = () => {
   const [service, setService] = useState(null);
@@ -23,9 +25,10 @@ const EditProductForm = () => {
   const [coverImageIndex, setCoverImageIndex] = useState(null);
   const { setServiceData } = useContext(ProductDataReview);
   const navigate = useNavigate();
-  const { serviceId } = useParams();
+  const { productId } = useParams();
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [quantity, setQuantity] = useState(service?.quantity);
 
   const [fullStateName, setFullStateName] = useState("");
   const [states, setStates] = useState([]);
@@ -33,12 +36,12 @@ const EditProductForm = () => {
 
   const handleFetchService = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/users/service/${serviceId}`, {
+      const res = await axios.get(`${BASE_URL}/users/product/${productId}`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      //   console.log("service details >>>>", res?.data?.data);
+      console.log("product details >>>>", res?.data?.data);
       setService(res?.data?.data);
     } catch (error) {
       console.log("service details err >>>", error);
@@ -60,141 +63,54 @@ const EditProductForm = () => {
       setSelectedState(service?.state);
       setSelectedCity(service?.city);
       setProductImages(service?.images);
-      // Fetching and setting the existing images from the service (URLs)
       const existingImages = service?.images || [];
       setProductImages(existingImages);
+      setQuantity(service?.quantity);
     }
   }, [service]);
-
-  useEffect(() => {
-    if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState);
-      setStateCities(allCities);
-    } else {
-      setStateCities([]);
-    }
-  }, [selectedState]);
-
-  const getStateFullName = (abbreviation) => {
-    const state = states.find((state) => state.isoCode === abbreviation);
-    return state ? state.name : abbreviation;
-  };
-
-  useEffect(() => {
-    if (selectedState) {
-      const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState); // Set the full state name in the state
-    } else {
-      setFullStateName(""); // Clear full state name if no state is selected
-    }
-  }, [selectedState]);
 
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
     setSelectedCity("");
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (productImages.length + files.length <= 5) {
-      // Add new images to state
-      const newImages = files.map((file) => ({
-        file,
-        url: URL.createObjectURL(file),
-        displayImage: false,
-      }));
-      setProductImages((prevImages) => [...prevImages, ...newImages]);
-    } else {
-      toast.error("You can only upload up to 5 images.");
-    }
-  };
-  const handleDeleteImage = (index) => {
-    const updatedImages = productImages.filter((_, i) => i !== index);
-    setProductImages(updatedImages);
-
-    if (coverImageIndex === index) {
-      setCoverImageIndex(null);
-    }
-  };
-  const handleCoverPhotoChange = (index) => {
-    setCoverImageIndex(index);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (productImages.length == 0) {
-      toast.error("Please upload service images");
-    } else if (productImages.length < 3) {
-      toast.error("At least three images are required");
-      return;
-    }
-    if (!coverImageIndex) {
-      toast.error("Please choose a cover image");
-      return;
-    }
-    if (!serviceName) {
-      toast.error("Please enter service name");
-      return;
-    }
-    if (!description) {
-      toast.error("Please add description");
-      return;
-    } else if (description.length < 100) {
-      toast.error("Description can not be less than 100 characters");
-      return;
-    }
+
     if (!price) {
       toast.error("Please add price");
       return;
     } else if (price <= 0) {
       toast.error("Price can not be 0");
-    }
-    if (!selectedState) {
-      toast.error("Please select a state");
       return;
     }
-    if (!selectedCity) {
-      toast.error("Please select a city");
+    if (!quantity) {
+      toast.error("Please add quanityt");
+      return;
+    } else if (quantity <= 0) {
+      toast.error("Quantity can not be zero");
       return;
     }
     try {
-      const formData = new FormData();
-
-      productImages.forEach((productImages) => {
-        formData.append("images", productImages);
-      });
-
-      formData.append("displayImageIndex", coverImageIndex);
-      formData.append("name", serviceName);
-      formData.append("description", description);
-      formData.append("country", "United States");
-      formData.append("state", fullStateName);
-      formData.append("city", selectedCity);
-
-      formData.append("price", price);
-
       const response = await axios.put(
-        `${BASE_URL}/users/service/${serviceId}`,
-        formData,
+        `${BASE_URL}/users/product/${productId}`,
+        { price, quantity },
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
-            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      // Handle success
       console.log("Service uploaded successfully:", response.data);
       if (response.data.success) {
         toast.success(response.data.message);
-        navigate(`/services/${response?.data?.data?._id}`);
+        navigate(`/products/${response?.data?.data?._id}`);
         return response.data;
       }
     } catch (error) {
       console.error("Error uploading service:", error);
       if (error.status == 409) {
-        // navigate("/subscriptions");
         setOpenModal(true);
       }
       if (error.status == 403) {
@@ -223,17 +139,17 @@ const EditProductForm = () => {
           </Link>
 
           <h2 className="blue-text font-bold text-[24px]">
-            Add Service Details
+            Add Product Details
           </h2>
         </div>
 
         <div className="w-full padding-x mt-6">
           <label htmlFor="productImage" className="text-sm font-semibold">
-            Upload Photos
+            Product Photos
           </label>
           <div className="w-full flex items-start justify-start mt-2 gap-6">
             {/* Image Upload Area */}
-            <div className="flex items-start flex-col justify-start">
+            {/* <div className="flex items-start flex-col justify-start">
               <label
                 htmlFor="dropzone-file"
                 className="flex flex-col items-center justify-center h-[170px] w-[170px] rounded-[20px] cursor-pointer bg-white hover:bg-gray-100 relative"
@@ -254,7 +170,7 @@ const EditProductForm = () => {
               <span className="text-sm font-normal mt-1 mx-auto">
                 Upload Product Photo
               </span>
-            </div>
+            </div> */}
 
             {/* Image Preview and Selection */}
             <div className="flex gap-6">
@@ -269,16 +185,16 @@ const EditProductForm = () => {
                       alt={`product-image-${index}`}
                       className="h-[170px] w-[170px] rounded-[20px] object-cover"
                     />
-                    <button
+                    {/* <button
                       type="button"
                       onClick={() => handleDeleteImage(index)}
                       className="w-5 h-5 z-20 rounded-full bg-gray-300 p-1 absolute top-2 right-2"
                     >
                       <IoClose className="w-full h-full" />
-                    </button>
+                    </button> */}
 
                     {/* Checkbox for selecting cover photo */}
-                    <div className="flex items-center gap-1 mt-1">
+                    {/* <div className="flex items-center gap-1 mt-1">
                       <input
                         type="checkbox"
                         checked={coverImageIndex === index}
@@ -288,7 +204,7 @@ const EditProductForm = () => {
                       <label className="text-sm font-medium">
                         Select as cover photo
                       </label>
-                    </div>
+                    </div> */}
                   </div>
                 );
               })}
@@ -300,13 +216,14 @@ const EditProductForm = () => {
           <div className="w-full flex flex-col gap-6">
             <div className="w-full">
               <label htmlFor="serviceName" className="text-sm font-semibold">
-                Service Name
+                Product Name
               </label>
               <input
                 type="text"
                 id="serviceName"
                 name="serviceName"
                 value={serviceName}
+                disabled
                 onChange={(e) => setServiceName(e.target.value)}
                 placeholder="Xbox Series X 1 TB"
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
@@ -323,6 +240,7 @@ const EditProductForm = () => {
                 id="description"
                 rows={6}
                 value={description}
+                disabled
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               ></textarea>
@@ -336,6 +254,7 @@ const EditProductForm = () => {
                 type="text"
                 placeholder="$199.00"
                 value={price}
+                disabled
                 onChange={(e) => setPrice(e.target.value)}
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
@@ -348,6 +267,7 @@ const EditProductForm = () => {
                 </label>
                 <select
                   name="state"
+                  disabled
                   id="state"
                   className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
                   value={selectedState}
@@ -371,7 +291,7 @@ const EditProductForm = () => {
                   className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
                   value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
-                  disabled={!selectedState} // Disable city dropdown if no state is selected
+                  disabled // Disable city dropdown if no state is selected
                 >
                   <option value="">Select a City</option>
                   {stateCities.map((city) => (
@@ -380,6 +300,35 @@ const EditProductForm = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            <div className="w-full">
+              <label htmlFor="quantity" className="text-sm font-semibold">
+                Quantity
+              </label>
+              <div className="flex items-center justify-start gap-2 mt-1">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(quantity - 1)}
+                  className="w-[24px] h-[24px] bg-[#dcdbdb] rounded-full p-1"
+                >
+                  <LuMinus className="w-full h-full" />
+                </button>
+                <input
+                  type="number"
+                  placeholder="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="w-[60px] text-center py-4 px-5 outline-none text-sm rounded-[10px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-[24px] h-[24px] bg-[#0085FF] rounded-full p-1"
+                >
+                  <HiPlus className="w-full h-full text-white" />
+                </button>
               </div>
             </div>
 

@@ -37,11 +37,13 @@ const SUBSCRIPTION_PLANS = [
 ];
 
 const ServiceBoostPackagesPage = () => {
+  const location = useLocation();
+  console.log("location >>", location?.state);
   return (
     <div className="padding-x w-full py-6">
       <div className="w-full bg-[#F7F7F7] rounded-[30px] px-4 lg:px-10 py-12 lg:py-16 relative flex flex-col items-center gap-4">
         <Link
-          to="/service-review"
+          to={location?.state ? location?.state?.from : "/"}
           className="flex items-center gap-1 absolute left-4 lg:left-10 top-6"
         >
           <GoArrowLeft className="text-xl light-blue-text" />

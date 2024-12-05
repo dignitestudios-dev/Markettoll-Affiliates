@@ -60,6 +60,7 @@ import SearchProductList from "../components/Home/SearchedProductList";
 import WouldYouBoostProduct from "../components/BoostPost/WouldYouBoostProduct";
 import EditServicePage from "../pages/addService/EditServicePage";
 import OptinFlowPage from "../pages/optInFlow/OptinFlowPage";
+import EditProductPage from "../pages/addProduct/EditProductPage";
 
 const AppRoutes = () => {
   return (
@@ -171,6 +172,10 @@ const AppRoutes = () => {
         <Route
           path="/products/:productId"
           element={<Layout page={<ProductDetailPage />} />}
+        />
+        <Route
+          path="/edit-product/:productId"
+          element={<Layout page={<EditProductPage />} />}
         />
         <Route
           path="/services/:serviceId"

@@ -20,7 +20,7 @@ const Navbar = () => {
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const { searchQuery, setSearchQuery, searchResults, setSearchResults } =
     useContext(SearchedProductContext);
-
+  // console.log("user from navbar >>>", user);
   const handleLogout = () => {
     navigate("/login");
     Cookies.remove("market-signup");
