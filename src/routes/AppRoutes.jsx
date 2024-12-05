@@ -63,6 +63,7 @@ import OptinFlowPage from "../pages/optInFlow/OptinFlowPage";
 import EditProductPage from "../pages/addProduct/EditProductPage";
 import SubCategoriesPage from "../pages/categoryProducts/SubCategoriesPage";
 import CategoriesList from "../components/Categories/CategoriesList";
+import CategoryProducts from "../components/CategoryProducts/CategoryProducts";
 
 const AppRoutes = () => {
   return (
@@ -162,12 +163,17 @@ const AppRoutes = () => {
         />
 
         <Route
+          path="/categories/:category"
+          element={<Layout page={<CategoryProducts />} />}
+        />
+
+        <Route
           path="/categories"
           element={<Layout page={<CategoriesPage />} />}
         />
 
         <Route
-          path="/categories/:category"
+          path="/home/categories/:category"
           element={
             <Layout page={<CategoriesPage children={<CategoriesList />} />} />
           }

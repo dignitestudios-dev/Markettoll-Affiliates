@@ -13,11 +13,12 @@ const ServiceDetailsPage = () => {
   const [displayImage, setDisplayImage] = useState(null);
 
   const handleFetchService = async () => {
+    const headers = user?.token
+      ? { Authorization: `Bearer ${user?.token}` }
+      : {};
     try {
       const res = await axios.get(`${BASE_URL}/users/service/${serviceId}`, {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
+        headers: headers,
       });
       console.log("service details >>>>", res?.data?.data);
       setService(res?.data?.data);

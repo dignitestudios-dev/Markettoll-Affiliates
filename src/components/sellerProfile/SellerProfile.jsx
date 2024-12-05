@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import SellerProducts from "./SellerProducts";
 import SellerServices from "./SellerServices";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoIosStar } from "react-icons/io";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Loader from "../Global/Loader";
+import { toast } from "react-toastify";
 
 const SellerProfile = () => {
   const [category, setCategory] = useState("Products");
@@ -15,16 +16,22 @@ const SellerProfile = () => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const fetchUserPrfile = async () => {
+    const headers = user?.token
+      ? { Authorization: `Bearer ${user?.token}` }
+      : {};
     setLoading(true);
+    if (!user) {
+      toast.error("Login to see the seller profile");
+      return navigate("/login");
+    }
     try {
       const res = await axios.get(
         `${BASE_URL}/users/profile-details/${user?._id}`,
         {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
+          headers: headers,
         }
       );
       // console.log("user profile >>", res?.data?.data);
