@@ -9,6 +9,7 @@ import {
   db,
   doc,
   getDocs,
+  onSnapshot,
   query,
   setDoc,
 } from "../../firebase/firebase";
@@ -19,6 +20,7 @@ const LiveChatPage = () => {
   const [messages, setMessages] = useState([]);
   const adminId = "67351d5724efdd69e5728f5c";
   const userId = user?._id;
+
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
 
@@ -42,32 +44,32 @@ const LiveChatPage = () => {
         lastMessage: message,
         timestamp: new Date().toISOString(),
       });
-      setMessage("");
-      fetchMessages();
+      setMessage(""); // Clear message input
     } catch (error) {
       console.error("Error sending message: ", error);
     }
   };
 
-  const fetchMessages = async () => {
+  // Fetch messages and listen for real-time updates
+  const fetchMessages = () => {
     const chatId = `chat_${userId}_${adminId}`;
     const messagesRef = collection(db, "Adminchats", chatId, "messages");
 
-    try {
-      const messagesQuery = query(messagesRef);
-      const querySnapshot = await getDocs(messagesQuery);
+    const messagesQuery = query(messagesRef);
 
+    // Real-time listener for messages
+    onSnapshot(messagesQuery, (querySnapshot) => {
       const messagesList = querySnapshot.docs.map((doc) => doc.data());
       console.log(messagesList, "messageList");
-
-      setMessages(messagesList);
-    } catch (error) {
-      console.error("Error fetching messages: ", error);
-    }
+      setMessages(messagesList); // Update state with new messages
+    });
   };
+
   useEffect(() => {
-    fetchMessages();
-  }, []);
+    if (userId) {
+      fetchMessages(); // Start listening for messages once userId is available
+    }
+  }, [userId]);
 
   return (
     <div className="w-full px-0 md:px-5">
@@ -84,7 +86,7 @@ const LiveChatPage = () => {
           Today
         </p>
         {messages
-          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) 
+          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
           .map((item) => (
             <div
               key={item.timestamp}
