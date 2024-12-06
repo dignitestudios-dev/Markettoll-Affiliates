@@ -60,6 +60,10 @@ import SearchProductList from "../components/Home/SearchedProductList";
 import WouldYouBoostProduct from "../components/BoostPost/WouldYouBoostProduct";
 import EditServicePage from "../pages/addService/EditServicePage";
 import OptinFlowPage from "../pages/optInFlow/OptinFlowPage";
+import EditProductPage from "../pages/addProduct/EditProductPage";
+import SubCategoriesPage from "../pages/categoryProducts/SubCategoriesPage";
+import CategoriesList from "../components/Categories/CategoriesList";
+import CategoryProducts from "../components/CategoryProducts/CategoryProducts";
 
 const AppRoutes = () => {
   return (
@@ -159,18 +163,34 @@ const AppRoutes = () => {
         />
 
         <Route
+          path="/categories/:category"
+          element={<Layout page={<CategoryProducts />} />}
+        />
+
+        <Route
           path="/categories"
           element={<Layout page={<CategoriesPage />} />}
         />
 
         <Route
-          path="/categories/:category"
-          element={<Layout page={<CategoryProductsPage />} />}
+          path="/home/categories/:category"
+          element={
+            <Layout page={<CategoriesPage children={<CategoriesList />} />} />
+          }
+        />
+
+        <Route
+          path="/categories/:category/:subCategory"
+          element={<Layout page={<SubCategoriesPage />} />}
         />
 
         <Route
           path="/products/:productId"
           element={<Layout page={<ProductDetailPage />} />}
+        />
+        <Route
+          path="/edit-product/:productId"
+          element={<Layout page={<EditProductPage />} />}
         />
         <Route
           path="/services/:serviceId"

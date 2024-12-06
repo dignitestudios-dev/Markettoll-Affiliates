@@ -18,6 +18,7 @@ const ProductList = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { searchResults } = useContext(SearchedProductContext);
+  const [categories, setCategories] = useState([]);
 
   const fetchProducts = async () => {
     const options = user?.token
@@ -65,10 +66,28 @@ const ProductList = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${BASE_URL}/users/product-categories`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      setCategories(res?.data?.data);
+      // console.log("setCategories >>>", res?.data?.data);
+    } catch (error) {
+      console.log("home screen products err >>>>", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUserProfile();
     fetchProducts();
     fetchServices();
+    fetchCategories();
   }, []);
 
   const handleShowServices = (category) => {
@@ -146,7 +165,7 @@ const ProductList = () => {
               Clothing
             </button>
             <Link
-              to="/categories"
+              to={`/home/categories/${categories[0]?.name}`}
               className="bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2"
             >
               See All

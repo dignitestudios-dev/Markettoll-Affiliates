@@ -11,13 +11,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 
-const MyServicesList = () => {
+const MyServicesList = ({ postType }) => {
   const [myServices, setMyServices] = useState([]);
   const { user, userProfile } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [isDropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
@@ -55,13 +54,16 @@ const MyServicesList = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/seller-services/${user?._id}?page=${page}`,
+        postType === "Post"
+          ? `${BASE_URL}/users/seller-services/${user?._id}?page=${page}`
+          : `${BASE_URL}/users/services-boosted?page=${page}`,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
           },
         }
       );
+      // console.log(res?.data);
       setMyServices(res?.data?.data);
     } catch (error) {
       console.log("my services err >>>>", error);
@@ -72,7 +74,7 @@ const MyServicesList = () => {
 
   useEffect(() => {
     fetchMyServices();
-  }, []);
+  }, [postType]);
 
   if (loading) {
     return <Loader />;
@@ -84,7 +86,7 @@ const MyServicesList = () => {
 
   const handleNavigateToBostPost = (serviceId) => {
     navigate("/choose-package-to-boost-service", {
-      state: { from: "/my-listings", serviceId: serviceId },
+      state: { from: window.location.href, id: serviceId, type: "service" },
     });
   };
 

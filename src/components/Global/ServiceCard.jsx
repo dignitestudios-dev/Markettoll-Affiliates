@@ -25,7 +25,7 @@ const ServiceCard = ({ service }) => {
         </button>
         <img
           src={displayImage?.url}
-          alt="product"
+          alt={service?.name}
           className="w-full h-[276px]"
         />
       </div>

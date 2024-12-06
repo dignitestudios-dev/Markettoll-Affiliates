@@ -21,6 +21,7 @@ const AuthContextProvider = ({ children }) => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
+      // console.log("user profile >>>", res?.data);
       setUserProfile(res?.data?.data);
     } catch (error) {
       console.log("error while fetch user profile >>>", error);

@@ -11,10 +11,11 @@ import MyProductsList from "./MyProductsList";
 
 const MyProductsAndServices = () => {
   const [showPopup, setShowPopup] = useState(false);
-  const { user } = useContext(AuthContext);
-  const [myProducts, setMyProducts] = useState([]);
   const [state, setState] = useState(false);
-  // console.log(user?._id);
+  const [showBoostedServices, setShowBoostedService] = useState(false);
+  const [showBoostedProducts, setShowBoostedProducts] = useState(false);
+  const [postType, setPostType] = useState("post");
+  console.log("postType >>>", postType);
 
   const handleShowPopup = () => {
     setShowPopup(!showPopup);
@@ -62,6 +63,8 @@ const MyProductsAndServices = () => {
         <div>
           <select
             id="countries"
+            value={postType}
+            onChange={(e) => setPostType(e.target.value)}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none"
           >
             <option selected defaultValue="post">
@@ -71,7 +74,11 @@ const MyProductsAndServices = () => {
           </select>
         </div>
       </div>
-      {state ? <MyServicesList /> : <MyProductsList />}
+      {state ? (
+        <MyServicesList postType={postType} />
+      ) : (
+        <MyProductsList postType={postType} />
+      )}
     </div>
   );
 };

@@ -68,7 +68,11 @@ const ServiceReviewPage = () => {
         toast.success(response.data.message);
         localStorage.setItem("serviceId", JSON.stringify(response.data.data));
         navigate("/boost-service", {
-          state: { from: "sericeReview" },
+          state: {
+            from: window.location.href,
+            type: "service",
+            id: response?.data?.data?._id,
+          },
         });
         return response.data;
       }
@@ -167,7 +171,7 @@ const ServiceReviewPage = () => {
             onClick={() => uploadService()}
             className="blue-bg text-white py-3 text-center rounded-full w-full text-sm font-bold"
           >
-            Post Now
+            {loading ? "Posting..." : "Post Now"}
           </button>
         </div>
       </div>

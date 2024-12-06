@@ -1,5 +1,19 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, setDoc, addDoc,query,getDocs,serverTimestamp,getDoc,updateDoc,onSnapshot } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { GoogleAuthProvider, OAuthProvider } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  addDoc,
+  query,
+  getDocs,
+  serverTimestamp,
+  getDoc,
+  updateDoc,
+  onSnapshot,
+} from "firebase/firestore";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -10,12 +24,28 @@ const firebaseConfig = {
   storageBucket: "markettoll-12722.firebasestorage.app",
   messagingSenderId: "415697624629",
   appId: "1:415697624629:web:bdb82c4ee69379c463db7c",
-  measurementId: "G-9BPJW8MKXF"
+  measurementId: "G-9BPJW8MKXF",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = getFirestore(app);
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+export const appleProvider = new OAuthProvider("apple.com");
 
-export { app, db, collection, doc, setDoc, addDoc,query,getDocs,serverTimestamp,getDoc,updateDoc,onSnapshot};
+export {
+  app,
+  db,
+  collection,
+  doc,
+  setDoc,
+  addDoc,
+  query,
+  getDocs,
+  serverTimestamp,
+  getDoc,
+  updateDoc,
+  onSnapshot,
+};

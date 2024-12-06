@@ -11,6 +11,7 @@ import { BASE_URL } from "../../api/api";
 // import FacebookLoginButton from "./FacebookLoginButton";
 // import AppleLoginButton from "./AppleLoginButton";
 import { toast } from "react-toastify";
+import SocialLogin from "./SocialLogin";
 
 const validate = (values) => {
   const errors = {};
@@ -192,6 +193,7 @@ const LoginForm = () => {
           <AppleLoginButton />
           <FacebookLoginButton />
         </div> */}
+        <SocialLogin />
 
         <p className="text-sm text-center w-full mt-4">
           <span>Don't Have An Account? </span>

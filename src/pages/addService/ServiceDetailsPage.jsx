@@ -13,11 +13,12 @@ const ServiceDetailsPage = () => {
   const [displayImage, setDisplayImage] = useState(null);
 
   const handleFetchService = async () => {
+    const headers = user?.token
+      ? { Authorization: `Bearer ${user?.token}` }
+      : {};
     try {
       const res = await axios.get(`${BASE_URL}/users/service/${serviceId}`, {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
+        headers: headers,
       });
       console.log("service details >>>>", res?.data?.data);
       setService(res?.data?.data);
@@ -46,15 +47,15 @@ const ServiceDetailsPage = () => {
   const handleAddService = () => {
     navigate("/boost-service");
   };
-  
-  const userDetail={
-    lastMessage:{
-      profileImage:service?.sellerDetails?.profileImage,
-      profileName:service?.sellerDetails?.name,
-      receiverId:service?.sellerDetails?._id,
-      senderId:user?._id
-    }
-  }
+
+  const userDetail = {
+    lastMessage: {
+      profileImage: service?.sellerDetails?.profileImage,
+      profileName: service?.sellerDetails?.name,
+      receiverId: service?.sellerDetails?._id,
+      senderId: user?._id,
+    },
+  };
 
   return (
     <div className="padding-x py-6 w-full">
@@ -124,7 +125,7 @@ const ServiceDetailsPage = () => {
                             : service?.sellerDetails?.profileImage
                         }
                         alt="seller profile image"
-                        className="w-[68px] h-[68px]"
+                        className="w-[68px] h-[68px] rounded-full object-cover"
                       />
                       <div className="flex flex-col items-start">
                         <span className="text-[#676767] text-[13px] font-normal">
@@ -150,7 +151,7 @@ const ServiceDetailsPage = () => {
                   <div>
                     <Link
                       to="/chats"
-                      state={{data:userDetail}}
+                      state={{ data: userDetail }}
                       className="flex items-center justify-end gap-2 w-[127px]"
                     >
                       <img

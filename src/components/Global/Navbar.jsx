@@ -20,7 +20,7 @@ const Navbar = () => {
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const { searchQuery, setSearchQuery, searchResults, setSearchResults } =
     useContext(SearchedProductContext);
-
+  // console.log("user from navbar >>>", user);
   const handleLogout = () => {
     navigate("/login");
     Cookies.remove("market-signup");
@@ -131,7 +131,11 @@ const Navbar = () => {
             className="flex items-center gap-2"
           >
             <img
-              src={userProfile?.profileImage}
+              src={
+                userProfile?.profileImage
+                  ? userProfile?.profileImage
+                  : "/upload-profile-image-icon.png"
+              }
               alt="profile-image"
               className="w-[32px] h-[32px] rounded-full object-cover"
             />

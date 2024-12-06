@@ -5,24 +5,25 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
 
-const MyProductsList = () => {
+const MyProductsList = ({ postType }) => {
   const [myProducts, setMyProducts] = useState([]);
-  const { userProfile, user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const fetchMyProducts = async () => {
-    console.log(userProfile?._id);
-    const API = `${BASE_URL}/users/products?page=${page}`;
-    console.log("API >>>", API);
     setLoading(true);
     try {
-      const res = await axios.get(API, {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
-      console.log("my products res >>>>>", res?.data);
+      const res = await axios.get(
+        postType === "Post"
+          ? `${BASE_URL}/users/products?page=${page}`
+          : `${BASE_URL}/users/products-boosted?page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
       setMyProducts(res?.data?.data);
     } catch (error) {
       console.log("my products err >>>>", error);
@@ -33,7 +34,7 @@ const MyProductsList = () => {
 
   useEffect(() => {
     fetchMyProducts();
-  }, []);
+  }, [postType]);
 
   if (loading) {
     return <Loader />;
@@ -50,7 +51,13 @@ const MyProductsList = () => {
   return (
     <div className="mt-10 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {myProducts?.map((product, index) => {
-        return <ProductCard product={product} key={index} />;
+        return (
+          <ProductCard
+            product={product}
+            key={index}
+            fetchMyProducts={fetchMyProducts}
+          />
+        );
       })}
     </div>
   );

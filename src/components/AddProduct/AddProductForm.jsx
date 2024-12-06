@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
@@ -6,13 +6,16 @@ import { IoClose } from "react-icons/io5";
 import { STATES } from "../../constants/states";
 import { LuMinus } from "react-icons/lu";
 import { HiPlus } from "react-icons/hi";
-import { productCategories } from "../../constants/productCategories";
+// import { productCategories } from "../../constants/productCategories";
 import { AuthContext } from "../../context/authContext";
 import { ProductDataReview } from "../../context/addProduct";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
+import { City, Country, State } from "country-state-city";
 
 const AddProductForm = () => {
-  const { userProfile } = useContext(AuthContext);
+  const { user, userProfile } = useContext(AuthContext);
   const [productName, setProductName] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [productSubCategory, setProductSubCategory] = useState("");
@@ -33,6 +36,66 @@ const AddProductForm = () => {
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [productCategories, setProductCategories] = useState([]);
+
+  const [fullStateName, setFullStateName] = useState("");
+  const [states, setStates] = useState([]);
+  const [stateCities, setStateCities] = useState([]);
+
+  useEffect(() => {
+    const allCountries = Country.getAllCountries();
+    const usStates = State.getStatesOfCountry("US");
+    setStates(usStates);
+  }, []);
+
+  useEffect(() => {
+    if (selectedState) {
+      const allCities = City.getCitiesOfState("US", selectedState);
+      setStateCities(allCities);
+    } else {
+      setStateCities([]);
+    }
+  }, [selectedState]);
+
+  const getStateFullName = (abbreviation) => {
+    const state = states.find((state) => state.isoCode === abbreviation);
+    return state ? state.name : abbreviation;
+  };
+
+  useEffect(() => {
+    if (selectedState) {
+      const fullState = getStateFullName(selectedState);
+      setFullStateName(fullState);
+      // setStateFullName(fullState);
+    } else {
+      setFullStateName("");
+    }
+  }, [selectedState]);
+
+  const handleStateChange = (event) => {
+    setSelectedState(event.target.value);
+    setSelectedCity("");
+  };
+
+  const fetchProductCategories = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/users/product-categories`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      setProductCategories(res?.data?.data);
+    } catch (error) {
+      console.log(
+        "err while fetching product categories",
+        error?.response?.data
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchProductCategories();
+  }, []);
 
   const productPickupAddress = userProfile?.pickupAddress;
 
@@ -41,7 +104,7 @@ const AddProductForm = () => {
   const selectedCategory = productCategories.find(
     (category) => category.name === productCategory
   );
-  const subcategories = selectedCategory ? selectedCategory.subcategories : [];
+  const subcategories = selectedCategory ? selectedCategory?.subCategories : [];
 
   const handleFulfillmentMethodChange = (e) => {
     const { name, checked } = e.target;
@@ -66,11 +129,6 @@ const AddProductForm = () => {
 
   const handleSubCategoryChange = (e) => {
     setProductSubCategory(e.target.value);
-  };
-
-  const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
-    setSelectedCity("");
   };
 
   const selectedStateData = STATES.find(
@@ -133,7 +191,7 @@ const AddProductForm = () => {
       toast.error("Price can not be 0");
       return;
     }
-    if (!selectedState) {
+    if (!fullStateName) {
       toast.error("Please select a state");
       return;
     }
@@ -164,7 +222,7 @@ const AddProductForm = () => {
       description,
       productCategory,
       productSubCategory,
-      selectedState,
+      selectedState: fullStateName,
       selectedCity,
       fulfillmentMethod,
       pickupAddress: isPickupAddressSameAsProfile
@@ -319,9 +377,9 @@ const AddProductForm = () => {
                   disabled={!productCategory} // Disable if no category is selected
                 >
                   <option value="">Select Sub Category</option>
-                  {subcategories.map((sub, index) => (
-                    <option key={index} value={sub}>
-                      {sub}
+                  {subcategories?.map((sub, index) => (
+                    <option key={index} value={sub?.name}>
+                      {sub?.name}
                     </option>
                   ))}
                 </select>
@@ -363,13 +421,13 @@ const AddProductForm = () => {
                 <select
                   name="state"
                   id="state"
-                  className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                  className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
                   value={selectedState}
                   onChange={handleStateChange}
                 >
                   <option value="">Select a State</option>
-                  {STATES.map((state, index) => (
-                    <option key={index} value={state.name}>
+                  {states.map((state) => (
+                    <option key={state.isoCode} value={state.isoCode}>
                       {state.name}
                     </option>
                   ))}
@@ -382,15 +440,15 @@ const AddProductForm = () => {
                 <select
                   name="city"
                   id="city"
-                  className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                  className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
                   value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
                   disabled={!selectedState}
                 >
                   <option value="">Select a City</option>
-                  {cities.map((city, index) => (
-                    <option key={index} value={city}>
-                      {city}
+                  {stateCities.map((city) => (
+                    <option key={city.name} value={city.name}>
+                      {city.name}
                     </option>
                   ))}
                 </select>
