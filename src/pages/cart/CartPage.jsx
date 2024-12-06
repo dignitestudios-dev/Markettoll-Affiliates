@@ -16,7 +16,6 @@ const CartPage = () => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(0);
-  console.log("cartProducts >>", cartProducts);
 
   const fetchCartProducts = async () => {
     setLoading(true);
@@ -26,7 +25,7 @@ const CartPage = () => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      console.log("cartProducts >>>", res?.data?.data);
+      // console.log("cartProducts >>>", res?.data?.data);
       setCartProducts(res?.data?.data);
     } catch (error) {
       console.log("cartProducts err >>>", error);
@@ -61,7 +60,10 @@ const CartPage = () => {
       <div className="w-full bg-[#F7F7F7] p-6 rounded-[20px] grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="col-span-1 lg:col-span-2">
           {count === 0 ? (
-            <CartProductList cartProducts={cartProducts} />
+            <CartProductList
+              cartProducts={cartProducts}
+              fetchCartProducts={fetchCartProducts}
+            />
           ) : count === 1 ? (
             <DeliveryAddress onclick={handleDecrementCount} />
           ) : count === 2 ? (
@@ -83,6 +85,7 @@ const CartPage = () => {
             setIsOrderPlaced={setIsOrderPlaced}
             cartProducts={cartProducts}
             totalAmount={totalAmount}
+            fetchCartProducts={fetchCartProducts}
           />
         </div>
       </div>

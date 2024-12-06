@@ -3,10 +3,12 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-const CartProductCard = ({ products }) => {
+const CartProductCard = ({ products, fetchCartProducts }) => {
   const [quantity, setQuantity] = useState(products?.quantity);
-  const { user } = useContext(AuthContext);
+  const { user, userProfile } = useContext(AuthContext);
+  console.log(products?._id);
 
   const handleIncrementQuantity = async (type) => {
     const endpoint =
@@ -29,6 +31,29 @@ const CartProductCard = ({ products }) => {
       }
     } catch (error) {
       console.log("decrement by one err >>>>>>", error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  const handleRemoveCartItems = async () => {
+    try {
+      const res = await axios.delete(
+        `${BASE_URL}/users/cart-product/${products?._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("removed cart items >>>", res?.data);
+      if (res?.data?.success) {
+        fetchCartProducts();
+      }
+    } catch (error) {
+      console.log(
+        "error while deleting cart items >>>>",
+        error?.response?.data
+      );
       toast.error(error?.response?.data?.message);
     }
   };
@@ -86,7 +111,19 @@ const CartProductCard = ({ products }) => {
           ${products?.product?.price}.00
         </span>
       </div>
-      <div className="hidden md:block">
+      <div className="hidden md:flex flex-col items-end">
+        <button
+          type="button"
+          onClick={() => handleRemoveCartItems()}
+          className="text-[#9D9D9DDD] text-sm flex items-center justify-center gap-1 mb-1"
+        >
+          <img
+            src="/trash-icon.png"
+            alt="trash-icon"
+            className="w-[14px] h-[15px]"
+          />
+          Delete
+        </button>
         <div className="flex items-center justify-center">
           <button
             type="button"

@@ -6,6 +6,7 @@ import { BASE_URL } from "../../api/api";
 import { CartProductContext } from "../../context/cartProductContext";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const CartSummary = ({
   onclick,
@@ -14,16 +15,15 @@ const CartSummary = ({
   setIsOrderPlaced,
   cartProducts,
   totalAmount,
+  fetchCartProducts,
 }) => {
   const { data } = useContext(CartProductContext);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  console.log("count >>>", count);
-  console.log("data >>>", data);
+  const navigate = useNavigate();
 
   const handlePlaceOrder = async () => {
     console.log("calling place order api");
-    // setIsOrderPlaced(!isOrderPlaced);
     try {
       const res = await axios.post(
         `${BASE_URL}/users/order-product-transient`,
@@ -50,6 +50,10 @@ const CartSummary = ({
             }
           );
           console.log("order placed >>>", response);
+          if (response?.status == 201) {
+            setIsOrderPlaced(!isOrderPlaced);
+            fetchCartProducts();
+          }
         } catch (error) {
           console.log("order failed >>>>", error?.response?.data?.message);
           toast.error(error?.response?.data?.message);
@@ -58,6 +62,11 @@ const CartSummary = ({
     } catch (error) {
       console.log("place order err >>>", error?.response?.data?.message);
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsOrderPlaced(!isOrderPlaced);
+    navigate("/");
   };
 
   // console.log("Total Amount: $", totalAmount.toFixed(2));
@@ -99,7 +108,7 @@ const CartSummary = ({
           ? "Continue to Shopping"
           : "Next"}
       </button>
-      <OrderModal isOrderPlaced={isOrderPlaced} onclick={handlePlaceOrder} />
+      <OrderModal isOrderPlaced={isOrderPlaced} onclick={handleCloseModal} />
     </div>
   );
 };

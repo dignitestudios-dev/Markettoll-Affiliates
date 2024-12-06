@@ -23,9 +23,6 @@ const DeliveryAddress = ({ onclick }) => {
     setData({ deliveryAddress: address });
   };
 
-  console.log("selectedAddress >>>>>", selectedAddress);
-  console.log("setData >>>>>", data);
-
   const handleState = () => {
     setState(!state);
   };
@@ -43,7 +40,8 @@ const DeliveryAddress = ({ onclick }) => {
       </div>
       <h2 className="text-[28px] font-bold blue-text">Delivery Address</h2>
 
-      {!user?.deliveryAddresses || user?.deliveryAddresses.length === 0 ? (
+      {!userProfile?.deliveryAddresses ||
+      userProfile?.deliveryAddresses.length === 0 ? (
         <button
           type="button"
           onClick={handleState}
@@ -94,7 +92,7 @@ const AddAddressModal = ({ state, onclick }) => {
   const [streetAddress, setStreetAddress] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [apartment, setApartment] = useState("");
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
   const handleAddDeliveryAddress = async (e) => {
@@ -122,15 +120,8 @@ const AddAddressModal = ({ state, onclick }) => {
         ? JSON.parse(localStorage.getItem("user"))
         : null;
       console.log("add delivery address res >>>>", res?.data);
-      // if (currentUser) {
-      //   currentUser.deliveryAddresses = updatedAddresses;
+      fetchUserProfile();
 
-      //   Cookies.set("user", JSON.stringify(currentUser));
-
-      //   console.log("User data updated successfully in cookies!");
-      // } else {
-      //   console.error("User data not found in cookies.");
-      // }
       if (res?.status === 201) {
         onclick();
       }

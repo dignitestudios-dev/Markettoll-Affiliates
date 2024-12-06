@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import CartProductCard from "./CartProductCard";
+import { AuthContext } from "../../context/authContext";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
 
-const CartProductList = ({ cartProducts }) => {
+const CartProductList = ({ cartProducts, fetchCartProducts }) => {
+  const { user, userProfile } = useContext(AuthContext);
+
   return (
     <div className="bg-white p-6 rounded-[20px]">
       <div className="w-full flex items-center justify-between mb-5">
         <h2 className="text-[28px] blue-text font-bold">Cart</h2>
         <button
           type="button"
+          onClick={() => handleRemoveCartItems()}
           className="text-sm text-[#9D9D9DDD] flex items-center gap-1"
         >
           <img
@@ -20,7 +26,13 @@ const CartProductList = ({ cartProducts }) => {
       </div>
 
       {cartProducts?.map((cartProd, index) => {
-        return <CartProductCard products={cartProd} key={index} />;
+        return (
+          <CartProductCard
+            products={cartProd}
+            key={index}
+            fetchCartProducts={fetchCartProducts}
+          />
+        );
       })}
     </div>
   );

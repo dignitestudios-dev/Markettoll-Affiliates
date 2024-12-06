@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoClose, IoSearchOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
@@ -21,6 +21,8 @@ const Navbar = () => {
   const { searchQuery, setSearchQuery, searchResults, setSearchResults } =
     useContext(SearchedProductContext);
   // console.log("user from navbar >>>", user);
+  const [notifications, setNotifications] = useState([]);
+
   const handleLogout = () => {
     navigate("/login");
     Cookies.remove("market-signup");
@@ -42,6 +44,28 @@ const Navbar = () => {
   const handleToggleMenu = () => {
     setOpenSidebarDropdown(!openSidebarDropdown);
   };
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/users/notifications?page=1`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      console.log("notifications >>>", res?.data?.data?.notifications);
+      setNotifications(res?.data?.data?.notifications);
+    } catch (error) {
+      console.log(
+        "error while fetching notifications >>>",
+        error?.response?.data
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    fetchUserProfile();
+  }, []);
 
   const handleSearchProduct = async (e) => {
     e.preventDefault();
@@ -112,7 +136,10 @@ const Navbar = () => {
             alt="notifications-icon"
             className="w-[18px] h-[18px]"
           />
-          <NotificationsDropdown openNotifications={openNotifications} />
+          <NotificationsDropdown
+            openNotifications={openNotifications}
+            notifications={notifications}
+          />
         </button>
         <Link
           to="/cart"

@@ -34,7 +34,7 @@ const SubCategoriesPage = () => {
     subCategoryProducts();
   }, []);
   return (
-    <div className="padding-x py-6 w-full border border-black">
+    <div className="padding-x py-6 w-full">
       <Link
         to={location?.state ? location?.state?.from : "/"}
         className="flex items-center gap-1 text-gray-500 text-sm font-medium"
@@ -42,7 +42,7 @@ const SubCategoriesPage = () => {
         <FiArrowLeft className="text-lg light-blue-text" />
         Back
       </Link>
-      <h2 className="font-bold blue-text text-xl mt-2">{subCategory}</h2>
+      <h2 className="font-bold blue-text text-2xl mt-3">{subCategory}</h2>
       <div className="w-full mt-8">
         {products?.length > 0 ? (
           <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
