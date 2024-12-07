@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import SellerProducts from "./SellerProducts";
 import SellerServices from "./SellerServices";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoIosStar } from "react-icons/io";
 import { AuthContext } from "../../context/authContext";
@@ -17,6 +17,7 @@ const SellerProfile = () => {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { sellerId } = useParams();
 
   const fetchUserPrfile = async () => {
     const headers = user?.token
@@ -29,7 +30,7 @@ const SellerProfile = () => {
     }
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/profile-details/${user?._id}`,
+        `${BASE_URL}/users/profile-details/${sellerId}`,
         {
           headers: headers,
         }

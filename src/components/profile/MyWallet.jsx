@@ -5,14 +5,21 @@ import AddFundModal from "./AddFundModal";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
+import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { toast } from "react-toastify";
 
 const MyWallet = () => {
-  const [connectCard, setConnectCard] = useState(true);
+  const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
+  const [connectCard, setConnectCard] = useState(
+    userProfile?.stripeCustomer?.id ? true : false
+  );
   const [cardAdded, setCardAdded] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showFundModal, setShowFundModal] = useState(false);
-  const { user, userProfile } = useContext(AuthContext);
   const [transactionHistory, setTransactionHistory] = useState([]);
+  const stripe = useStripe();
+  const elements = useElements();
+  console.log(connectCard);
 
   const handleTogglwWithdrawModal = () => {
     setShowModal(!showModal);
@@ -26,10 +33,65 @@ const MyWallet = () => {
     setShowFundModal(!showFundModal);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setConnectCard(!connectCard);
-    setCardAdded(true);
+    try {
+      if (!stripe || !elements) {
+        console.log("Stripe.js has not loaded yet.");
+        return;
+      }
+
+      const cardElement = elements.getElement(CardElement);
+
+      if (!cardElement) {
+        console.error("CardElement is not rendered.");
+        return;
+      }
+
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+      });
+
+      if (error) {
+        console.error(error);
+        setIsProcessing(false);
+        toast.error("Error processing payment method: " + error.message);
+        return;
+      }
+
+      // console.log("PaymentMethod Created:", paymentMethod.id);
+      if (paymentMethod?.id) {
+        try {
+          const response = await axios.post(
+            `${BASE_URL}/stripe/customer-card`,
+            {
+              paymentMethodId: paymentMethod?.id,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+
+          console.log("paymentMethodId added >>>", response);
+          if (response?.data?.success) {
+            fetchUserProfile();
+            setAddCard(!addCard);
+          }
+        } catch (error) {
+          setConnectCard(false);
+          console.log(
+            "error while adding paymentMethodId >>",
+            error?.response?.data
+          );
+          toast.error(error?.response?.data?.message);
+        }
+      }
+    } catch (error) {
+      console.log("err while adding card >>>", error);
+    }
   };
 
   const fetchTransactionhistory = async () => {
@@ -37,12 +99,11 @@ const MyWallet = () => {
       const res = await axios.get(
         `${BASE_URL}/users/transaction-history?page=1`,
         {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
+          headers: user?.token ? { Authorization: `Bearer ${user.token}` } : {},
         }
       );
       setTransactionHistory(res?.data?.data);
+      // console.log(res);
     } catch (error) {
       console.log(
         "erro while fetching transaction history >>>",
@@ -140,9 +201,8 @@ const MyWallet = () => {
 
           <div>
             <h3 className="blue-text text-base font-bold mb-4">Connect Card</h3>
-
-            {userProfile && !userProfile?.stripeCustomer?.paymentMethodId ? (
-              <div className="w-full flex flex-col items-start gap-3">
+            <div className="w-full flex flex-col items-start gap-3">
+              {userProfile?.stripeCustomer?.id && (
                 <button
                   type="button"
                   onClick={handleConnectCard}
@@ -166,99 +226,72 @@ const MyWallet = () => {
                     <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
                   )}
                 </button>
-                {userProfile?.stripeConnectedAccount?.external_account?.id !==
-                  "" ||
-                  (userProfile?.stripeConnectedAccount?.external_account?.id !==
-                    null && (
-                    <button
-                      type="button"
-                      onClick={handleConnectCard}
-                      className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
-                    >
-                      <div className="flex items-center gap-2">
-                        <img
-                          src="/credit-card-icon.png"
-                          alt="credit card icon"
-                          className="w-[20px] h-[20px]"
-                        />
-                        <span className="text-sm text-[#5C5C5C]">
-                          Add Debit/ Credit Card
-                        </span>
-                      </div>
-                      <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
-                    </button>
-                  ))}
-              </div>
-            ) : (
-              <form
-                onSubmit={handleSubmit}
-                className="w-full flex flex-col items-start gap-4"
-              >
-                <div className="w-full flex flex-col items-start gap-1">
-                  <label
-                    htmlFor="cardHolderName"
-                    className="font-medium text-sm"
-                  >
-                    Card Holder Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="John Smith"
-                    className="border rounded-2xl outline-none text-sm p-3 w-full"
-                  />
-                </div>
-                <div className="w-full flex flex-col items-start gap-1">
-                  <label htmlFor="cardNumber" className="font-medium text-sm">
-                    Card Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="0000 0000 0000"
-                    className="border rounded-2xl outline-none text-sm p-3 w-full"
-                  />
-                </div>
-                <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="w-full flex flex-col items-start gap-1">
-                    <label htmlFor="expiryDate" className="font-medium text-sm">
-                      Valid Through
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="MM/YY"
-                      className="border rounded-2xl outline-none text-sm p-3 w-full"
+              )}
+
+              {!connectCard ? (
+                <button
+                  type="button"
+                  onClick={handleConnectCard}
+                  className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
+                >
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="/credit-card-icon.png"
+                      alt="credit card icon"
+                      className="w-[20px] h-[20px]"
                     />
+                    <span className="text-sm text-[#5C5C5C]">
+                      Add Debit/ Credit Card
+                    </span>
                   </div>
-                  <div className="w-full flex flex-col items-start gap-1">
-                    <label htmlFor="cvc" className="font-medium text-sm">
-                      CVC
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="0000"
-                      className="border rounded-2xl outline-none text-sm p-3 w-full"
-                    />
+                  <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
+                </button>
+              ) : (
+                <form
+                  onSubmit={handleSubmit}
+                  className="w-full flex flex-col items-start gap-4"
+                >
+                  <div className="w-full flex flex-col items-center gap-5 mt-10">
+                    <div className="w-full flex flex-col items-start gap-1 lg:w-[605px]">
+                      <label
+                        htmlFor="cardHolderName"
+                        className="font-medium text-sm"
+                      >
+                        Card Holder Name
+                      </label>
+                      <input
+                        type="text"
+                        id="cardHolderName"
+                        name="cardHolderName"
+                        placeholder="John Smith"
+                        className="w-full bg-white border rounded-full px-4 py-3.5 text-sm text-[#5C5C5C] outline-none"
+                      />
+                    </div>
+
+                    <div className="w-full lg:w-[605px]">
+                      <label
+                        htmlFor="cardDetails"
+                        className="font-medium text-sm"
+                      >
+                        Card Details
+                      </label>
+                      <CardElement className="w-full bg-white rounded-full border px-6 py-4 text-sm text-[#5C5C5C] outline-none" />
+                    </div>
+
+                    <div className="w-full lg:w-[605px] mt-2">
+                      <button
+                        type="submit"
+                        // disabled={!stripe}
+                        // onClick={handleSubmit}
+                        className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
+                      >
+                        Save
+                      </button>
+                    </div>
                   </div>
-                  <div className="w-full flex flex-col items-start gap-1">
-                    <label htmlFor="zipCode" className="font-medium text-sm">
-                      Zip Code
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="0000"
-                      className="border rounded-2xl outline-none text-sm p-3 w-full"
-                    />
-                  </div>
-                </div>
-                <div className="w-full">
-                  <button
-                    type="submit"
-                    className="blue-bg text-white font-bold py-3 rounded-2xl w-full"
-                  >
-                    Save
-                  </button>
-                </div>
-              </form>
-            )}
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>

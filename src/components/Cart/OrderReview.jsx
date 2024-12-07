@@ -4,10 +4,20 @@ import { Link } from "react-router-dom";
 import { CartProductContext } from "../../context/cartProductContext";
 import { AuthContext } from "../../context/authContext";
 
-const OrderReview = ({ onclick, isOrderPlaced }) => {
+const OrderReview = ({
+  onclick,
+  isOrderPlaced,
+  isAnyProductToDeliver,
+  cartProducts,
+}) => {
   const { data, setData } = useContext(CartProductContext);
   const { userProfile } = useContext(AuthContext);
-  // console.log(data);
+  const deliveryProducts = cartProducts?.filter((p) => {
+    return p?.fulfillmentMethod?.delivery == true;
+  });
+  const pickupProducts = cartProducts?.filter((p) => {
+    return p?.fulfillmentMethod?.selfPickup == true;
+  });
 
   return (
     <div className="bg-white rounded-[20px] p-6 flex flex-col items-start gap-5">
@@ -25,18 +35,19 @@ const OrderReview = ({ onclick, isOrderPlaced }) => {
         {/* {isOrderPlaced ? "Thank you for placing an order!" : "Order Summary"} */}
         Order Summary
       </h3>
-
-      <div className="w-full">
-        <p className="text-base font-bold">Delivery Address</p>
-        <div className="bg-[#F5F5F5] px-5 py-3 rounded-[20px]">
-          <span className="text-sm font-normal">
-            {data?.deliveryAddress?.apartment_suite}{" "}
-            {data?.deliveryAddress?.streetAddress} {data?.deliveryAddress?.city}{" "}
-            {data?.deliveryAddress?.state} {data?.deliveryAddress?.country}{" "}
-            {data?.deliveryAddress?.zipCode}
-          </span>
+      {isAnyProductToDeliver && (
+        <div className="w-full">
+          <p className="text-base font-bold">Delivery Address</p>
+          <div className="bg-[#F5F5F5] px-5 py-3 rounded-[20px]">
+            <span className="text-sm font-normal">
+              {data?.deliveryAddress?.apartment_suite}{" "}
+              {data?.deliveryAddress?.streetAddress}{" "}
+              {data?.deliveryAddress?.city} {data?.deliveryAddress?.state}{" "}
+              {data?.deliveryAddress?.country} {data?.deliveryAddress?.zipCode}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="w-full">
         <p className="text-base font-bold">Payment Method</p>
@@ -47,7 +58,9 @@ const OrderReview = ({ onclick, isOrderPlaced }) => {
               alt="mastercard-icon"
               className="w-[24px] h-[15px]"
             />
-            <span className="text-sm font-normal">**** **** **** 8941</span>
+            <span className="text-sm font-normal">
+              **** **** **** {userProfile?.stripeCustomer?.paymentMethod?.last4}
+            </span>
           </div>
         ) : (
           <div className="bg-[#fff] border px-5 py-3 rounded-[20px] flex items-center justify-start gap-3">
@@ -63,7 +76,7 @@ const OrderReview = ({ onclick, isOrderPlaced }) => {
 
       <div className="w-full">
         <p className="text-base font-bold">Delivery Orders</p>
-        <div className="flex items-center justify-start gap-3 my-4">
+        {/* <div className="flex items-center justify-start gap-3 my-4">
           <img
             src="/seller-profile-img.png"
             alt="seller profile"
@@ -73,50 +86,48 @@ const OrderReview = ({ onclick, isOrderPlaced }) => {
           <Link to="/seller" className="text-[13px] font-semibold underline">
             View Profile
           </Link>
-        </div>
-        <div className="border-t py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/product-1.png"
-              alt="product image"
-              className="w-[80px] h-[80px] rounded-[15px]"
-            />
-            <div className="flex flex-col items-start justify-center gap-1">
-              <span className="text-base font-semibold">Product name here</span>
-              <span className="text-sm font-normal text-[#9D9D9DDD]">
-                Pick/Delivery
-              </span>
-            </div>
+        </div> */}
+        {deliveryProducts && deliveryProducts?.length > 0 && (
+          <div className="w-full">
+            {deliveryProducts?.map((deliverProduct, index) => {
+              return (
+                <div
+                  className="border-t py-4 flex items-center justify-between"
+                  key={index}
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={deliverProduct?.product?.images[0]?.url}
+                      alt="product image"
+                      className="w-[80px] h-[80px] rounded-[15px]"
+                    />
+                    <div className="flex flex-col items-start justify-center gap-1">
+                      <span className="text-base font-semibold">
+                        {deliverProduct?.product?.name}
+                      </span>
+                      <span className="text-sm font-normal text-[#9D9D9DDD]">
+                        {deliverProduct?.fulfillmentMethod?.delivery == true
+                          ? "Delivery"
+                          : "Self-pickup"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="md:flex flex-col items-start gap-1 hidden">
+                    <span className="text-[#9D9D9DDD] text-sm">Price</span>
+                    <span className="font-semibold text-[20px] blue-text">
+                      ${deliverProduct?.product?.price?.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="md:flex flex-col items-start gap-1 hidden">
-            <span className="text-[#9D9D9DDD] text-sm">Price</span>
-            <span className="font-semibold text-[20px] blue-text">$199.00</span>
-          </div>
-        </div>
-        <div className="border-t py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/product-1.png"
-              alt="product image"
-              className="w-[80px] h-[80px] rounded-[15px]"
-            />
-            <div className="flex flex-col items-start justify-center gap-1">
-              <span className="text-base font-semibold">Product name here</span>
-              <span className="text-sm font-normal text-[#9D9D9DDD]">
-                Pick/Delivery
-              </span>
-            </div>
-          </div>
-          <div className="md:flex flex-col items-start gap-1 hidden">
-            <span className="text-[#9D9D9DDD] text-sm">Price</span>
-            <span className="font-semibold text-[20px] blue-text">$199.00</span>
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="w-full">
         <p className="text-base font-bold">Pickup Orders</p>
-        <div className="flex items-center justify-start gap-3 my-4">
+        {/* <div className="flex items-center justify-start gap-3 my-4">
           <img
             src="/seller-profile-img.png"
             alt="seller profile"
@@ -126,45 +137,43 @@ const OrderReview = ({ onclick, isOrderPlaced }) => {
           <Link to="/seller" className="text-[13px] font-semibold underline">
             View Profile
           </Link>
-        </div>
-        <div className="border-t py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/product-1.png"
-              alt="product image"
-              className="w-[80px] h-[80px] rounded-[15px]"
-            />
-            <div className="flex flex-col items-start justify-center gap-1">
-              <span className="text-base font-semibold">Product name here</span>
-              <span className="text-sm font-normal text-[#9D9D9DDD]">
-                Pick/Delivery
-              </span>
-            </div>
+        </div> */}
+        {pickupProducts && pickupProducts?.length > 0 && (
+          <div className="w-full">
+            {pickupProducts?.map((deliverProduct, index) => {
+              return (
+                <div
+                  className="border-t py-4 flex items-center justify-between"
+                  key={index}
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={deliverProduct?.product?.images[0]?.url}
+                      alt="product image"
+                      className="w-[80px] h-[80px] rounded-[15px]"
+                    />
+                    <div className="flex flex-col items-start justify-center gap-1">
+                      <span className="text-base font-semibold">
+                        {deliverProduct?.product?.name}
+                      </span>
+                      <span className="text-sm font-normal text-[#9D9D9DDD]">
+                        {deliverProduct?.fulfillmentMethod?.delivery == true
+                          ? "Delivery"
+                          : "Self-pickup"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="md:flex flex-col items-start gap-1 hidden">
+                    <span className="text-[#9D9D9DDD] text-sm">Price</span>
+                    <span className="font-semibold text-[20px] blue-text">
+                      ${deliverProduct?.product?.price?.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="md:flex flex-col items-start gap-1 hidden">
-            <span className="text-[#9D9D9DDD] text-sm">Price</span>
-            <span className="font-semibold text-[20px] blue-text">$199.00</span>
-          </div>
-        </div>
-        <div className="border-t py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/product-1.png"
-              alt="product image"
-              className="w-[80px] h-[80px] rounded-[15px]"
-            />
-            <div className="flex flex-col items-start justify-center gap-1">
-              <span className="text-base font-semibold">Product name here</span>
-              <span className="text-sm font-normal text-[#9D9D9DDD]">
-                Pick/Delivery
-              </span>
-            </div>
-          </div>
-          <div className="md:flex flex-col items-start gap-1 hidden">
-            <span className="text-[#9D9D9DDD] text-sm">Price</span>
-            <span className="font-semibold text-[20px] blue-text">$199.00</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -24,6 +24,7 @@ const CartSummary = ({
 
   const handlePlaceOrder = async () => {
     console.log("calling place order api");
+    setLoading(true);
     try {
       const res = await axios.post(
         `${BASE_URL}/users/order-product-transient`,
@@ -61,6 +62,8 @@ const CartSummary = ({
       }
     } catch (error) {
       console.log("place order err >>>", error?.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 

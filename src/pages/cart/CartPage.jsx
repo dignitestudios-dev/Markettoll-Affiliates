@@ -15,7 +15,7 @@ const CartPage = () => {
   const [cartProducts, setCartProducts] = useState([]);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState(0);
+  const [isAnyProductToDeliver, setIsAnyProductToDeliver] = useState(null);
 
   const fetchCartProducts = async () => {
     setLoading(true);
@@ -36,6 +36,12 @@ const CartPage = () => {
 
   useEffect(() => {
     fetchCartProducts();
+    const checkFulfillmentMethod = cartProducts?.find((p) => {
+      return p?.fulfillmentMethod?.delivery === true; // Checks if any product needs delivery
+    });
+
+    // Update the state for delivery products
+    setIsAnyProductToDeliver(checkFulfillmentMethod !== undefined); // true if any product requires delivery
   }, []);
 
   const handleIncrementCount = () => {
@@ -65,13 +71,21 @@ const CartPage = () => {
               fetchCartProducts={fetchCartProducts}
             />
           ) : count === 1 ? (
-            <DeliveryAddress onclick={handleDecrementCount} />
+            // Show the delivery address only if there's a product to deliver
+            isAnyProductToDeliver ? (
+              <DeliveryAddress onclick={handleDecrementCount} />
+            ) : (
+              // Skip delivery address step if no product needs delivery
+              <SelectPaymentMethod onclick={handleDecrementCount} />
+            )
           ) : count === 2 ? (
             <SelectPaymentMethod onclick={handleDecrementCount} />
           ) : count === 3 ? (
             <OrderReview
               onclick={handleDecrementCount}
               isOrderPlaced={isOrderPlaced}
+              isAnyProductToDeliver={isAnyProductToDeliver}
+              cartProducts={cartProducts}
             />
           ) : (
             <></>

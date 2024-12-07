@@ -52,13 +52,13 @@ const Navbar = () => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      console.log("notifications >>>", res?.data?.data?.notifications);
+      // console.log("notifications >>>", res?.data?.data?.notifications);
       setNotifications(res?.data?.data?.notifications);
     } catch (error) {
-      console.log(
-        "error while fetching notifications >>>",
-        error?.response?.data
-      );
+      // console.log(
+      //   "error while fetching notifications >>>",
+      //   error?.response?.data
+      // );
     }
   };
 

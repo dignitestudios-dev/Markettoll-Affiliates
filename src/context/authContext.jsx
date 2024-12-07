@@ -24,7 +24,7 @@ const AuthContextProvider = ({ children }) => {
       // console.log("user profile >>>", res?.data);
       setUserProfile(res?.data?.data);
     } catch (error) {
-      console.log("error while fetch user profile >>>", error);
+      // console.log("error while fetch user profile >>>", error);
     }
   };
 

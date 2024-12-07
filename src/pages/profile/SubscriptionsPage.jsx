@@ -65,7 +65,7 @@ const PackageCard = ({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  console.log("userProfile  >>>", userProfile);
+  // console.log("userProfile  >>>", userProfile);
 
   const handleCloseModal = () => {
     setShowModal(!showModal);
@@ -97,79 +97,95 @@ const PackageCard = ({
 
   const handleSubscription = async () => {
     setLoading(true);
-    try {
-      // Check if user has a plan
-      if (userProfile?.subscriptionPlan?.name === "No Plan") {
-        // User has no plan, directly subscribe
-        const res = await axios.post(
-          `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
-          {
-            subscriptionName: planType,
-            paymentMethodId: user.stripeCustomer.paymentMethod.id,
+    if (userProfile?.subscriptionPlan?.name === "No Plan") {
+      navigate("/account/subscriptions/upgrade-plan/add-payment-details", {
+        state: {
+          from: window.location.href,
+          plan: {
+            index,
+            title,
+            features,
+            duration,
+            endpoint,
+            planType,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token}`,
+        },
+      });
+    } else {
+      try {
+        // Check if user has a plan
+        if (userProfile?.subscriptionPlan?.name === "No Plan") {
+          // User has no plan, directly subscribe
+          const res = await axios.post(
+            `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
+            {
+              subscriptionName: planType,
+              paymentMethodId: user.stripeCustomer.paymentMethod.id,
             },
-          }
-        );
-        console.log("handle Subscription (No Plan) res >>>>>", res);
-        if (res?.status === 201) {
-          fetchUserProfile(); // Refresh user profile after subscription
-          handleCloseModal(); // Close the modal after successful subscription
-        } else {
-          toast.error("Something went wrong while subscribing.");
-        }
-      } else {
-        // User already has a plan, proceed to unsubscribe and re-subscribe
-        try {
-          const unsubscribeResponse = await axios.post(
-            `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
-            {},
             {
               headers: {
                 Authorization: `Bearer ${user?.token}`,
               },
             }
           );
-          console.log(
-            "plan unsubscribed successfully >>>>",
-            unsubscribeResponse
-          );
-          if (unsubscribeResponse?.status === 200) {
-            const res = await axios.post(
-              `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
-              {
-                subscriptionName: planType,
-                paymentMethodId: user.stripeCustomer.paymentMethod.id,
-              },
+          console.log("handle Subscription (No Plan) res >>>>>", res);
+          if (res?.status === 201) {
+            fetchUserProfile(); // Refresh user profile after subscription
+            handleCloseModal(); // Close the modal after successful subscription
+          } else {
+            toast.error("Something went wrong while subscribing.");
+          }
+        } else {
+          // User already has a plan, proceed to unsubscribe and re-subscribe
+          try {
+            const unsubscribeResponse = await axios.post(
+              `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
+              {},
               {
                 headers: {
                   Authorization: `Bearer ${user?.token}`,
                 },
               }
             );
-            console.log("handle Upgrade subscription res >>>>>", res);
-            if (res?.status === 201) {
-              fetchUserProfile();
-              handleCloseModal();
+            console.log(
+              "plan unsubscribed successfully >>>>",
+              unsubscribeResponse
+            );
+            if (unsubscribeResponse?.status === 200) {
+              const res = await axios.post(
+                `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
+                {
+                  subscriptionName: planType,
+                  paymentMethodId: user.stripeCustomer.paymentMethod.id,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${user?.token}`,
+                  },
+                }
+              );
+              console.log("handle Upgrade subscription res >>>>>", res);
+              if (res?.status === 201) {
+                fetchUserProfile();
+                handleCloseModal();
+              }
+            } else {
+              toast.error("Something went wrong during unsubscribe.");
             }
-          } else {
-            toast.error("Something went wrong during unsubscribe.");
+          } catch (error) {
+            console.log(
+              "error while unsubscribing plan >>>>",
+              error?.response?.data?.message
+            );
+            toast.error("Something went wrong during unsubscribing.");
           }
-        } catch (error) {
-          console.log(
-            "error while unsubscribing plan >>>>",
-            error?.response?.data?.message
-          );
-          toast.error("Something went wrong during unsubscribing.");
         }
+      } catch (error) {
+        console.error("handle Subscription error >>>>>", error);
+        toast.error(error?.response?.data?.message || "An error occurred.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("handle Subscription error >>>>>", error);
-      toast.error(error?.response?.data?.message || "An error occurred.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -212,7 +228,7 @@ const PackageCard = ({
 
       <button
         type="button"
-        onClick={handleSubscription}
+        onClick={() => handleSubscription()}
         disabled={userProfile?.subscriptionPlan?.name == planType}
         className="blue-bg text-white font-bold text-center py-3.5 mt-5 rounded-[20px] disabled:cursor-not-allowed"
       >

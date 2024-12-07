@@ -21,7 +21,7 @@ const ServiceBoostPackageCard = ({
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showSuccessMoal, setShowSuccessModal] = useState(false);
   const location = useLocation();
-  console.log(location?.state);
+  // console.log(location?.state);
 
   const handleNavigate = async () => {
     if (

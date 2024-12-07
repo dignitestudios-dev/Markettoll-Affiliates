@@ -11,7 +11,8 @@ import { toast } from "react-toastify";
 const PersonalInfo = () => {
   const [openNameModal, setOpenNameModal] = useState(false);
   const { user, userProfile } = useContext(AuthContext);
-  console.log("userProfile >>", userProfile);
+  const [openProfileImageModal, setOpenProfileImageModal] = useState(false);
+  // console.log("userProfile >>", userProfile);
   const [username, setUsername] = useState(userProfile?.name || "");
   const [phoneNumber, setPhoneNumber] = useState(
     userProfile?.phoneNumber?.value
@@ -24,6 +25,10 @@ const PersonalInfo = () => {
   const handleTogglePhoneModal = () => {
     setOpenPhoneModal(!openPhoneModal);
   };
+
+  const toggleProfileImageModal = () => [
+    setOpenProfileImageModal(!openProfileImageModal),
+  ];
   return (
     <div className="w-full bg-[#F7F7F7] p-4 rounded-[30px]">
       <div className="w-full bg-white rounded-[30px] p-5">
@@ -43,12 +48,13 @@ const PersonalInfo = () => {
         <div className="w-full flex items-center justify-start gap-4 mt-4">
           <div className="flex flex-col items-center gap-2">
             <img
-              src="/personal-info-img.png"
+              src={userProfile?.profileImage}
               alt="personal-info-img"
-              className="w-[69px] md:w-[129px] h-[69px] md:h-[129px]"
+              className="w-[69px] md:w-[129px] h-[69px] md:h-[129px] rounded-full object-cover"
             />
             <button
               type="button"
+              onClick={toggleProfileImageModal}
               className="text-sm font-medium blue-text underline pb-0.5"
             >
               Edit Photo
@@ -113,6 +119,10 @@ const PersonalInfo = () => {
       <UpdatePhoneNumberModal
         openPhoneModal={openPhoneModal}
         onclick={handleTogglePhoneModal}
+      />
+      <UpdateProfileImage
+        openProfileImageModal={openProfileImageModal}
+        onclick={toggleProfileImageModal}
       />
     </div>
   );
@@ -202,12 +212,10 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
     setOtpModal(!otpModal);
   };
   const { user } = useContext(AuthContext);
-  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleUpdatePhoneNumber = async () => {
-    const savedUser = JSON.parse(Cookies.get("user"));
-
     setLoading(true);
     try {
       const res = await axios.put(
@@ -257,6 +265,8 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
             </label>
             <input
               type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="bg-white p-3.5 outline-none border rounded-[15px] w-full text-sm"
               placeholder="+1 000 000 0000"
             />
@@ -270,6 +280,98 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
           </div>
         </div>
         <VerifyOtpModal otpModal={otpModal} onclick={handleOtpModal} />
+      </div>
+    )
+  );
+};
+
+const UpdateProfileImage = ({ openProfileImageModal, onclick }) => {
+  const { user, fetchUserProfile } = useContext(AuthContext);
+  const [name, setName] = useState("");
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleUpdateProfileImage = async () => {
+    // const savedUser = JSON.parse(localStorage.getItem("user"));
+
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("profileImage", image);
+    try {
+      const res = await axios.put(`${BASE_URL}/users/profile-image`, formData, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      console.log("update image res >>>>>", res?.data);
+      if (res?.data?.success) {
+        fetchUserProfile();
+        toast.success(res?.data?.message);
+        onclick();
+      }
+
+      // toast.success("Name updated");
+    } catch (error) {
+      console.log("update name error >>>>", error);
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    openProfileImageModal && (
+      <div className="w-full h-screen fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center px-4">
+        <div className="w-full lg:w-[487px] h-[323px] flex flex-col items-center justify-center gap-4 relative bg-white rounded-[12px]">
+          <button
+            type="button"
+            onClick={onclick}
+            className="w-6 h-6 rounded-full p-1 bg-[#F7F7F7] absolute top-4 right-4"
+          >
+            <IoClose className="w-full h-full" />
+          </button>
+          <div className="w-[80%] flex flex-col text-center gap-2 items-center justify-center">
+            <p className="blue-text text-[20px] font-bold">
+              Update Profile Image
+            </p>
+          </div>
+          <div className="flex items-center justify-center w-full">
+            <label
+              htmlFor="dropzone-file"
+              className="flex flex-col items-center justify-center w-[150px] h-[150px] border-2 border-gray-400 border-dashed rounded-full cursor-pointer bg-white hover:bg-gray-100"
+            >
+              <div class="flex flex-col items-center justify-center w-full h-full rounded-full">
+                {image ? (
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt=""
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src="/upload-profile-image-icon.png"
+                    alt=""
+                    className="h-[40px] w-[43.1px]"
+                  />
+                )}
+              </div>
+              <input
+                onChange={(e) => setImage(e.target.files[0])}
+                id="dropzone-file"
+                type="file"
+                className="hidden"
+              />
+            </label>
+          </div>
+          <div className="w-[80%] flex flex-col text-center gap-1 items-start justify-center">
+            <button
+              className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4"
+              type="button"
+              onClick={handleUpdateProfileImage}
+            >
+              {loading ? "Updating..." : "Update"}
+            </button>
+          </div>
+        </div>
       </div>
     )
   );

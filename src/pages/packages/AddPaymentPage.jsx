@@ -45,7 +45,6 @@ const AddPaymentPage = () => {
         return;
       }
 
-      // Get the CardElement from the elements context
       const cardElement = elements.getElement(CardElement);
 
       if (!cardElement) {
@@ -53,7 +52,6 @@ const AddPaymentPage = () => {
         return;
       }
 
-      // Create a payment method with the card details
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: "card",
         card: cardElement,

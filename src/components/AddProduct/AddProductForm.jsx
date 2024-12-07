@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { City, Country, State } from "country-state-city";
+import AddPickupAddressForm from "./AddPickupAddressForm";
 
 const AddProductForm = () => {
   const { user, userProfile } = useContext(AuthContext);
@@ -41,6 +42,13 @@ const AddProductForm = () => {
   const [fullStateName, setFullStateName] = useState("");
   const [states, setStates] = useState([]);
   const [stateCities, setStateCities] = useState([]);
+
+  // pickup address fields
+  const [pickupStreetAddress, setPickupStreetAddress] = useState("");
+  const [pickupApartment, setPickupApartment] = useState("");
+  const [pickupAddressState, setPickupAddressState] = useState("");
+  const [pickupAddressCity, setPickupAddresCity] = useState("");
+  const [pickupAddressZipCode, setPickupAddressZipCode] = useState("");
 
   useEffect(() => {
     const allCountries = Country.getAllCountries();
@@ -210,12 +218,11 @@ const AddProductForm = () => {
       toast.error("Please choose a fulfillment method.");
       return;
     }
-    // if (!pickupAddress) {
-    //   toast.error("Please add a pickup address");
-    //   return;
-    // } else if (pickupAddress.length < 4) {
-    //   toast.error("Pickup address must be greater than 4 characters");
-    // }
+    //  try {
+    //   const res = await axios.post()
+    //  } catch (error) {
+
+    //  }
 
     setProductData({
       productName,
@@ -540,6 +547,18 @@ const AddProductForm = () => {
                     className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
                   />
                 </div>
+                {/* <AddPickupAddressForm
+                  pickupAddressCity={pickupAddressCity}
+                  setPickupAddresCity={setPickupAddresCity}
+                  pickupAddressState={pickupAddressState}
+                  setPickupAddressState={setPickupAddressState}
+                  pickupAddressZipCode={pickupAddressZipCode}
+                  setPickupAddressZipCode={setPickupAddressZipCode}
+                  pickupApartment={pickupApartment}
+                  setPickupApartment={setPickupApartment}
+                  pickupStreetAddress={pickupStreetAddress}
+                  setPickupStreetAddress={setPickupStreetAddress}
+                /> */}
                 {userProfile?.pickupAddress?.state !== "" && (
                   <div>
                     <label className="inline-flex items-center cursor-pointer">
@@ -578,39 +597,8 @@ const AddProductForm = () => {
           </div>
         </form>
       </div>
-      {/* <Modal openModal={openModal} onclick={handleModal} /> */}
     </div>
   );
 };
 
 export default AddProductForm;
-
-// const Modal = ({ openModal, onclick }) => {
-//   return (
-//     openModal && (
-//       <div className="w-full fixed inset-0 h-screen z-50 bg-[rgba(0,0,0,0.5)] flex items-center justify-center px-4">
-//         <div className="w-full lg:w-[400px] p-10 relative bg-white flex flex-col items-start gap-3 rounded-2xl">
-//           <p className="font-semibold text-base">No bank account attached</p>
-//           <p className="text-[#5c5c5c] font-medium text-sm">
-//             Connect your bank account first to add a product.
-//           </p>
-//           <div className="w-full flex items-center justify-end gap-4">
-//             <Link
-//               to="/settings/payment"
-//               className="text-sm font-semibold text-red-500"
-//             >
-//               Yes
-//             </Link>
-//             <button
-//               type="button"
-//               className="text-sm font-semibold"
-//               onClick={onclick}
-//             >
-//               No
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     )
-//   );
-// };

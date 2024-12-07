@@ -67,7 +67,13 @@ const ProductReviewPage = () => {
       // Handle success
       console.log("Product uploaded successfully:", response.data);
       toast.success(response.data.message);
-      navigate("/would-you-boost-your-product");
+      navigate("/would-you-boost-your-product", {
+        state: {
+          from: window.location.href,
+          type: "product",
+          id: response?.data?.data?._id,
+        },
+      });
       localStorage.setItem("product", JSON.stringify(response.data));
       return response.data;
     } catch (error) {

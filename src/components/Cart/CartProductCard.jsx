@@ -7,8 +7,7 @@ import { toast } from "react-toastify";
 
 const CartProductCard = ({ products, fetchCartProducts }) => {
   const [quantity, setQuantity] = useState(products?.quantity);
-  const { user, userProfile } = useContext(AuthContext);
-  console.log(products?._id);
+  const { user } = useContext(AuthContext);
 
   const handleIncrementQuantity = async (type) => {
     const endpoint =
@@ -38,7 +37,7 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
   const handleRemoveCartItems = async () => {
     try {
       const res = await axios.delete(
-        `${BASE_URL}/users/cart-product/${products?._id}`,
+        `${BASE_URL}/users/cart-product/${products?.product?._id}`,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
@@ -47,6 +46,7 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
       );
       console.log("removed cart items >>>", res?.data);
       if (res?.data?.success) {
+        toast.success(res?.data?.message);
         fetchCartProducts();
       }
     } catch (error) {

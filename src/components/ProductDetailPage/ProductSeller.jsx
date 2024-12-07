@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 const ProductSeller = ({ productData }) => {
   const navigate = useNavigate();
   const handleNavigateToSellerProfile = () => {
-    navigate(`/seller-profile/${productData?.sellerDetails?._id}`, {
+    navigate(`/seller-profile/${productData?.seller}`, {
       state: { from: window.location.href },
     });
   };
@@ -15,9 +15,9 @@ const ProductSeller = ({ productData }) => {
       <div className="flex items-center gap-2">
         <img
           src={
-            productData?.sellerDetails
+            productData?.sellerDetails?.profileImage
               ? productData?.sellerDetails?.profileImage
-              : "/seller-profile-img.png"
+              : "https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png"
           }
           alt="seller profile image"
           className="w-[68px] h-[68px] rounded-full bg-cover"

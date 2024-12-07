@@ -4,15 +4,17 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import ServiceCard from "../Global/ServiceCard";
+import { useParams } from "react-router-dom";
 
 const SellerServices = () => {
   const [myServices, setMyServices] = useState([]);
   const { user } = useContext(AuthContext);
+  const { sellerId } = useParams();
 
   const fetchUserServices = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/seller-services/${user?._id}?page=1`,
+        `${BASE_URL}/users/seller-services/${sellerId}?page=1`,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,

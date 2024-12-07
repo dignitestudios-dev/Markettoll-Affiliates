@@ -1,25 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { GoArrowLeft } from "react-icons/go";
 import PlanPurchaseSuccessModal from "../BoostPost/PlanPurchaseSuccessModal";
 // import PostBoostedSuccessModal from "../BoostPost/PostBoostedSuccessModal";
 import { IoClose } from "react-icons/io5";
+import { useElements, useStripe, CardElement } from "@stripe/react-stripe-js";
+import { BASE_URL } from "../../api/api";
+import axios from "axios";
+import { AuthContext } from "../../context/authContext";
+import { toast } from "react-toastify";
 // import PlanPurchaseSuccessModal from "./PlanPurchaseSuccessModal";
 // import PostBoostedSuccessModal from "./PostBoostedSuccessModal";
-
-const packageInfo = {
-  title: "2.99",
-  duration: "7 days",
-  features: [
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-    "Lorem ipsum dolor sit amet consectetur.",
-  ],
-};
 
 const AddPaymentDetails = () => {
   const [addCard, setAddCard] = useState(false);
@@ -27,6 +20,12 @@ const AddPaymentDetails = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  // console.log("location >>>>>", location);
+  const elements = useElements();
+  const stripe = useStripe();
+  const { user, fetchUserProfile } = useContext(AuthContext);
+  const [paymentMethodId, setPaymentMethodId] = useState("");
 
   const handleBuyPlan = () => {
     setShowSuccessModal(true);
@@ -46,9 +45,95 @@ const AddPaymentDetails = () => {
     setAddCard(!addCard);
   };
 
-  const handleAddCardFalse = () => {
-    setAddCard(!addCard);
-    setShowCard(!showCard);
+  const handleAddCardFalse = async (e) => {
+    e.preventDefault();
+    // setAddCard(!addCard);
+    // setShowCard(!showCard);
+    try {
+      if (!stripe || !elements) {
+        console.log("Stripe.js has not loaded yet.");
+        return;
+      }
+
+      // Get the CardElement from the elements context
+      const cardElement = elements.getElement(CardElement);
+
+      if (!cardElement) {
+        console.error("CardElement is not rendered.");
+        return;
+      }
+
+      // Create a payment method with the card details
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+      });
+
+      if (error) {
+        console.error(error);
+        setIsProcessing(false);
+        alert("Error processing payment method: " + error.message);
+        return;
+      }
+
+      console.log("PaymentMethod Created:", paymentMethod.id);
+      setPaymentMethodId(paymentMethod?.id);
+      if (paymentMethod?.id) {
+        if (paymentMethodId) {
+          // setAddCard(!addCard);
+          try {
+            const response = await axios.post(
+              `${BASE_URL}/stripe/customer-card`,
+              {
+                paymentMethodId: paymentMethodId,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${user?.token}`,
+                },
+              }
+            );
+
+            console.log("subscription purchased >>>", response);
+            if (response?.data?.success) {
+              handleAddCardTrue();
+              // setShowSuccessModal(true);
+              // setAddCard(!addCard);
+            }
+            // setShowCard(!showCard);
+          } catch (error) {
+            console.log("error while adding payment method id >>", error);
+            toast.error(error?.response?.data?.message);
+          }
+        }
+      }
+    } catch (error) {
+      console.log("err while adding card >>>", error?.response?.data);
+      toast.error(error?.response?.data?.message);
+      handleAddCardTrue();
+    }
+  };
+
+  const handleSubsribe = async () => {
+    console.log("subscribing");
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
+        {
+          subscriptionName: location?.state
+            ? location?.state?.plan?.planType
+            : "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("subscribed successfully >>>", res);
+    } catch (error) {
+      console.log("error while subscribing >>>", error);
+    }
   };
 
   return (
@@ -78,7 +163,10 @@ const AddPaymentDetails = () => {
       )}
 
       {addCard ? (
-        <div className="w-full flex flex-col items-center gap-5 mt-10">
+        <form
+          onSubmit={handleAddCardFalse}
+          className="w-full flex flex-col items-center gap-5 mt-10"
+        >
           <div className="w-full flex flex-col items-start gap-1 lg:w-[635px]">
             <label htmlFor="cardHolderName" className="font-medium text-sm">
               Card Holder Name
@@ -91,54 +179,24 @@ const AddPaymentDetails = () => {
               className="w-full bg-white rounded-full px-6 py-4 text-sm text-[#5C5C5C] outline-none"
             />
           </div>
-          <div className="w-full flex flex-col items-start gap-1 lg:w-[635px]">
-            <label htmlFor="cardNumber" className="font-medium text-sm">
-              Card Number
+
+          <div className="w-full lg:w-[635px] mt-4">
+            <label htmlFor="cardDetails" className="font-medium text-sm">
+              Card Details
             </label>
-            <input
-              type="text"
-              id="cardNumber"
-              name="cardNumber"
-              placeholder="0000 0000 0000"
-              className="w-full bg-white rounded-full px-6 py-4 text-sm text-[#5C5C5C] outline-none"
-            />
+            <CardElement className="w-full bg-white rounded-full px-6 py-4 text-sm text-[#5C5C5C] outline-none" />
           </div>
-          <div className="w-full lg:w-[635px] grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="w-full flex flex-col items-start gap-1">
-              <label htmlFor="expiry" className="font-medium text-sm">
-                Expiry
-              </label>
-              <input
-                type="text"
-                id="expiry"
-                name="expiry"
-                placeholder="MM/YY"
-                className="w-full bg-white rounded-full px-6 py-4 text-sm text-[#5C5C5C] outline-none"
-              />
-            </div>
-            <div className="w-full flex flex-col items-start gap-1">
-              <label htmlFor="cvc" className="font-medium text-sm">
-                CVC
-              </label>
-              <input
-                type="text"
-                id="cvc"
-                name="cvc"
-                placeholder="0000"
-                className="w-full bg-white rounded-full px-6 py-4 text-sm text-[#5C5C5C] outline-none"
-              />
-            </div>
-          </div>
+
           <div className="w-full lg:w-[635px] mt-2">
             <button
-              type="button"
-              onClick={handleAddCardFalse}
+              type="submit"
+              // onClick={handleAddCardFalse}
               className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
             >
               Save
             </button>
           </div>
-        </div>
+        </form>
       ) : (
         <div className="w-full mt-10 grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-8 padding-x">
           <div className="flex justify-center lg:justify-end">
@@ -149,31 +207,36 @@ const AddPaymentDetails = () => {
                 <span
                   className={`blue-bg text-white px-6 lg:px-10 py-2.5 rounded-full text-center font-medium text-sm float-end`}
                 >
-                  Plan 2
+                  Plan {location?.state && location?.state?.plan?.index + 1}
                 </span>
               </div>
               <h3 className={`blue-text font-bold text-4xl lg:text-[81px]`}>
                 <span className="text-[22px] relative -top-2.5 lg:-top-10">
                   $
                 </span>
-                <span className="mx-1">{packageInfo.title}</span>
-                <span className="text-[22px]">/ {packageInfo.duration}</span>
+                <span className="mx-1">
+                  {location?.state && location?.state?.plan?.title}
+                </span>
+                <span className="text-[22px]">
+                  / {location?.state && location?.state?.plan?.duration}
+                </span>
               </h3>
               <ul className={`bg-white px-4 rounded-xl`}>
-                {packageInfo.features?.map((p, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className="flex items-center w-full gap-2 my-5"
-                    >
-                      <div className="w-[17px] h-[17px] blue-bg p-1 rounded-full block">
-                        <FaCheck className="text-white w-full h-full" />
-                      </div>
+                {location?.state &&
+                  location?.state?.plan?.features?.map((p, index) => {
+                    return (
+                      <li
+                        key={index}
+                        className="flex items-center w-full gap-2 my-5"
+                      >
+                        <div className="w-[17px] h-[17px] blue-bg p-1 rounded-full block">
+                          <FaCheck className="text-white w-full h-full" />
+                        </div>
 
-                      <span className="text-base">{p}</span>
-                    </li>
-                  );
-                })}
+                        <span className="text-base">{p}</span>
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
           </div>
@@ -184,7 +247,9 @@ const AddPaymentDetails = () => {
               <p className="text-base font-normal">Credit/Debit Card</p>
               <p className="text-base font-normal">
                 Total Amount:{" "}
-                <span className="blue-text font-bold text-[24px]">$18</span>{" "}
+                <span className="blue-text font-bold text-[24px]">
+                  ${location?.state && location?.state?.plan?.title}
+                </span>{" "}
                 <span className="text-[12px]">/month</span>
               </p>
             </div>
@@ -198,17 +263,19 @@ const AddPaymentDetails = () => {
                 <div className="flex items-center gap-3">
                   <img
                     src={
-                      showCard
+                      paymentMethodId
                         ? "/mastercard-icon.png"
                         : "/credit-card-icon.png"
                     }
                     alt="credit-card-icon"
                     className={`${
-                      showCard ? "w-[24.79px] h-[15.33px]" : "w-[20px] h-[20px]"
+                      paymentMethodId
+                        ? "w-[24.79px] h-[15.33px]"
+                        : "w-[20px] h-[20px]"
                     }`}
                   />
                   <span className="text-sm font-normal text-[#5C5C5C]">
-                    {showCard
+                    {paymentMethodId
                       ? "**** **** **** 8941"
                       : "Add Debit/ Credit Card"}
                   </span>
@@ -219,10 +286,12 @@ const AddPaymentDetails = () => {
 
             <button
               type="button"
-              disabled={!showCard}
-              onClick={() => handleBuyPlan()}
+              disabled={!paymentMethodId}
+              onClick={() =>
+                paymentMethodId ? handleSubsribe() : handleAddCardTrue()
+              }
               className={`py-3.5 text-center w-full rounded-full ${
-                showCard ? "blue-bg" : "bg-[#B4B5B6]"
+                paymentMethodId ? "blue-bg" : "bg-[#B4B5B6]"
               } text-base font-bold text-white`}
             >
               Pay Now

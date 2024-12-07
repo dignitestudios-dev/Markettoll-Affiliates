@@ -8,7 +8,6 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import SuccessModal from "../Global/SuccessModal";
 import { toast } from "react-toastify";
-import { AuthContext } from "../../context/authContext";
 
 const validate = (values) => {
   const errors = {};
@@ -27,7 +26,7 @@ const validate = (values) => {
 
   if (!values.phoneNumber.value) {
     errors.phoneNumber = "Required";
-  } else if (values.phoneNumber.value.length !== 10) {
+  } else if (values.phoneNumber.value.length !== 11) {
     errors.phoneNumber = "Must be 10 digits";
   }
 
@@ -93,7 +92,6 @@ const SignUpForm = () => {
         localStorage.setItem("user", JSON.stringify(res?.data?.data));
         if (res.status == 201) {
           setShowModal(true);
-          alert(JSON.stringify(formattedValues, null, 2));
           setTimeout(() => {
             setShowModal(false);
             navigate("/review-profile");

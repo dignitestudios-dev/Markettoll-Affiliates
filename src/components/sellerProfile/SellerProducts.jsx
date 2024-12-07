@@ -3,15 +3,17 @@ import ProductCard from "../Global/ProductCard";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
+import { useParams } from "react-router-dom";
 
 const SellerProducts = () => {
   const [myProducts, setMyProducts] = useState([]);
   const { user } = useContext(AuthContext);
+  const { sellerId } = useParams();
 
   const fetchMyProducts = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/seller-products/${user?._id}?page=1`,
+        `${BASE_URL}/users/seller-products/${sellerId}?page=1`,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,

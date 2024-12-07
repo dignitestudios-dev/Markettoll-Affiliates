@@ -5,8 +5,6 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 
 const CartProductList = ({ cartProducts, fetchCartProducts }) => {
-  const { user, userProfile } = useContext(AuthContext);
-
   return (
     <div className="bg-white p-6 rounded-[20px]">
       <div className="w-full flex items-center justify-between mb-5">

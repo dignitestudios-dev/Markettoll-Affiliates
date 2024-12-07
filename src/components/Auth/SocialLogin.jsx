@@ -9,7 +9,11 @@ import {
 } from "../../firebase/firebase";
 import Cookies from "js-cookie";
 import { FaApple, FaFacebookF } from "react-icons/fa";
-import { FacebookAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  FacebookAuthProvider,
+  OAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 // import { Google } from "../../assets/export";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
@@ -29,6 +33,7 @@ const SocialLogin = () => {
       setFacebookLoading(true);
       const provider = new FacebookAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      console.log("facebook login result >>>", result);
       if (result) {
         const token = await result?.user?.getIdToken();
         if (token) {
@@ -38,20 +43,30 @@ const SocialLogin = () => {
               method: "GET",
             });
             const ip = await res.json();
-            const response = await axios.post("/auth/driverSocialSignup", {
-              email: email,
-              idToken: token,
-              ip: ip?.ip,
-            });
+            const response = await axios.post(
+              `${BASE_URL}/users/facebook-login`,
+              {
+                email: email,
+                name: result?.user?.displayName,
+                facebookAuthId: result?.user?.uid,
+                profileImage: result?.user?.photoURL,
+                idToken: token,
+                ip: ip?.ip,
+              }
+            );
 
             if (response?.data?.success) {
-              Cookies.set("token", response?.data?.token);
+              Cookies.set("user", response?.data?.data);
+              localStorage.setItem(
+                "user",
+                JSON.stringify(response?.data?.data)
+              );
 
-              navigate("/complete-profile");
+              navigate("/profile-setup");
             }
           } catch (error) {
             setFacebookLoading(false);
-            ErrorToast(error.response.data.message || "Something went wrong.");
+            // ErrorToast(error.response.data.message || "Something went wrong.");
           } finally {
             setFacebookLoading(false);
           }
@@ -71,6 +86,7 @@ const SocialLogin = () => {
       const result = await signInWithPopup(auth, appleProvider);
       const credential = OAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
+      console.log("apple result >>>", result);
       if (result) {
         const token = await result?.user?.getIdToken();
         if (token) {
@@ -80,8 +96,11 @@ const SocialLogin = () => {
               method: "GET",
             });
             const ip = await res.json();
-            const response = await axios.post("/auth/driverSocialSignup", {
+            const response = await axios.post(`${BASE_URL}/users/apple-login`, {
               email: email,
+              name: result?.user?.displayName,
+              appleAuthId: result?.user?.uid,
+              profileImage: result?.user?.photoURL,
               idToken: token,
               ip: ip?.ip,
             });
@@ -114,7 +133,6 @@ const SocialLogin = () => {
       setGoogleLoading(true);
       const result = await signInWithPopup(auth, googleProvider);
       if (result) {
-        console.log("result >>>", result);
         const token = await result?.user?.getIdToken();
         if (token) {
           try {
@@ -128,6 +146,8 @@ const SocialLogin = () => {
               console.log("google login res >>>", res?.data?.data);
               if (res?.status == 200) {
                 Cookies.set("user", JSON.stringify(res?.data?.data));
+                localStorage.setItem("user", JSON.stringify(res?.data?.data));
+                navigate("/");
               }
             } catch (error) {
               console.log("error while google login >>>>", error);
@@ -159,22 +179,22 @@ const SocialLogin = () => {
         type="button"
         onClick={handleGoogleLogin}
         aria-label="Sign in with Google"
-        class="flex items-center justify-center w-full h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
+        className="flex items-center justify-center w-full h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
       >
         {googleLoading ? (
           <div
-            class="animate-spin inline-block size-4 border-[3px] mr-1 border-current border-t-transparent text-[#EA4335] rounded-lg"
+            className="animate-spin inline-block size-4 border-[3px] mr-1 border-current border-t-transparent text-[#EA4335] rounded-lg"
             role="status"
             aria-label="loading"
           >
-            <span class="sr-only">Loading...</span>
+            <span className="sr-only">Loading...</span>
           </div>
         ) : (
-          <div class="flex items-center justify-center bg-white w-9 h-9 rounded-l">
+          <div className="flex items-center justify-center bg-white w-9 h-9 rounded-l">
             {/* <img src={Google} className="w-4 " alt="" /> */}
           </div>
         )}
-        <span class="text-xs text-google-text-gray tracking-wider">
+        <span className="text-xs text-google-text-gray tracking-wider">
           Continue with Google
         </span>
       </button>
@@ -182,22 +202,22 @@ const SocialLogin = () => {
         type="button"
         onClick={handleAppleLogin}
         aria-label="Sign in with Google"
-        class="flex items-center w-full justify-center h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
+        className="flex items-center w-full justify-center h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
       >
         {appleLoading ? (
           <div
-            class="animate-spin inline-block size-4 border-[3px] mr-1 border-current border-t-transparent text-[#000] rounded-lg"
+            className="animate-spin inline-block size-4 border-[3px] mr-1 border-current border-t-transparent text-[#000] rounded-lg"
             role="status"
             aria-label="loading"
           >
-            <span class="sr-only">Loading...</span>
+            <span className="sr-only">Loading...</span>
           </div>
         ) : (
-          <div class="flex items-center text-gray-800 justify-center bg-white w-9 h-9 rounded-l">
+          <div className="flex items-center text-gray-800 justify-center bg-white w-9 h-9 rounded-l">
             <svg
               stroke="currentColor"
               fill="currentColor"
-              stroke-width="0"
+              strokeWidth="0"
               viewBox="0 0 384 512"
               class="text-xl"
               height="1em"
@@ -209,7 +229,7 @@ const SocialLogin = () => {
           </div>
         )}
 
-        <span class="text-xs text-google-text-gray tracking-wider">
+        <span className="text-xs text-google-text-gray tracking-wider">
           Continue with Apple
         </span>
       </button>
@@ -217,23 +237,23 @@ const SocialLogin = () => {
         type="button"
         onClick={handleFacebookLogin}
         aria-label="Sign in with Facebook"
-        class="flex items-center justify-center h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
+        className="flex items-center justify-center h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
       >
         {facebookLoading ? (
           <div
-            class="animate-spin inline-block size-4 border-[3px] mr-1 border-current border-t-transparent text-[#1877F2] rounded-lg"
+            className="animate-spin inline-block size-4 border-[3px] mr-1 border-current border-t-transparent text-[#1877F2] rounded-lg"
             role="status"
             aria-label="loading"
           >
-            <span class="sr-only">Loading...</span>
+            <span className="sr-only">Loading...</span>
           </div>
         ) : (
-          <div class="flex items-center justify-center bg-white w-9 h-9 rounded-lg">
+          <div className="flex items-center justify-center bg-white w-9 h-9 rounded-lg">
             <FaFacebookF className="text-xl text-[#1877F2]" />
           </div>
         )}
 
-        <span class="text-xs text-google-text-gray tracking-wider">
+        <span className="text-xs text-google-text-gray tracking-wider">
           Sign in with Facebook
         </span>
       </button>

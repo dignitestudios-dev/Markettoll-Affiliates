@@ -11,7 +11,6 @@ const CartProductContextProvider = ({ children }) => {
       deliveryAddress: address,
     }));
   };
-  console.log("cart data >>>", data);
 
   return (
     <CartProductContext.Provider value={{ data, setData, updateData }}>

@@ -10,7 +10,7 @@ const WouldYouBoostProduct = () => {
     navigate("/choose-package-to-boost-service", {
       state: {
         from: window.location.href,
-        type: product,
+        type: "product",
         id: product?.data?._id,
       },
     });
