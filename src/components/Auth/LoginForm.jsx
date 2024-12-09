@@ -56,11 +56,12 @@ const LoginForm = () => {
         console.log("login response >>>>", response);
         if (response.data.success) {
           console.log("Login successful:", response.data);
-          setTimeout(() => {
-            localStorage.setItem("user", JSON.stringify(response.data.data));
-            console.log("Cookie after setting:", Cookies.get("user"));
-            resetForm();
-          }, 500);
+          // setTimeout(() => {
+          Cookies.set("user", JSON.stringify(response?.data?.data));
+          localStorage.setItem("user", JSON.stringify(response?.data?.data));
+          console.log("Cookie after setting:", Cookies.get("user"));
+          resetForm();
+          // }, 500);
           // toast.success("Login successfull");
           fetchUserProfile();
           navigate("/");

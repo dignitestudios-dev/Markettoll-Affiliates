@@ -14,7 +14,7 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [services, setServices] = useState([]);
-  const { user, fetchUserProfile } = useContext(AuthContext);
+  const { user, setUserProfile } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { searchResults } = useContext(SearchedProductContext);
@@ -80,6 +80,22 @@ const ProductList = () => {
       console.log("home screen products err >>>>", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserProfile = async () => {
+    if (user?.token) {
+      // Only fetch if user is logged in and profile is not fetched
+      try {
+        const res = await axios.get(`${BASE_URL}/users/profile`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+        setUserProfile(res?.data?.data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
     }
   };
 

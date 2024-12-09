@@ -79,7 +79,7 @@ const FavouriteItemsList = () => {
         if (res?.status == 200) {
           fetchUserProfile();
           fetchProducts();
-          toast.success(res?.data?.message);
+          // toast.success(res?.data?.message);
         }
       } catch (error) {
         console.log("product removed from favorite err >>>>>", error);

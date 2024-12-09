@@ -1,14 +1,40 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import ProductList from "../../components/Home/ProductList";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { AuthContext } from "../../context/authContext";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
 
 const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
-  const { user } = useContext(AuthContext);
+  const { user, userProfile, setUserProfile } = useContext(AuthContext);
+  const userCookie = localStorage.getItem("user");
+  const user2 = userCookie ? JSON.parse(userCookie) : null;
+
+  const fetchUserProfile = async () => {
+    if (user2?.token) {
+      // Only fetch if user is logged in and profile is not fetched
+      try {
+        const res = await axios.get(`${BASE_URL}/users/profile`, {
+          headers: {
+            Authorization: `Bearer ${user2.token}`,
+          },
+        });
+        setUserProfile(res?.data?.data);
+        // setUser(res?.data?.data);
+        console.log(res?.data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
   const handleOpenModal = () => {
     setOpenModal(!openModal);
@@ -19,7 +45,10 @@ const HomePage = () => {
       <div className="w-full flex items-center justify-between z-0">
         <h2 className="text-2xl lg:text-[36px] font-bold">
           <span className="blue-text">
-            Welcome {user?.name !== "" || user?.name !== null ? user?.name : ""}
+            Welcome{" "}
+            {userProfile?.name !== "" || userProfile?.name !== null
+              ? userProfile?.name
+              : ""}
             ,
           </span>
           <span>Let’s Shop!</span>

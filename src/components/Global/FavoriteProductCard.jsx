@@ -1,17 +1,22 @@
-import React, { useContext, useState } from "react";
-import { IoIosStar } from "react-icons/io";
-import { FiHeart } from "react-icons/fi";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { BASE_URL } from "../../api/api";
-import { AuthContext } from "../../context/authContext";
-import { toast } from "react-toastify";
 import { FaHeart } from "react-icons/fa";
+import ProductRating from "./ProductRating";
 
 const FavoriteProductCard = ({ product, handleRemoveFromFavorite }) => {
   const navigate = useNavigate();
-  const { user, fetchUserProfile } = useContext(AuthContext);
-  //   console.log("FavoriteProductCard >>>", product);
+  const productAvgRating =
+    (product?.avgRating?.oneStar * 1 +
+      product?.avgRating?.twoStar * 2 +
+      product?.avgRating?.threeStar * 3 +
+      product?.avgRating?.fourStar * 4 +
+      product?.avgRating?.fiveStar * 5) /
+    (product?.avgRating?.oneStar +
+      product?.avgRating?.twoStar +
+      product?.avgRating?.threeStar +
+      product?.avgRating?.fourStar +
+      product?.avgRating?.fiveStar);
+  const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
 
   const displayImage = product?.productDetails?.images?.find(
     (image) => image.displayImage === true
@@ -20,33 +25,6 @@ const FavoriteProductCard = ({ product, handleRemoveFromFavorite }) => {
   const handleNavigateToProductDetails = () => {
     navigate(`/products/${product?._id}`);
   };
-
-  //   const handleRemoveFromFavorite = async () => {
-  //     if (user?.token) {
-  //       try {
-  //         const res = await axios.delete(
-  //           `${BASE_URL}/users/wishlist-product/${product?.productDetails?._id}`,
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${user?.token}`,
-  //             },
-  //           }
-  //         );
-  //         console.log("product removed from favorite >>>>>", res);
-  //         if (res?.status == 200) {
-  //           fetchUserProfile();
-  //           toast.success(res?.data?.message);
-  //         }
-  //       } catch (error) {
-  //         console.log("product removed from favorite err >>>>>", error);
-  //         if (error?.status === 409) {
-  //           toast.error(error?.response?.data?.message);
-  //         }
-  //       }
-  //     } else {
-  //       navigate("/login");
-  //     }
-  //   };
 
   return (
     <div className="bg-white rounded-[20px] p-3 relative w-full custom-shadow cursor-pointer">
@@ -75,10 +53,7 @@ const FavoriteProductCard = ({ product, handleRemoveFromFavorite }) => {
             : "Delivery"}
         </p>
         <div className="w-full flex items-center justify-center">
-          <div className="flex items-center gap-1 w-full">
-            <IoIosStar className="text-yellow-400 text-lg" />
-            <span className="text-base text-[#606060] font-medium">4.3</span>
-          </div>
+          <ProductRating productAvgRating={safeAvgRating} />
           <p className="text-[18px] font-bold blue-text">
             ${product?.productDetails?.price}.00
           </p>
