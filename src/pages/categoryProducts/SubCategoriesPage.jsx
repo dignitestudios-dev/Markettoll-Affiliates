@@ -7,23 +7,23 @@ import ProductCard from "../../components/Global/ProductCard";
 import { FiArrowLeft } from "react-icons/fi";
 
 const SubCategoriesPage = () => {
-  const { subCategory } = useParams();
+  const { category, subCategory } = useParams();
   const { user } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const location = useLocation();
-  console.log(location?.state);
+  // console.log(category);
 
   const subCategoryProducts = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/home-screen-searched-products?name=o&category=&subCategory=${subCategory}&page=1`,
+        `${BASE_URL}/users/home-screen-searched-products?name=o&category=${category}&subCategory=${subCategory}&page=1`,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
           },
         }
       );
-      //   console.log("sub-category products >>>", res?.data);
+      // console.log("sub-category products >>>", res?.data);
       setProducts(res?.data?.data);
     } catch (error) {
       console.log("err >>>", error);

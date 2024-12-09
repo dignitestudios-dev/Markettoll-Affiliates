@@ -61,7 +61,7 @@ const LoginForm = () => {
             console.log("Cookie after setting:", Cookies.get("user"));
             resetForm();
           }, 500);
-          toast.success("Login successfull");
+          // toast.success("Login successfull");
           fetchUserProfile();
           navigate("/");
           return response.data;

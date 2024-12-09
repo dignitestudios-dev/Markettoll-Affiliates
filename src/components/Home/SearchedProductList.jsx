@@ -34,6 +34,7 @@ const SearchProductList = () => {
         );
         setSearchedService(serviceRes?.data?.data || []);
         setProducts(res.data?.data || []);
+        console.log("searched products >>>", res?.data?.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

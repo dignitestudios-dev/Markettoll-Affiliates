@@ -2,9 +2,22 @@ import React from "react";
 import { IoIosStar } from "react-icons/io";
 import { FiHeart } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import ProductRating from "./ProductRating";
 
 const ServiceCard = ({ service }) => {
   const navigate = useNavigate();
+  const productAvgRating =
+    (service?.avgRating?.oneStar * 1 +
+      service?.avgRating?.twoStar * 2 +
+      service?.avgRating?.threeStar * 3 +
+      service?.avgRating?.fourStar * 4 +
+      service?.avgRating?.fiveStar * 5) /
+    (service?.avgRating?.oneStar +
+      service?.avgRating?.twoStar +
+      service?.avgRating?.threeStar +
+      service?.avgRating?.fourStar +
+      service?.avgRating?.fiveStar);
+  const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
 
   const handleNavigateToProductDetails = () => {
     navigate(`/services/${service?._id}`);
@@ -32,10 +45,7 @@ const ServiceCard = ({ service }) => {
       <div className="w-full">
         <h4 className="mt-2.5 font-medium text-base">{service?.name}</h4>
         <div className="w-full flex items-center justify-center mt-1">
-          <div className="flex items-center gap-1 w-full">
-            <IoIosStar className="text-yellow-400 text-lg" />
-            <span className="text-base text-[#606060] font-medium">4.3</span>
-          </div>
+          <ProductRating productAvgRating={safeAvgRating} />
           <p className="text-[18px] font-bold blue-text">
             ${service?.price}.00
           </p>

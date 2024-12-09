@@ -37,11 +37,11 @@ const CategoriesPage = ({ children }) => {
   }
 
   return (
-    <div className="padding-x flex items-start gap-6 py-12 w-full">
-      <div className="lg:max-w-[40%]">
+    <div className="padding-x flex items-start gap-x-20 py-12 w-full">
+      <div className="lg:w-[25%]">
         <CategoriesSidebar products={products} />
       </div>
-      <div className="w-full lg:w-[60%]">{children}</div>
+      <div className="w-full lg:w-[75%]">{children}</div>
     </div>
   );
 };

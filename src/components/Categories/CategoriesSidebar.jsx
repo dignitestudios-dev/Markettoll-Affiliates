@@ -16,7 +16,7 @@ const CategoriesSidebar = ({ products }) => {
         {products?.map((l, index) => {
           return (
             <Link
-              to={`/categories/${l?.name}`}
+              to={`/home/categories/${l?.name}`}
               className={`w-full flex items-center justify-between ${
                 index !== 12 && "border-b border-[#9D9D9DDD]"
               } py-3.5 ${l.name == category && "blue-text"}`}

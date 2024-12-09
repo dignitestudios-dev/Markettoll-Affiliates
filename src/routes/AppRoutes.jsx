@@ -178,7 +178,7 @@ const AppRoutes = () => {
         />
 
         <Route
-          path="/home/categories/:category"
+          path="/home/:category/:category"
           element={
             <Layout page={<CategoriesPage children={<CategoriesList />} />} />
           }

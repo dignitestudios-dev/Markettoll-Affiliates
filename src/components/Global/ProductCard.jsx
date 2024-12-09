@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { FaHeart } from "react-icons/fa";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
+import ProductRating from "./ProductRating";
 
 const ProductCard = ({ product, fetchMyProducts }) => {
   const navigate = useNavigate();
@@ -16,6 +17,18 @@ const ProductCard = ({ product, fetchMyProducts }) => {
   const [openDropdown, setOpenDropdown] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
+  const productAvgRating =
+    (product?.avgRating?.oneStar * 1 +
+      product?.avgRating?.twoStar * 2 +
+      product?.avgRating?.threeStar * 3 +
+      product?.avgRating?.fourStar * 4 +
+      product?.avgRating?.fiveStar * 5) /
+    (product?.avgRating?.oneStar +
+      product?.avgRating?.twoStar +
+      product?.avgRating?.threeStar +
+      product?.avgRating?.fourStar +
+      product?.avgRating?.fiveStar);
+  const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
 
   const handleToggleDropdown = () => {
     setOpenDropdown(!openDropdown);
@@ -167,10 +180,7 @@ const ProductCard = ({ product, fetchMyProducts }) => {
           {product?.fulfillmentMethod?.selfPickup ? "Pickup" : "Delivery"}
         </p>
         <div className="w-full flex items-center justify-center">
-          <div className="flex items-center gap-1 w-full">
-            <IoIosStar className="text-yellow-400 text-lg" />
-            <span className="text-base text-[#606060] font-medium">4.3</span>
-          </div>
+          <ProductRating productAvgRating={safeAvgRating} />
           <p className="text-[18px] font-bold blue-text">
             ${product?.price}.00
           </p>

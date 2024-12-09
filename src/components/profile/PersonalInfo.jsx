@@ -235,8 +235,9 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
       console.log("update phone res >>>>>", res?.data);
       if (res?.data?.success) {
         localStorage.setItem("phone", phone);
+        setOtpModal(true);
+        // toast.success(res?.data?.message);
       }
-      toast.success("Phone number updated");
     } catch (error) {
       console.log("update phone number error >>>>", error);
       toast.error(error?.response?.data?.message);
@@ -385,7 +386,7 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
   const [showLoader, setShowLoader] = useState(false);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(60);
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
 
@@ -420,7 +421,7 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
 
   const handleVerifyOtp = async () => {
     setShowLoader(true);
-    const phone = localStorage.getItem("phone", phone);
+    const phone = localStorage.getItem("phone");
     try {
       const res = await axios.post(
         `${BASE_URL}/users/update-phone-number-verify-sms-otp`,
@@ -437,14 +438,17 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
       console.log("Phone OTP verified >>>", res);
       if (res?.status == 200) {
         toast.success("Phone number verified successfully");
+        fetchUserProfile();
         // navigate("/identity-verified");
       }
-      setShowLoader(false);
+      // setShowLoader(false);
       // Close modal after verification
       onclick();
     } catch (error) {
       console.log("Error while phone OTP verification >>>", error);
       toast.error("Somthing went wrong");
+      // setShowLoader(false);
+    } finally {
       setShowLoader(false);
     }
   };
@@ -484,7 +488,7 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
             <p className="blue-text text-[20px] font-bold">Verification</p>
             <p className="leading-[15.6px] text-[#5C5C5C] text-[13px]">
               Please enter the verification code sent to your new phone number:
-              +1 {phone}.
+              +1.
             </p>
           </div>
           {showLoader ? (

@@ -84,10 +84,10 @@ const ProductList = () => {
   };
 
   useEffect(() => {
-    fetchUserProfile();
     fetchProducts();
     fetchServices();
     fetchCategories();
+    fetchUserProfile();
   }, []);
 
   const handleShowServices = (category) => {
