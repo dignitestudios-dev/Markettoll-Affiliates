@@ -244,7 +244,7 @@ const ProductDetails = () => {
                 alt="product image"
                 className="w-full h-auto lg:h-[376px] object-cover rounded-xl"
               />
-              <div className="w-full grid grid-cols-4 mt-3 gap-3">
+              <div className="w-full flex items-center mt-3 gap-3">
                 {product?.images?.map((image, index) => (
                   <img
                     key={index}
