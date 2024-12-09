@@ -16,7 +16,6 @@ const HomePage = () => {
 
   const fetchUserProfile = async () => {
     if (user2?.token) {
-      // Only fetch if user is logged in and profile is not fetched
       try {
         const res = await axios.get(`${BASE_URL}/users/profile`, {
           headers: {
@@ -24,7 +23,6 @@ const HomePage = () => {
           },
         });
         setUserProfile(res?.data?.data);
-        // setUser(res?.data?.data);
         console.log(res?.data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
