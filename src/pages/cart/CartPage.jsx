@@ -8,6 +8,12 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Loader from "../../components/Global/Loader";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(
+  "pk_test_51OsZBgRuyqVfnlHK0Z5w3pTL7ncHPcC75EwkxqQX9BAlmcXeKappekueIzmpWzWYK9L9HEGH3Y2Py2hC7KyVY0Al00przQczPf"
+);
 
 const CartPage = () => {
   const [count, setCount] = useState(0);
@@ -76,10 +82,14 @@ const CartPage = () => {
               <DeliveryAddress onclick={handleDecrementCount} />
             ) : (
               // Skip delivery address step if no product needs delivery
-              <SelectPaymentMethod onclick={handleDecrementCount} />
+              <Elements stripe={stripePromise}>
+                <SelectPaymentMethod onclick={handleDecrementCount} />
+              </Elements>
             )
           ) : count === 2 ? (
-            <SelectPaymentMethod onclick={handleDecrementCount} />
+            <Elements stripe={stripePromise}>
+              <SelectPaymentMethod onclick={handleDecrementCount} />
+            </Elements>
           ) : count === 3 ? (
             <OrderReview
               onclick={handleDecrementCount}

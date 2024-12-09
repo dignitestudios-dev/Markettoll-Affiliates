@@ -27,7 +27,7 @@ const validate = (values) => {
   if (!values.phoneNumber.value) {
     errors.phoneNumber = "Required";
   } else if (values.phoneNumber.value.length !== 11) {
-    errors.phoneNumber = "Must be 10 digits";
+    errors.phoneNumber = "Must be 11 digits";
   }
 
   if (!values.password) {

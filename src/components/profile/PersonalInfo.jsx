@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
 import { AuthContext } from "../../context/authContext";
@@ -152,8 +152,7 @@ const UpdateNameModal = ({ openNameModal, onclick }) => {
       );
       console.log("update name res >>>>>", res?.data);
       savedUser.name = res?.data?.data;
-      Cookies.set("user", JSON.stringify(savedUser)); // Set expiry as needed
-      // console.log("Updated cookie:", Cookies.get("user"));
+      Cookies.set("user", JSON.stringify(savedUser));
       toast.success("Name updated");
     } catch (error) {
       console.log("update name error >>>>", error);
@@ -218,9 +217,14 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
   const handleUpdatePhoneNumber = async () => {
     setLoading(true);
     try {
-      const res = await axios.put(
-        `${BASE_URL}/users/name`,
-        { name },
+      const res = await axios.post(
+        `${BASE_URL}/users/update-phone-number-send-sms-otp`,
+        {
+          phoneNumber: {
+            code: 1,
+            value: phone,
+          },
+        },
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
@@ -229,13 +233,13 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
         }
       );
       console.log("update phone res >>>>>", res?.data);
-      savedUser.name = res?.data?.data;
-      Cookies.set("user", JSON.stringify(savedUser)); // Set expiry as needed
-      // console.log("Updated cookie:", Cookies.get("user"));
+      if (res?.data?.success) {
+        localStorage.setItem("phone", phone);
+      }
       toast.success("Phone number updated");
     } catch (error) {
       console.log("update phone number error >>>>", error);
-      toast.error("Something went wrong");
+      toast.error(error?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -273,9 +277,9 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
             <button
               className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4"
               type="button"
-              onClick={handleOtpModal}
+              onClick={handleUpdatePhoneNumber}
             >
-              Update
+              {loading ? "Updating..." : "Update"}
             </button>
           </div>
         </div>
@@ -379,19 +383,96 @@ const UpdateProfileImage = ({ openProfileImageModal, onclick }) => {
 
 const VerifyOtpModal = ({ otpModal, onclick }) => {
   const [showLoader, setShowLoader] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const { user } = useContext(AuthContext);
+  const inputRefs = useRef([]);
+  const navigate = useNavigate();
 
-  const handleShowLoader = () => {
-    setShowLoader(!showLoader);
-    setTimeout(() => {
+  const handleOtpChange = (e, index) => {
+    const value = e.target.value;
+    if (/[^0-9]/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    if (value && index < 3) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  useEffect(() => {
+    if (otpModal) {
+      setTimeLeft(60);
+    }
+  }, [otpModal]);
+
+  useEffect(() => {
+    if (timeLeft === 0) return;
+
+    const timer = setInterval(() => {
+      if (timeLeft > 0) {
+        setTimeLeft((prev) => prev - 1);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const handleVerifyOtp = async () => {
+    setShowLoader(true);
+    const phone = localStorage.getItem("phone", phone);
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/update-phone-number-verify-sms-otp`,
+        {
+          phoneNumber: { code: 1, value: phone },
+          otp: otp.join(""),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("Phone OTP verified >>>", res);
+      if (res?.status == 200) {
+        toast.success("Phone number verified successfully");
+        // navigate("/identity-verified");
+      }
       setShowLoader(false);
+      // Close modal after verification
       onclick();
-    }, 2000);
+    } catch (error) {
+      console.log("Error while phone OTP verification >>>", error);
+      toast.error("Somthing went wrong");
+      setShowLoader(false);
+    }
+  };
+
+  // Handle Resend OTP
+  const handleResendOtp = async () => {
+    try {
+      setOtp(["", "", "", ""]); // Reset OTP
+      setTimeLeft(60); // Reset timer
+      const res = await axios.post(
+        `${BASE_URL}/users/resend-otp`,
+        { phoneNumber: { code: 1, value: phone } },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("OTP resent >>>", res);
+    } catch (error) {
+      console.log("Error while resending OTP >>>", error);
+    }
   };
 
   return (
     otpModal && (
       <div className="w-full h-screen fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center px-4">
-        <div className="w-full lg:w-[487px] h-[323px] flex flex-col items-center justify-center gap-4 relative bg-white rounded-[12px]">
+        <div className="w-full lg:w-[487px] h-[323px] flex flex-col items-center justify-center gap-4 relative bg-white rounded-[12px] p-5">
           <button
             type="button"
             onClick={onclick}
@@ -403,14 +484,14 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
             <p className="blue-text text-[20px] font-bold">Verification</p>
             <p className="leading-[15.6px] text-[#5C5C5C] text-[13px]">
               Please enter the verification code sent to your new phone number:
-              +1 000 000 0000.
+              +1 {phone}.
             </p>
           </div>
           {showLoader ? (
             <div role="status">
               <svg
                 aria-hidden="true"
-                class="w-[100px] h-[100px] text-gray-200 animate-spin fill-[#0098EA]"
+                className="w-[80px] h-[80px] mt-4 text-gray-200 animate-spin fill-[#0098EA]"
                 viewBox="0 0 100 101"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -424,52 +505,41 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
                   fill="currentFill"
                 />
               </svg>
-              <span class="sr-only">Loading...</span>
+              <span className="sr-only">Loading...</span>
             </div>
           ) : (
             <>
               <div className="w-[80%] flex text-center gap-4 items-start justify-center">
-                <input
-                  type="text"
-                  className="bg-[#F7F7F7] w-[50px] text-center h-[50px] outline-none border rounded-[15px] text-sm"
-                  placeholder=""
-                />
-                <input
-                  type="text"
-                  className="bg-[#F7F7F7] w-[50px] text-center h-[50px] outline-none border rounded-[15px] text-sm"
-                  placeholder=""
-                />
-                <input
-                  type="text"
-                  className="bg-[#F7F7F7] w-[50px] text-center h-[50px] outline-none border rounded-[15px] text-sm"
-                  placeholder=""
-                />
-                <input
-                  type="text"
-                  className="bg-[#F7F7F7] w-[50px] text-center h-[50px] outline-none border rounded-[15px] text-sm"
-                  placeholder=""
-                />
-                <input
-                  type="text"
-                  className="bg-[#F7F7F7] w-[50px] text-center h-[50px] outline-none border rounded-[15px] text-sm"
-                  placeholder=""
-                />
-                <input
-                  type="text"
-                  className="bg-[#F7F7F7] w-[50px] text-center h-[50px] outline-none border rounded-[15px] text-sm"
-                  placeholder=""
-                />
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(e, index)}
+                    className="bg-[#F7F7F7] w-[50px] text-center h-[50px] outline-none border rounded-[15px] text-sm"
+                    placeholder=""
+                    maxLength={1}
+                    ref={(el) => (inputRefs.current[index] = el)}
+                  />
+                ))}
               </div>
               <p className="text-[13px] text-[#5C5C5C]">
                 Didn’t receive OTP code?{" "}
-                <button type="button" className="light-blue-text font-bold">
+                <button
+                  type="button"
+                  className="light-blue-text font-bold"
+                  onClick={handleResendOtp}
+                >
                   Resend now
                 </button>
               </p>
+              <p className="text-[13px] text-[#5C5C5C]">
+                Time remaining: {timeLeft}s
+              </p>
               <button
-                className="w-[80%] w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4"
+                className="lg:w-[80%] w-full py-3 rounded-[15px] blue-bg text-white font-semibold mt-4"
                 type="button"
-                onClick={handleShowLoader}
+                onClick={handleVerifyOtp}
               >
                 Verify
               </button>

@@ -7,9 +7,6 @@ import Cookies from "js-cookie";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
-// import GoogleLoginButton from "./GoogleLoginButton";
-// import FacebookLoginButton from "./FacebookLoginButton";
-// import AppleLoginButton from "./AppleLoginButton";
 import { toast } from "react-toastify";
 import SocialLogin from "./SocialLogin";
 

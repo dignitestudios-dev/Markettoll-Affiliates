@@ -64,6 +64,7 @@ import EditProductPage from "../pages/addProduct/EditProductPage";
 import SubCategoriesPage from "../pages/categoryProducts/SubCategoriesPage";
 import CategoriesList from "../components/Categories/CategoriesList";
 import CategoryProducts from "../components/CategoryProducts/CategoryProducts";
+import AddPhoneNumberFromSocialLogin from "../components/Auth/AddPhoneNumberFromSocialLogin";
 
 const AppRoutes = () => {
   return (
@@ -76,6 +77,10 @@ const AppRoutes = () => {
         />
 
         <Route path="/login" element={<Layout page={<LoginPage />} />} />
+        <Route
+          path="/add-phone-number"
+          element={<Layout page={<AddPhoneNumberFromSocialLogin />} />}
+        />
         <Route
           path="/forgot-password"
           element={<Layout page={<ForgotPasswordPage />} />}

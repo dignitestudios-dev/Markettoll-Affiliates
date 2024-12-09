@@ -6,11 +6,13 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 
-const ProductReviewsList = () => {
+const ProductReviewsList = ({ avgRating }) => {
   const { productId } = useParams();
   const [productReviews, setProductReviews] = useState([]);
   const { user } = useContext(AuthContext);
   const [error, setError] = useState("");
+  // console.log("avgRating >>>", avgRating);
+  const [productRating, setProductRating] = useState("");
 
   const fetchProductReviews = async () => {
     try {
@@ -32,14 +34,25 @@ const ProductReviewsList = () => {
 
   useEffect(() => {
     fetchProductReviews();
+    if (avgRating) {
+      const productAvgRating =
+        avgRating?.oneStar +
+        avgRating?.twoStar +
+        avgRating?.threeStar +
+        avgRating?.fourStar +
+        avgRating?.fiveStar / 5;
+      setProductRating(productAvgRating);
+    }
   }, []);
+
+  console.log("productRating >>", productRating);
   return (
     <div>
       <div className="flex items-center gap-2">
         <h3 className="font-bold blue-text text-[18px]">Reviews</h3>
-        <span className="text-[13px] font-normal text-[#5C5C5C]">{`(${productReviews?.length})`}</span>
+        <span className="text-[13px] font-normal text-[#5C5C5C]">{`(${productRating})`}</span>
       </div>
-      {productReviews?.length !== null && productReviews?.length > 0 ? (
+      {productRating !== null && productRating > 0 ? (
         <>
           <div className="flex items-center gap-1 my-2">
             <IoIosStar className="text-yellow-400 text-xl" />

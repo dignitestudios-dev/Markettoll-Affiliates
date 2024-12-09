@@ -14,16 +14,12 @@ import {
   OAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-// import { Google } from "../../assets/export";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
-// import { ErrorToast } from "../global/Toast";
 
 const SocialLogin = () => {
   const navigate = useNavigate();
-  // const { isSocialLogin, setIsSocialLogin } = useContext(AppContext);
-
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
@@ -62,7 +58,7 @@ const SocialLogin = () => {
                 JSON.stringify(response?.data?.data)
               );
 
-              navigate("/profile-setup");
+              navigate("/add-phone-number");
             }
           } catch (error) {
             setFacebookLoading(false);
@@ -107,12 +103,16 @@ const SocialLogin = () => {
 
             if (response?.data?.success) {
               Cookies.set("token", response?.data?.token);
-
-              navigate("/complete-profile");
+              localStorage.setItem(
+                "user",
+                JSON.stringify(response?.data?.data)
+              );
+              navigate("/add-phone-number");
             }
           } catch (error) {
             setAppleLoading(false);
             console.log(error);
+            toast.error("Something went wrong");
             // ErrorToast(error.response.data.message || "Something went wrong.");
           } finally {
             setAppleLoading(false);
@@ -147,7 +147,7 @@ const SocialLogin = () => {
               if (res?.status == 200) {
                 Cookies.set("user", JSON.stringify(res?.data?.data));
                 localStorage.setItem("user", JSON.stringify(res?.data?.data));
-                navigate("/");
+                navigate("/add-phone-number");
               }
             } catch (error) {
               console.log("error while google login >>>>", error);

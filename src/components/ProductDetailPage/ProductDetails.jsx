@@ -157,7 +157,7 @@ const ProductDetails = () => {
               </div>
 
               <div className="mt-16 hidden lg:block">
-                <ProductReviewsList />
+                <ProductReviewsList avgRating={product?.avgRating} />
               </div>
             </div>
 

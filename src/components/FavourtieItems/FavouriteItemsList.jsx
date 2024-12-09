@@ -104,7 +104,7 @@ const FavouriteItemsList = () => {
     return <Loader />;
   }
   return (
-    <div className="w-full">
+    <div className="w-full min-h-96">
       <div className="w-full flex items-center justify-between">
         <h2 className="text-[28px] font-bold blue-text">
           {showServices ? "Favorite Services" : "Favorite Products"}
@@ -171,7 +171,7 @@ const FavouriteItemsList = () => {
               })}
             </>
           ) : (
-            <></>
+            <h3 className="blue-text font-bold">No Products Found</h3>
           )}
         </div>
       )}
