@@ -36,16 +36,22 @@ const ProductReviewsList = ({ avgRating }) => {
     fetchProductReviews();
     if (avgRating) {
       const productAvgRating =
-        avgRating?.oneStar +
-        avgRating?.twoStar +
-        avgRating?.threeStar +
-        avgRating?.fourStar +
-        avgRating?.fiveStar / 5;
-      setProductRating(productAvgRating);
+        (service?.avgRating?.oneStar * 1 +
+          service?.avgRating?.twoStar * 2 +
+          service?.avgRating?.threeStar * 3 +
+          service?.avgRating?.fourStar * 4 +
+          service?.avgRating?.fiveStar * 5) /
+        (service?.avgRating?.oneStar +
+          service?.avgRating?.twoStar +
+          service?.avgRating?.threeStar +
+          service?.avgRating?.fourStar +
+          service?.avgRating?.fiveStar);
+      const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
+      setProductRating(safeAvgRating);
     }
   }, []);
 
-  console.log("productRating >>", productRating);
+  // console.log("productRating >>", productRating);
   return (
     <div>
       <div className="flex items-center gap-2">

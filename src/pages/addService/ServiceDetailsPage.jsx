@@ -4,6 +4,7 @@ import { IoIosStar } from "react-icons/io";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
+import ProductRating from "../../components/Global/ProductRating";
 
 const ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
@@ -56,6 +57,19 @@ const ServiceDetailsPage = () => {
       senderId: user?._id,
     },
   };
+
+  const productAvgRating =
+    (service?.avgRating?.oneStar * 1 +
+      service?.avgRating?.twoStar * 2 +
+      service?.avgRating?.threeStar * 3 +
+      service?.avgRating?.fourStar * 4 +
+      service?.avgRating?.fiveStar * 5) /
+    (service?.avgRating?.oneStar +
+      service?.avgRating?.twoStar +
+      service?.avgRating?.threeStar +
+      service?.avgRating?.fourStar +
+      service?.avgRating?.fiveStar);
+  const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
 
   return (
     <div className="padding-x py-6 w-full">
@@ -132,12 +146,10 @@ const ServiceDetailsPage = () => {
                           Posted By
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[18px] font-medium">
+                          <p className="text-[16px] font-medium min-w-20">
                             {service?.sellerDetails?.name}{" "}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <IoIosStar className="text-yellow-400" /> 4.8
-                          </span>
+                          </p>
+                          <ProductRating productAvgRating={safeAvgRating} />
                         </div>
                         <Link
                           to={`/seller-profile/${service?.sellerDetails?._id}`}

@@ -9,6 +9,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Loader from "../Global/Loader";
 import { toast } from "react-toastify";
+import ReportSellerModal from "./ReportSellerModal";
 
 const SellerProfile = () => {
   const [category, setCategory] = useState("Products");
@@ -18,6 +19,7 @@ const SellerProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { sellerId } = useParams();
+  const [openReportModal, setOpenReportModal] = useState(false);
 
   const fetchUserPrfile = async () => {
     const headers = user?.token
@@ -35,7 +37,7 @@ const SellerProfile = () => {
           headers: headers,
         }
       );
-      // console.log("user profile >>", res?.data?.data);
+      console.log("user profile >>", res?.data?.data);
       setMyProfile(res?.data?.data);
     } catch (error) {
       console.log(
@@ -93,6 +95,7 @@ const SellerProfile = () => {
           </div>
           <button
             type="button"
+            onClick={() => setOpenReportModal(!openReportModal)}
             className="text-[13px] text-[#5C5C5C] flex items-center gap-2"
           >
             <img
@@ -137,6 +140,11 @@ const SellerProfile = () => {
       </div>
 
       {category == "Services" ? <SellerServices /> : <SellerProducts />}
+      <ReportSellerModal
+        openReportModal={openReportModal}
+        setOpenReportModal={setOpenReportModal}
+        sellerId={sellerId}
+      />
     </div>
   );
 };
