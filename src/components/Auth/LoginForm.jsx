@@ -181,7 +181,7 @@ const LoginForm = () => {
           type="submit"
           className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full"
         >
-          Log In
+          {loading ? "Loggin in..." : "Log In"}
         </button>
 
         <p className="text-center text-xs text-[#8B8B8B] mx-auto mt-2.5">OR</p>

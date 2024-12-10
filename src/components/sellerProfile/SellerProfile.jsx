@@ -20,6 +20,7 @@ const SellerProfile = () => {
   const navigate = useNavigate();
   const { sellerId } = useParams();
   const [openReportModal, setOpenReportModal] = useState(false);
+  const [sellerReviews, setSellerReviwes] = useState(null);
 
   const fetchUserPrfile = async () => {
     const headers = user?.token
@@ -37,7 +38,7 @@ const SellerProfile = () => {
           headers: headers,
         }
       );
-      console.log("user profile >>", res?.data?.data);
+      // console.log("user profile >>", res?.data?.data);
       setMyProfile(res?.data?.data);
     } catch (error) {
       console.log(
@@ -49,7 +50,25 @@ const SellerProfile = () => {
     }
   };
 
+  const fetchUserReviews = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/users/seller-reviews/${sellerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("seller reviews >>>", res?.data);
+      setSellerReviwes(res?.data?.data);
+    } catch (error) {
+      console.log("error while fetch seller reviews >>>>", error);
+    }
+  };
+
   useEffect(() => {
+    fetchUserReviews();
     fetchUserPrfile();
   }, []);
 
@@ -78,18 +97,27 @@ const SellerProfile = () => {
               alt="seller profile"
               className="w-[89.1px] h-[89.1px] object-cover rounded-full"
             />
+
             <div className="flex flex-col items-start gap-1">
               <span className="text-[26px] font-bold">
                 {myProfile && myProfile?.name}
               </span>
               <div className="flex items-center gap-1">
-                <IoIosStar className="text-xl text-yellow-400" />
-                <IoIosStar className="text-xl text-yellow-400" />
-                <IoIosStar className="text-xl text-yellow-400" />
-                <IoIosStar className="text-xl text-yellow-400" />
-                <IoIosStar className="text-xl text-gray-300" />
-                <span className="text-sm">(4)</span>
-                <span className="text-sm text-gray-500">24</span>
+                {sellerReviews && sellerReviews?.length > 0 && (
+                  <>
+                    <IoIosStar className="text-xl text-yellow-400" />
+                    <IoIosStar className="text-xl text-yellow-400" />
+                    <IoIosStar className="text-xl text-yellow-400" />
+                    <IoIosStar className="text-xl text-yellow-400" />
+                    <IoIosStar className="text-xl text-gray-300" />
+                    <span className="text-sm">
+                      {sellerReviews && sellerReviews?.length}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {sellerReviews && sellerReviews?.length}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>

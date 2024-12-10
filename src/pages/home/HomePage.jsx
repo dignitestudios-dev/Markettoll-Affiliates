@@ -23,7 +23,7 @@ const HomePage = () => {
           },
         });
         setUserProfile(res?.data?.data);
-        console.log(res?.data);
+        // console.log(res?.data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }

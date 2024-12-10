@@ -9,20 +9,20 @@ import { toast } from "react-toastify";
 const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user } = useContext(AuthContext);
+  const { user, fetchUserProfile } = useContext(AuthContext);
 
   const [amount, setAmount] = useState(0);
 
   const handleWithdrawFund = async () => {
     setLoading(true);
+    const numericData = Number(amount);
     try {
       const res = await axios.post(
         `${BASE_URL}/stripe/payout-from-wallet`,
-        { amount },
+        { amount: numericData },
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
-            "Content-Type": "application/json",
           },
         }
       );
@@ -38,12 +38,12 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
 
   const handleToggleSuccessModal = () => {
     if (showSuccessModal) {
-      // Close both modals when success modal is closed
       setShowSuccessModal(false);
       setShowModal(false);
+      fetchUserProfile();
     } else {
-      // Open the success modal and keep the withdraw modal open
       setShowSuccessModal(true);
+      fetchUserProfile();
     }
   };
 
@@ -114,13 +114,21 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
         <SuccessModal
           showSuccessModal={showSuccessModal}
           handleClose={handleToggleSuccessModal}
+          amount={amount}
         />
       </div>
     )
   );
 };
 
-const SuccessModal = ({ showSuccessModal, handleClose }) => {
+const SuccessModal = ({ showSuccessModal, handleClose, amount }) => {
+  const { userProfile } = useContext(AuthContext);
+  const currentDate = new Date().toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+  });
+  console.log(userProfile);
   return (
     showSuccessModal && (
       <div className="w-full h-screen fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center">
@@ -140,28 +148,28 @@ const SuccessModal = ({ showSuccessModal, handleClose }) => {
           <div className="flex flex-col items-center">
             <span className="text-[#959595] text-sm">Amount Withdraw</span>
             <span className="light-blue-text font-bold text-[24px]">
-              USD $200
+              USD ${amount}
             </span>
           </div>
 
-          <div className="flex flex-col items-center">
+          {/* <div className="flex flex-col items-center">
             <span className="text-[#959595] text-sm">Reference ID</span>
             <span className="light-blue-text font-bold text-[14px]">
               9621486393454
             </span>
-          </div>
+          </div> */}
 
           <div className="flex flex-col items-center">
             <span className="text-[#959595] text-sm">Name</span>
             <span className="light-blue-text font-bold text-[14px]">
-              Olivia James
+              {userProfile?.name}
             </span>
           </div>
 
           <div className="flex flex-col items-center">
             <span className="text-[#959595] text-sm">Date</span>
             <span className="light-blue-text font-bold text-[14px]">
-              Wed, 10 Jan
+              {currentDate}
             </span>
           </div>
 
@@ -175,7 +183,8 @@ const SuccessModal = ({ showSuccessModal, handleClose }) => {
           <div className="flex flex-col items-center">
             <span className="text-[#959595] text-sm">Description</span>
             <span className="light-blue-text font-bold text-[14px] text-center">
-              Direct To Local Bank Account <br /> (**** **** ****499)
+              Direct To Local Bank Account <br /> (**** **** ****{" "}
+              {userProfile?.stripeConnectedAccount?.external_account?.last4})
             </span>
           </div>
         </div>

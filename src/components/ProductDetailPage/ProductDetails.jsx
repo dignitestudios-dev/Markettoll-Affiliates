@@ -250,7 +250,7 @@ const ProductDetails = () => {
                     key={index}
                     src={image?.url}
                     alt={`Thumbnail ${index + 1}`}
-                    className={`rounded-xl h-[97px] w-full object-cover cursor-pointer ${
+                    className={`rounded-xl h-[97px] w-[120px] object-cover cursor-pointer ${
                       image?.url === displayImage?.url
                         ? "border-2 border-blue-500"
                         : ""
@@ -319,8 +319,11 @@ const ProductDetails = () => {
                 <div className="flex items-center justify-center">
                   <button
                     type="button"
+                    disabled={product?.quantity == 0}
                     onClick={() => handleIncrementQuantity("decrement")}
-                    className="py-3.5 px-6 rounded-l-[20px] text-center blue-bg"
+                    className={`py-3.5 px-6 rounded-l-[20px] text-center blue-bg ${
+                      product?.quantity == 0 && "cursor-not-allowed"
+                    }`}
                   >
                     <FaMinus className="text-lg text-white" />
                   </button>
@@ -333,8 +336,11 @@ const ProductDetails = () => {
                   </button>
                   <button
                     type="button"
+                    disabled={product?.quantity == 0}
                     onClick={() => handleIncrementQuantity("increment")}
-                    className="py-3.5 px-6 rounded-r-[20px] text-center blue-bg"
+                    className={`py-3.5 px-6 rounded-r-[20px] text-center blue-bg ${
+                      product?.quantity == 0 && "cursor-not-allowed"
+                    }`}
                   >
                     <FaPlus className="text-lg text-white" />
                   </button>
@@ -350,10 +356,18 @@ const ProductDetails = () => {
                   ) : (
                     <button
                       type="button"
+                      disabled={product?.quantity == 0}
                       onClick={handleShowPopup}
-                      className="blue-bg text-white font-bold text-sm py-3.5 rounded-[20px] text-center w-full"
+                      className={`blue-bg text-white font-bold text-sm py-3.5 rounded-[20px] text-center w-full ${
+                        product?.quantity == 0 && "cursor-not-allowed"
+                      }`}
                     >
-                      {addToCart ? "View Cart" : " Add To Cart"}
+                      {product?.quantity == 0
+                        ? "Out of Stock"
+                        : addToCart
+                        ? "View Cart"
+                        : " Add To Cart"}
+                      {/* {addToCart ? "View Cart" : " Add To Cart"} */}
                     </button>
                   )}
                 </div>

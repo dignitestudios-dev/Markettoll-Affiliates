@@ -8,17 +8,16 @@ import { useNavigate } from "react-router-dom";
 
 const AddPhoneNumberFromSocialLogin = () => {
   const [phone, setPhone] = useState("");
-  const { userProfile, fetchUserProfile } = useContext(AuthContext);
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { userProfile, fetchUserProfile, user } = useContext(AuthContext);
   const [error, setError] = useState("");
   const [otpModal, setOtpModal] = useState(false);
-  console.log(userProfile);
   const toggleOtpModal = () => {
     setOtpModal(!otpModal);
   };
 
   const handleAddPhoneNumber = async (e) => {
     e.preventDefault();
+    const user2 = JSON.parse(localStorage.getItem("user"));
     if (!phone) {
       setError("Required");
       return;
@@ -37,7 +36,7 @@ const AddPhoneNumberFromSocialLogin = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${user2?.token}`,
           },
         }
       );

@@ -82,7 +82,7 @@ const SocialLogin = () => {
       const result = await signInWithPopup(auth, appleProvider);
       const credential = OAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
-      console.log("apple result >>>", result);
+      // console.log("apple result >>>", result);
       if (result) {
         const token = await result?.user?.getIdToken();
         if (token) {
@@ -96,7 +96,7 @@ const SocialLogin = () => {
               email: email,
               name: result?.user?.displayName,
               appleAuthId: result?.user?.uid,
-              profileImage: result?.user?.photoURL,
+              profileImage: result?.user?.photoURL || "",
               idToken: token,
               ip: ip?.ip,
             });

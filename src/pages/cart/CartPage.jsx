@@ -31,7 +31,7 @@ const CartPage = () => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      // console.log("cartProducts >>>", res?.data?.data);
+      console.log("cartProducts >>>", res?.data?.data);
       setCartProducts(res?.data?.data);
     } catch (error) {
       console.log("cartProducts err >>>", error);
@@ -43,11 +43,10 @@ const CartPage = () => {
   useEffect(() => {
     fetchCartProducts();
     const checkFulfillmentMethod = cartProducts?.find((p) => {
-      return p?.fulfillmentMethod?.delivery === true; // Checks if any product needs delivery
+      return p?.fulfillmentMethod?.delivery === true;
     });
 
-    // Update the state for delivery products
-    setIsAnyProductToDeliver(checkFulfillmentMethod !== undefined); // true if any product requires delivery
+    setIsAnyProductToDeliver(checkFulfillmentMethod !== undefined);
   }, []);
 
   const handleIncrementCount = () => {

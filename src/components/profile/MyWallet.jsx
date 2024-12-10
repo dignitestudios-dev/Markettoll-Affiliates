@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 const MyWallet = () => {
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const [connectCard, setConnectCard] = useState(
-    userProfile?.stripeCustomer?.id ? true : false
+    userProfile?.stripeCustomer?.id ? false : true
   );
   const [cardAdded, setCardAdded] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -19,7 +19,6 @@ const MyWallet = () => {
   const [transactionHistory, setTransactionHistory] = useState([]);
   const stripe = useStripe();
   const elements = useElements();
-  console.log(connectCard);
 
   const handleTogglwWithdrawModal = () => {
     setShowModal(!showModal);
@@ -200,7 +199,11 @@ const MyWallet = () => {
           </div>
 
           <div>
-            <h3 className="blue-text text-base font-bold mb-4">Connect Card</h3>
+            <h3 className="blue-text text-base font-bold mb-4">
+              {userProfile && userProfile?.stripeCustomer?.id
+                ? "Connected Card"
+                : "Connect Card"}
+            </h3>
             <div className="w-full flex flex-col items-start gap-3">
               {userProfile?.stripeCustomer?.id && (
                 <button
@@ -228,68 +231,74 @@ const MyWallet = () => {
                 </button>
               )}
 
-              {!connectCard ? (
-                <button
-                  type="button"
-                  onClick={handleConnectCard}
-                  className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
-                >
-                  <div className="flex items-center gap-2">
-                    <img
-                      src="/credit-card-icon.png"
-                      alt="credit card icon"
-                      className="w-[20px] h-[20px]"
-                    />
-                    <span className="text-sm text-[#5C5C5C]">
-                      Add Debit/ Credit Card
-                    </span>
-                  </div>
-                  <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
-                </button>
+              {userProfile?.stripeCustomer?.id ? (
+                <></>
               ) : (
-                <form
-                  onSubmit={handleSubmit}
-                  className="w-full flex flex-col items-start gap-4"
-                >
-                  <div className="w-full flex flex-col items-center gap-5 mt-10">
-                    <div className="w-full flex flex-col items-start gap-1 lg:w-[605px]">
-                      <label
-                        htmlFor="cardHolderName"
-                        className="font-medium text-sm"
-                      >
-                        Card Holder Name
-                      </label>
-                      <input
-                        type="text"
-                        id="cardHolderName"
-                        name="cardHolderName"
-                        placeholder="John Smith"
-                        className="w-full bg-white border rounded-full px-4 py-3.5 text-sm text-[#5C5C5C] outline-none"
-                      />
-                    </div>
+                <>
+                  {!connectCard ? (
+                    <button
+                      type="button"
+                      onClick={handleConnectCard}
+                      className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
+                    >
+                      <div className="flex items-center gap-2">
+                        <img
+                          src="/credit-card-icon.png"
+                          alt="credit card icon"
+                          className="w-[20px] h-[20px]"
+                        />
+                        <span className="text-sm text-[#5C5C5C]">
+                          Add Debit/ Credit Card
+                        </span>
+                      </div>
+                      <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
+                    </button>
+                  ) : (
+                    <form
+                      onSubmit={handleSubmit}
+                      className="w-full flex flex-col items-start gap-4"
+                    >
+                      <div className="w-full flex flex-col items-center gap-5 mt-10">
+                        <div className="w-full flex flex-col items-start gap-1 lg:w-[605px]">
+                          <label
+                            htmlFor="cardHolderName"
+                            className="font-medium text-sm"
+                          >
+                            Card Holder Name
+                          </label>
+                          <input
+                            type="text"
+                            id="cardHolderName"
+                            name="cardHolderName"
+                            placeholder="John Smith"
+                            className="w-full bg-white border rounded-full px-4 py-3.5 text-sm text-[#5C5C5C] outline-none"
+                          />
+                        </div>
 
-                    <div className="w-full lg:w-[605px]">
-                      <label
-                        htmlFor="cardDetails"
-                        className="font-medium text-sm"
-                      >
-                        Card Details
-                      </label>
-                      <CardElement className="w-full bg-white rounded-full border px-6 py-4 text-sm text-[#5C5C5C] outline-none" />
-                    </div>
+                        <div className="w-full lg:w-[605px]">
+                          <label
+                            htmlFor="cardDetails"
+                            className="font-medium text-sm"
+                          >
+                            Card Details
+                          </label>
+                          <CardElement className="w-full bg-white rounded-full border px-6 py-4 text-sm text-[#5C5C5C] outline-none" />
+                        </div>
 
-                    <div className="w-full lg:w-[605px] mt-2">
-                      <button
-                        type="submit"
-                        // disabled={!stripe}
-                        // onClick={handleSubmit}
-                        className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                </form>
+                        <div className="w-full lg:w-[605px] mt-2">
+                          <button
+                            type="submit"
+                            // disabled={!stripe}
+                            // onClick={handleSubmit}
+                            className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  )}
+                </>
               )}
             </div>
           </div>
