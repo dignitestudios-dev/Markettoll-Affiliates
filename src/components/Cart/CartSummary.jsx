@@ -21,6 +21,7 @@ const CartSummary = ({
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  console.log(cartProducts);
 
   const handlePlaceOrder = async () => {
     console.log("calling place order api");
@@ -98,8 +99,9 @@ const CartSummary = ({
 
       <button
         type="button"
+        disabled={cartProducts?.length == 0 || !cartProducts}
         onClick={count === 3 ? handlePlaceOrder : onclick}
-        className="py-3 rounded-2xl text-center w-full font-bold text-white text-base blue-bg mt-5 outline-none"
+        className="py-3 rounded-2xl text-center w-full font-bold text-white text-base blue-bg mt-5 outline-none disabled:cursor-not-allowed"
       >
         {count === 0
           ? "Proceed To Checkout"

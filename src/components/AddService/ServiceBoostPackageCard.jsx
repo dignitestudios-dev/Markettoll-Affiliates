@@ -68,7 +68,7 @@ const ServiceBoostPackageCard = ({
             setShowPlanModal(false);
             setShowSuccessModal(true);
           }, 2000); // Wait for a while before showing success modal
-          toast.success(res?.data?.message);
+          // toast.success(res?.data?.message);
         }
       } catch (error) {
         console.log("error while boosting service >>>>", error?.response?.data);
@@ -97,7 +97,7 @@ const ServiceBoostPackageCard = ({
               setShowPlanModal(false);
               setShowSuccessModal(true);
             }, 2000); // Wait for a while before showing success modal
-            toast.success(res?.data?.message);
+            // toast.success(res?.data?.message);
           }
         } catch (error) {
           console.log("error while boosting service >>>>", error);

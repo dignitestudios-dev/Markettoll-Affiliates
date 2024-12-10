@@ -16,10 +16,10 @@ const ServiceReviewPage = () => {
   const [displayImage, setDisplayImage] = useState(null);
   useEffect(() => {
     if (serviceData?.productImages?.length > 0) {
+      // Set the initial display image based on `coverImageIndex`
       const defaultDisplayImage =
-        serviceData.productImages.find(
-          (image) => image.displayImage === true
-        ) || serviceData.productImages[0];
+        serviceData.productImages[serviceData.coverImageIndex] ||
+        serviceData.productImages[0];
       setDisplayImage(defaultDisplayImage);
     }
   }, [serviceData]);
@@ -97,28 +97,25 @@ const ServiceReviewPage = () => {
       <div className="w-full px-4 md:px-8 lg:px-12 py-12 rounded-[30px] bg-[#F7F7F7]">
         <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
           <div className="w-full">
-            {serviceData.productImages &&
-              serviceData.productImages.length > 0 && (
-                <img
-                  src={
-                    serviceData?.productImages[serviceData?.coverImageIndex]
-                      ?.name
-                  }
-                  alt="service image"
-                  className="w-full h-auto lg:h-[336px] rounded-[20px]"
-                />
-              )}
+            {displayImage && (
+              <img
+                src={displayImage?.name} // Assuming `name` is the file name for the image URL
+                alt="Service Image"
+                className="w-full h-auto lg:h-[336px] rounded-[20px]"
+              />
+            )}
+            {/* Display the thumbnail images */}
             <div className="w-full grid grid-cols-4 mt-3 gap-3">
               {serviceData?.productImages?.map((image, index) => (
                 <img
                   key={index}
-                  src={image?.name}
+                  src={image?.name} // Use `name` as the image source
                   alt={`Thumbnail ${index + 1}`}
                   className={`rounded-xl h-[97px] w-full object-cover cursor-pointer ${
-                    image?.url === displayImage?.url
+                    image?.name === displayImage?.name
                       ? "border-2 border-blue-500"
                       : ""
-                  }`}
+                  }`} // Highlight the active thumbnail
                   onClick={() => handleThumbnailClick(image)}
                 />
               ))}

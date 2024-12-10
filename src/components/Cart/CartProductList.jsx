@@ -11,8 +11,9 @@ const CartProductList = ({ cartProducts, fetchCartProducts }) => {
         <h2 className="text-[28px] blue-text font-bold">Cart</h2>
         <button
           type="button"
+          disabled={cartProducts?.length == 0 || !cartProducts}
           onClick={() => handleRemoveCartItems()}
-          className="text-sm text-[#9D9D9DDD] flex items-center gap-1"
+          className="text-sm text-[#9D9D9DDD] flex items-center gap-1 disabled:cursor-not-allowed"
         >
           <img
             src="/trash-icon.png"
@@ -23,15 +24,21 @@ const CartProductList = ({ cartProducts, fetchCartProducts }) => {
         </button>
       </div>
 
-      {cartProducts?.map((cartProd, index) => {
-        return (
-          <CartProductCard
-            products={cartProd}
-            key={index}
-            fetchCartProducts={fetchCartProducts}
-          />
-        );
-      })}
+      {cartProducts?.length > 0 ? (
+        <>
+          {cartProducts?.map((cartProd, index) => {
+            return (
+              <CartProductCard
+                products={cartProd}
+                key={index}
+                fetchCartProducts={fetchCartProducts}
+              />
+            );
+          })}
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
