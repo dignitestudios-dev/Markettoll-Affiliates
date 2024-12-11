@@ -105,7 +105,7 @@ const ServiceReviewPage = () => {
               />
             )}
             {/* Display the thumbnail images */}
-            <div className="w-full grid grid-cols-4 mt-3 gap-3">
+            <div className="w-full overflow-x-scroll flex items-start gap-5 mt-3 thumbnail-scroll">
               {serviceData?.productImages?.map((image, index) => (
                 <img
                   key={index}

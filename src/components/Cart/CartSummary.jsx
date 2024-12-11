@@ -73,8 +73,6 @@ const CartSummary = ({
     navigate("/");
   };
 
-  // console.log("Total Amount: $", totalAmount.toFixed(2));
-
   return (
     <div className="bg-white rounded-[20px] p-6">
       <h3 className="font-bold text-[28px] blue-text">Order Summary</h3>

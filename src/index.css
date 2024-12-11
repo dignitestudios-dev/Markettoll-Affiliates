@@ -96,3 +96,7 @@ input[type="number"]::-ms-clear {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+.thumbnail-scroll::-webkit-scrollbar {
+  display: none;
+}

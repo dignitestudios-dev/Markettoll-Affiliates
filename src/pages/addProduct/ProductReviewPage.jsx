@@ -107,7 +107,7 @@ const ProductReviewPage = () => {
                   className="w-full h-auto lg:h-[336px] rounded-[20px]"
                 />
               )}
-            <div className="w-full grid grid-cols-4 mt-3 gap-3">
+            <div className="w-full overflow-x-scroll flex items-start gap-5 mt-3 thumbnail-scroll">
               {productData?.productImages?.map((image, index) => (
                 <img
                   key={index}

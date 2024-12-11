@@ -82,7 +82,7 @@ const ServiceDetailsPage = () => {
                 alt="product image"
                 className="w-full h-auto lg:h-[376px] object-contain rounded-xl"
               />
-              <div className="w-full max-h-[109px] flex items-start mt-3 gap-3 overflow-x-scroll scrollbar-hide">
+              <div className="w-full max-h-[109px] overflow-x-scroll flex items-start gap-5 mt-6 thumbnail-scroll">
                 {service?.images?.map((image, index) => (
                   <img
                     key={index}
