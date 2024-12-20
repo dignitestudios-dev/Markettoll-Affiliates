@@ -11,6 +11,7 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import ProductSeller from "./ProductSeller";
+import { HiOutlineDotsVertical } from "react-icons/hi";
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
@@ -25,6 +26,7 @@ const ProductDetails = () => {
     delivery: null,
   });
   const navigate = useNavigate();
+  const [openDropdown, setOpenDropdown] = useState(false);
 
   const handleShowPopup = () => {
     if (!user) {
