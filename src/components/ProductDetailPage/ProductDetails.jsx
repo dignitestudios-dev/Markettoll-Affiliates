@@ -192,7 +192,7 @@ const ProductDetails = () => {
                 <>
                   <button
                     type="button"
-                    onClick={handleToggleDropdown}
+                    // onClick={handleToggleDropdown}
                     className="absolute z-10 top-4 right-4 bg-white w-[34px] h-[34px] rounded-lg flex items-center justify-center"
                   >
                     <HiOutlineDotsVertical className="text-xl" />
