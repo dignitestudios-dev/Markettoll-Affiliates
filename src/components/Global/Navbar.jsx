@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoClose, IoSearchOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,18 +10,27 @@ import { SearchedProductContext } from "../../context/searchedProductContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
+import Sidebar from "./Sidebar";
 
 const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [openNotifications, setOpenNotifications] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
-  const [openSidebarDropdown, setOpenSidebarDropdown] = useState(false);
+
   const navigate = useNavigate();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const { searchQuery, setSearchQuery, searchResults, setSearchResults } =
     useContext(SearchedProductContext);
-  // console.log("user from navbar >>>", user);
   const [notifications, setNotifications] = useState([]);
+  const dropdownRef = useRef(null);
+
+  const handleNavigate = (url, msg) => {
+    if (user) {
+      navigate(url);
+    } else {
+      toast.info(msg);
+    }
+  };
 
   const handleLogout = () => {
     navigate("/login");
@@ -39,10 +48,6 @@ const Navbar = () => {
 
   const handleOpenNotifications = () => {
     setOpenNotifications(!openNotifications);
-  };
-
-  const handleToggleMenu = () => {
-    setOpenSidebarDropdown(!openSidebarDropdown);
   };
 
   const fetchNotifications = async () => {
@@ -84,6 +89,19 @@ const Navbar = () => {
     );
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <nav className="padding-x w-full py-5 flex items-center justify-between border-b relative blue-bg">
       <Link to="/">
@@ -106,8 +124,9 @@ const Navbar = () => {
             <IoSearchOutline className="text-white text-2xl" />
           </button>
         </form>
-        <Link
-          to="/chats"
+        <button
+          type="button"
+          onClick={() => handleNavigate("/chats", "Login to see chats")}
           className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
         >
           <img
@@ -115,9 +134,12 @@ const Navbar = () => {
             alt="messages-icon"
             className="w-[18px] h-[18px]"
           />
-        </Link>
-        <Link
-          to="/favourites"
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            handleNavigate("/favourites", "Login to see favourites")
+          }
           className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
         >
           <img
@@ -125,7 +147,7 @@ const Navbar = () => {
             alt="heart-icon"
             className="w-[18px] h-[18px]"
           />
-        </Link>
+        </button>
         <button
           type="button"
           onClick={handleOpenNotifications}
@@ -139,9 +161,12 @@ const Navbar = () => {
           <NotificationsDropdown
             openNotifications={openNotifications}
             notifications={notifications}
+            setOpenNotifications={setOpenNotifications}
           />
         </button>
-        <Link
+        <button
+          type="button"
+          onClick={() => handleNavigate("/cart", "Login to see cart")}
           to="/cart"
           className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
         >
@@ -150,7 +175,7 @@ const Navbar = () => {
             alt="cart-icon"
             className="w-[18px] h-[18px]"
           />
-        </Link>
+        </button>
         {user ? (
           <button
             type="button"
@@ -182,27 +207,63 @@ const Navbar = () => {
           </Link>
         )}
         {showProfileDropdown && (
-          <div className="w-auto h-auto p-4 bg-white z-50 shadow-lg rounded-lg absolute top-20">
+          <div
+            ref={dropdownRef}
+            className="w-auto h-auto p-4 bg-white z-50 shadow-lg rounded-lg absolute top-20"
+          >
             <ul className="flex flex-col items-start gap-2">
               <li className="text-xs font-medium py-0.5">
-                <Link to="/account/peronal-info">Personal Information</Link>
+                <Link
+                  to="/account/peronal-info"
+                  onClick={() => setShowProfileDropdown(false)}
+                >
+                  Personal Information
+                </Link>
               </li>
               <li className="text-xs font-medium py-0.5">
-                <Link to="/account/my-listings">My Listings</Link>
+                <Link
+                  to="/account/my-listings"
+                  onClick={() => setShowProfileDropdown(false)}
+                >
+                  My Listings
+                </Link>
               </li>
               <li className="text-xs font-medium py-0.5">
-                <Link to="/account/my-wallet">My Wallet</Link>
+                <Link
+                  to="/account/my-wallet"
+                  onClick={() => setShowProfileDropdown(false)}
+                >
+                  My Wallet
+                </Link>
               </li>
               <li className="text-xs font-medium py-0.5">
-                <Link to="/account/subscriptions">Subscriptions</Link>
+                <Link
+                  to="/account/subscriptions"
+                  onClick={() => setShowProfileDropdown(false)}
+                >
+                  Subscriptions
+                </Link>
               </li>
               <li className="text-xs font-medium py-0.5">
-                <Link to="/order-history">Order History</Link>
+                <Link
+                  to="/order-history"
+                  onClick={() => setShowProfileDropdown(false)}
+                >
+                  Order History
+                </Link>
               </li>
               <li className="text-xs font-medium py-0.5">
-                <Link to="/settings">Settings</Link>
+                <Link
+                  to="/settings"
+                  onClick={() => setShowProfileDropdown(false)}
+                >
+                  Settings
+                </Link>
               </li>
-              <li className="text-xs font-medium py-0.5">
+              <li
+                className="text-xs font-medium py-0.5"
+                onClick={() => setShowProfileDropdown(false)}
+              >
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -260,124 +321,11 @@ const Navbar = () => {
           openSidebar ? "-translate-x-0" : "-translate-x-full"
         } transition-all duration-700`}
       >
-        <div className="w-2/3 bg-white h-full custom-shadow p-5 relative  overflow-y-scroll">
-          <button
-            onClick={() => setOpenSidebar(!openSidebar)}
-            className="absolute top-5 right-4 bg-white custom-shadow w-8 h-8 blue-bg rounded-xl flex items-center justify-center"
-          >
-            <IoClose className="text-2xl text-[#ffff]" />
-          </button>
-          <Link to="/" className="">
-            <img
-              src="/LOGO-WHITE.jpg"
-              alt="logo"
-              className="w-[85px] h-[85px]"
-            />
-          </Link>
-          <div className="w-full mt-5 px-3">
-            <ul className="flex flex-col items-start gap-3">
-              <li className="text-[15px] font-medium py-0.5">
-                <Link to="/account/peronal-info">Personal Information</Link>
-              </li>
-              <li className="text-[15px] font-medium py-0.5">
-                <Link to="/account/peronal-info">Favorites</Link>
-              </li>
-              <li className="text-[15px] font-medium py-0.5">
-                <Link to="/account/my-listings">My Listings</Link>
-              </li>
-              <li className="text-[15px] font-medium py-0.5">
-                <Link to="/account/my-wallet">My Wallet</Link>
-              </li>
-              <li className="text-[15px] font-medium py-0.5">
-                <Link to="/account/subscriptions">Subscriptions</Link>
-              </li>
-              <li className="text-[15px] font-medium py-0.5">
-                <Link to="/order-history">Order History</Link>
-              </li>
-              <li className="w-full">
-                <button
-                  type="button"
-                  onClick={handleToggleMenu}
-                  className="text-[15px] font-medium py-0.5 w-full flex items-end justify-between"
-                >
-                  <span>Settings</span>
-                  <IoIosArrowDown
-                    className={`text-sm ${
-                      openSidebarDropdown ? "rotate-180" : "rotate-0"
-                    } transition-all duration-300`}
-                  />
-                </button>
-                {openSidebarDropdown && (
-                  <div className="py-1 px-3 flex flex-col items-start gap-1">
-                    <Link
-                      to="/settings"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Notifications
-                    </Link>
-                    <Link
-                      to="/settingspayment"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Payment
-                    </Link>
-                    <Link
-                      to="/settings/addresses"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Address
-                    </Link>
-                    <Link
-                      to="/settings/change-password"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Change Password
-                    </Link>
-                    <Link
-                      to="/settings/deactivate-listing"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Deactivate Listing
-                    </Link>
-                    <Link
-                      to="/settings/terms-and-conditions"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Terms & Conditions
-                    </Link>
-                    <Link
-                      to="/settings/privacy-policy"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Privacy Policy
-                    </Link>
-                    <Link
-                      to="/settings/support-request"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Support Request
-                    </Link>
-                    <Link
-                      to="/settings/delete-account"
-                      className="text-[13px] font-medium py-0.5"
-                    >
-                      Delete Account
-                    </Link>
-                  </div>
-                )}
-              </li>
-              <li className="text-[15px] font-medium py-0.5">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="text-red-500"
-                >
-                  Log out
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <Sidebar
+          handleLogout={handleLogout}
+          openSidebar={openSidebar}
+          setOpenSidebar={setOpenSidebar}
+        />
       </div>
     </nav>
   );

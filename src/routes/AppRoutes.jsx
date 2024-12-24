@@ -343,14 +343,8 @@ const AppRoutes = () => {
           }
         />
 
-        <Route
-          path="/terms-and-conditions"
-          element={<Layout page={<TermsAndConditions />} />}
-        />
-        <Route
-          path="/privacy-policy"
-          element={<Layout page={<PrivacyPolicy />} />}
-        />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/optin-flow" element={<OptinFlowPage />} />
       </Routes>
     </Suspense>

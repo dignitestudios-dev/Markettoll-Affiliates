@@ -7,6 +7,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const validate = (values) => {
   const errors = {};
@@ -24,6 +25,7 @@ const validate = (values) => {
 
 const UpdatePasswordForm = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -34,18 +36,22 @@ const UpdatePasswordForm = () => {
     },
     validate,
     onSubmit: async (values, { resetForm }) => {
-      alert(JSON.stringify(values, null, 2));
+      setLoading(true);
       const userEmail = JSON.parse(Cookies.get("user-email"));
       try {
         const res = await axios.put(
           `${BASE_URL}/users/forgot-password-update-password`,
           { password: values.password, email: userEmail }
         );
-        // resetForm();
         navigate("/password-updated");
+        resetForm();
         console.log("Password update api res >>>>>", res);
+        toast.success(res?.data?.message);
       } catch (error) {
         console.log("password update error >>>>", error);
+        toast.error(error?.response?.data?.message || "Something went wrong");
+      } finally {
+        setLoading(false);
       }
     },
   });
@@ -168,9 +174,9 @@ const UpdatePasswordForm = () => {
 
         <button
           type="submit"
-          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mt-4"
+          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mt-4 h-[50px]"
         >
-          Update
+          {loading ? <ButtonLoader /> : "Update"}
         </button>
       </form>
     </div>

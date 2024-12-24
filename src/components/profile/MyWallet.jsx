@@ -28,10 +28,6 @@ const MyWallet = () => {
     setConnectCard(!connectCard);
   };
 
-  const handleToggleAddFundModal = () => {
-    setShowFundModal(!showFundModal);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -113,7 +109,14 @@ const MyWallet = () => {
 
   useEffect(() => {
     fetchTransactionhistory();
-  }, []);
+  }, [showModal]);
+
+  const handleToggleAddFundModal = () => {
+    setShowFundModal(!showFundModal);
+    if (!showFundModal) {
+      fetchTransactionhistory();
+    }
+  };
 
   return (
     <div className="w-full p-4 rounded-xl bg-[#F5F5F5]">

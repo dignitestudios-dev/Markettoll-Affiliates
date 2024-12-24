@@ -19,6 +19,7 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const { searchResults } = useContext(SearchedProductContext);
   const [categories, setCategories] = useState([]);
+  const [productCategory, setProductCategory] = useState("All");
 
   const fetchProducts = async () => {
     const options = user?.token
@@ -120,11 +121,13 @@ const ProductList = () => {
 
   const filterProducts = (categoryName) => {
     if (categoryName === "All") {
+      setProductCategory("All");
       setFilteredProducts(products);
     } else {
       const filtered = products.filter(
         (prod) => prod.category === categoryName
       );
+      setProductCategory(categoryName);
       setFilteredProducts(filtered);
     }
   };
@@ -141,48 +144,72 @@ const ProductList = () => {
             <button
               type="button"
               onClick={() => filterProducts("All")}
-              className="blue-bg text-white text-[13px] font-medium rounded-lg px-3 py-2"
+              className={`${
+                productCategory == "All"
+                  ? "blue-bg text-white"
+                  : "bg-[#F7F7F7] text-black"
+              } text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               All
             </button>
             <button
               type="button"
               onClick={() => filterProducts("Electronics")}
-              className="bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2"
+              className={`${
+                productCategory === "Electronics"
+                  ? "blue-bg text-white"
+                  : "bg-[#F7F7F7] text-black"
+              } text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               Electronics
             </button>
             <button
               type="button"
               onClick={() => filterProducts("Home Appliances")}
-              className="bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2"
+              className={`${
+                productCategory == "Home Appliances"
+                  ? "blue-bg text-white"
+                  : "bg-[#F7F7F7] text-black"
+              } text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               Home Appliances
             </button>
             <button
               type="button"
               onClick={() => filterProducts("Home & Furniture")}
-              className="bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2"
+              className={`${
+                productCategory == "Home & Furniture"
+                  ? "blue-bg text-white"
+                  : "bg-[#F7F7F7] text-black"
+              } text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               Home Decor & Interiors
             </button>
             <button
               type="button"
               onClick={() => filterProducts("Phone & Tablet")}
-              className="bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2"
+              className={`${
+                productCategory == "Phone & Tablet"
+                  ? "blue-bg text-white"
+                  : "bg-[#F7F7F7] text-black"
+              } text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               Phone & Tablet
             </button>
             <button
               type="button"
               onClick={() => filterProducts("Fashion")}
-              className="bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2"
+              className={`${
+                productCategory == "Fashion"
+                  ? "blue-bg text-white"
+                  : "bg-[#F7F7F7] text-black"
+              } text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               Clothing
             </button>
             <Link
               to={`/home/categories/${categories[0]?.name}`}
-              className="bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2"
+              className={`bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               See All
             </Link>

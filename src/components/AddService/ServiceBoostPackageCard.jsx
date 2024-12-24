@@ -6,6 +6,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const ServiceBoostPackageCard = ({
   index,
@@ -21,7 +22,6 @@ const ServiceBoostPackageCard = ({
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showSuccessMoal, setShowSuccessModal] = useState(false);
   const location = useLocation();
-  // console.log(location?.state);
 
   const handleNavigate = async () => {
     if (
@@ -33,8 +33,7 @@ const ServiceBoostPackageCard = ({
           plan: {
             title,
             duration,
-            // endpoint,
-            // planType,
+
             features,
             index,
           },
@@ -48,7 +47,6 @@ const ServiceBoostPackageCard = ({
       } else if (location?.state?.type === "product") {
         URL = `${BASE_URL}/stripe/product-boost-paid-plan-stripe/${location?.state?.id}`;
       }
-      // if (location?.state?.from == "sericeReview") {
       try {
         const res = await axios.post(
           URL,
@@ -67,8 +65,7 @@ const ServiceBoostPackageCard = ({
           setTimeout(() => {
             setShowPlanModal(false);
             setShowSuccessModal(true);
-          }, 2000); // Wait for a while before showing success modal
-          // toast.success(res?.data?.message);
+          }, 2000);
         }
       } catch (error) {
         console.log("error while boosting service >>>>", error?.response?.data);
@@ -76,7 +73,6 @@ const ServiceBoostPackageCard = ({
       } finally {
         setLoading(false);
       }
-      // }
       if (location?.state?.from === "/my-listings") {
         try {
           const res = await axios.post(
@@ -96,8 +92,7 @@ const ServiceBoostPackageCard = ({
             setTimeout(() => {
               setShowPlanModal(false);
               setShowSuccessModal(true);
-            }, 2000); // Wait for a while before showing success modal
-            // toast.success(res?.data?.message);
+            }, 2000);
           }
         } catch (error) {
           console.log("error while boosting service >>>>", error);
@@ -106,42 +101,17 @@ const ServiceBoostPackageCard = ({
           setLoading(false);
         }
       } else {
-        // try {
-        //   const res = await axios.post(
-        //     `${BASE_URL}/stripe/product-boost-paid-plan-stripe/${location?.state?.id}`,
-        //     {
-        //       boostName,
-        //     },
-        //     {
-        //       headers: {
-        //         Authorization: `Bearer ${user?.token}`,
-        //       },
-        //     }
-        //   );
-        //   console.log("product boost res >>>", res);
-        //   if (res?.status == 201) {
-        //     setShowPlanModal(true);
-        //     setTimeout(() => {
-        //       setShowPlanModal(true);
-        //       setShowSuccessModal(false);
-        //     }, 2000); // Wait for a while before showing success modal
-        //     toast.success(res?.data?.message);
-        //   }
-        // } catch (error) {
-        //   console.log("error while boosting product >>>>", error);
-        //   toast.error(error?.response?.data?.message);
-        // } finally {
-        //   setLoading(false);
-        // }
       }
     }
   };
 
   const handleClosePlanModal = () => {
+    console.log("eowqnoiwqno");
     setShowPlanModal(false);
     setShowSuccessModal(true);
   };
   const handleClosePlanModal2 = () => {
+    console.log("eowqnoiwqno");
     setShowPlanModal(false);
     setShowSuccessModal(false);
   };
@@ -150,28 +120,22 @@ const ServiceBoostPackageCard = ({
     <>
       <div
         className={`relative rounded-[30px] p-6 lg:p-7 flex flex-col gap-1 w-full lg:w-[366px] ${
-          index == 0 ? "blue-bg" : "bg-white"
+          index == 0 ? "bg-white" : "bg-white"
         }`}
       >
         <div className="w-full ">
           <span
-            className={`${
-              index == 0 ? "bg-white" : "blue-bg text-white"
-            } px-6 py-2.5 rounded-full text-center font-medium text-sm float-end`}
+            className={`blue-bg text-white px-6 py-2.5 rounded-full text-center font-medium text-sm float-end`}
           >
             {boostName}
           </span>
         </div>
-        <h3
-          className={`${
-            index == 0 ? "text-white" : "blue-text"
-          } font-bold text-[61px]`}
-        >
+        <h3 className={`blue-text font-bold text-[61px]`}>
           <span className="text-[22px] relative -top-7">$</span>
           <span className="mx-1">{title}</span>
           <span className="text-[22px]">/ {duration}</span>
         </h3>
-        <ul className={`${index == 0 && "bg-white p-4 rounded-xl"} p-4`}>
+        <ul className={`p-4`}>
           {features?.map((p, index) => {
             return (
               <li key={index} className="flex items-center w-full gap-2 my-5">
@@ -188,9 +152,11 @@ const ServiceBoostPackageCard = ({
           <button
             type="button"
             onClick={() => handleNavigate()}
-            className={`blue-bg text-white font-bold text-center py-3.5 mt-5 rounded-[20px] w-full block`}
+            className={`blue-bg text-white font-bold text-center py-3 rounded-[20px] w-full block h-[50px] ${
+              index === 0 ? "mt-2" : "mt-5"
+            }`}
           >
-            {loading ? "Subscribing" : "Subscribe Now"}
+            {loading ? <ButtonLoader /> : "Subscribe Now"}
           </button>
         </ul>
       </div>
@@ -211,11 +177,11 @@ export default ServiceBoostPackageCard;
 const Modal1 = ({ showPlanModal, handleClose }) => {
   return (
     showPlanModal && (
-      <div className="w-full h-screen fixed inset-0 z-50 bg-[rgba(0,0,0,0.2)] flex items-center justify-center">
+      <div className="w-full h-screen fixed inset-0 z-[1000000] bg-[rgba(0,0,0,0.2)] flex items-center justify-center">
         <div className="w-full lg:w-[440px] p-10 rounded-[20px] bg-white relative flex flex-col items-center justify-center gap-3">
           <button
             type="button"
-            onclick={handleClose}
+            onClick={handleClose} // Corrected here
             className="w-6 h-6 bg-gray-200 rounded-full p-1 absolute top-5 right-5"
           >
             <IoClose className="w-full h-full" />
@@ -226,7 +192,7 @@ const Modal1 = ({ showPlanModal, handleClose }) => {
           </div>
           <h2 className="font-bold blue-text text-xl">Congratulations!</h2>
           <p className="text-base text-[#5C5C5C]">
-            You have successfully Purchase plan.
+            You have successfully purchased the plan.
           </p>
         </div>
       </div>
@@ -237,11 +203,11 @@ const Modal1 = ({ showPlanModal, handleClose }) => {
 const Modal2 = ({ showSuccessMoal, handleClose }) => {
   return (
     showSuccessMoal && (
-      <div className="w-full h-screen fixed inset-0 z-50 bg-[rgba(0,0,0,0.2)] flex items-center justify-center">
+      <div className="w-full h-screen fixed inset-0 z-[10000000000] bg-[rgba(0,0,0,0.2)] flex items-center justify-center">
         <div className="w-full lg:w-[440px] p-10 rounded-[20px] bg-white relative flex flex-col items-center justify-center gap-3">
           <button
             type="button"
-            onclick={handleClose}
+            onClick={handleClose} // Corrected here
             className="w-6 h-6 bg-gray-200 rounded-full p-1 absolute top-5 right-5"
           >
             <IoClose className="w-full h-full" />

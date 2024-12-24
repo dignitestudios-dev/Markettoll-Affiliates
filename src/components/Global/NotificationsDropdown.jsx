@@ -1,10 +1,34 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { FaCheck } from "react-icons/fa6";
 
-const NotificationsDropdown = ({ openNotifications, notifications }) => {
+const NotificationsDropdown = ({
+  openNotifications,
+  notifications,
+  setOpenNotifications,
+}) => {
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenNotifications(false); // Close the dropdown
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [setOpenNotifications]);
+
+  if (!openNotifications) return null;
   return (
     openNotifications && (
-      <div className="h-auto p-4 bg-white z-50 w-[340px] custom-shadow rounded-lg absolute top-20 right-2 lg:right-72 cursor-default">
+      <div
+        ref={dropdownRef}
+        className="h-auto p-4 bg-white z-50 w-[340px] custom-shadow rounded-lg absolute top-20 right-2 lg:right-72 cursor-default"
+      >
         <h3 className="blue-text font-bold text-lg text-start">
           Notifications
         </h3>

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const validate = (values) => {
   const errors = {};
@@ -20,25 +22,34 @@ const validate = (values) => {
 
 const ForgotPasswordForm = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
   const formik = useFormik({
     initialValues: {
       email: "",
     },
     validate,
     onSubmit: async (values, { resetForm }) => {
-      // alert(JSON.stringify(values, null, 2));
+      setLoading(true);
       try {
         const res = await axios.post(
           `${BASE_URL}/users/forgot-password-send-email-otp`,
           { email: values.email }
         );
         console.log("verify email res >>>>>>", res);
-        Cookies.set("user-email", JSON.stringify(values.email));
+        toast.success(res?.data?.message);
+        // localStorage.setItem("user-email", JSON.stringify(values.email));
         navigate("/verify-otp", {
-          state: { from: "forgot-password", type: "forgot-password" },
+          state: {
+            from: "forgot-password",
+            type: "forgot-password",
+            email: values.email,
+          },
         });
       } catch (error) {
         console.log("Verify email err >>>>", error);
+      } finally {
+        setLoading(false);
       }
       resetForm();
     },
@@ -98,9 +109,9 @@ const ForgotPasswordForm = () => {
 
         <button
           type="submit"
-          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mt-5"
+          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mt-5 h-[50px]"
         >
-          Next
+          {loading ? <ButtonLoader /> : "Next"}
         </button>
       </form>
     </div>

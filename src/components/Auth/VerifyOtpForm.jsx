@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { FaArrowLeftLong } from "react-icons/fa6";
@@ -7,30 +7,35 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
-
-const validate = () => {
-  const errors = {};
-  if (otp.some((digit) => digit === "")) {
-    errors.otp = "Please fill all digits.";
-  }
-  return errors;
-};
+import ButtonLoader from "../Global/ButtonLoader";
 
 const VerifyOtpForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const previousPage = location.state?.from || "/";
   const verificationType = location.state?.type;
-  console.log("verificationType >>>", verificationType);
   const { setVerificationStatus } = useContext(AuthContext);
   const data = JSON.parse(localStorage.getItem("user")) || null;
-
   const { user } = useContext(AuthContext);
-  const userEmail = JSON.parse(localStorage.getItem("user-email"));
-  console.log("user >>>", data);
-  console.log(data?.email?.value);
-
   const [otp, setOtp] = useState(["", "", "", ""]);
+  const [timer, setTimer] = useState(60);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace" && otp[index] === "" && index > 0) {
+      document.getElementById(`otp-${index - 1}`).focus();
+    }
+  };
 
   const handleOtpChange = (value, index) => {
     if (/^\d?$/.test(value)) {
@@ -38,7 +43,6 @@ const VerifyOtpForm = () => {
       updatedOtp[index] = value;
       setOtp(updatedOtp);
 
-      // Automatically move focus to the next input
       if (value && index < otp.length - 1) {
         document.getElementById(`otp-${index + 1}`).focus();
       }
@@ -76,6 +80,7 @@ const VerifyOtpForm = () => {
     initialValues: {},
     validate,
     onSubmit: async (_, { resetForm }) => {
+      setLoading(true);
       const endpoint =
         verificationType === "email"
           ? `${BASE_URL}/users/verify-email-verify-email-otp`
@@ -85,7 +90,7 @@ const VerifyOtpForm = () => {
       try {
         const res = await axios.post(
           endpoint,
-          { otp: otp.join(""), email: data?.email?.value },
+          { otp: otp.join(""), email: location?.state?.email },
           {
             headers: {
               Authorization: `Bearer ${data?.token}`,
@@ -102,7 +107,9 @@ const VerifyOtpForm = () => {
           [verificationType]: true,
         }));
         if (previousPage == "forgot-password") {
-          navigate("/update-password");
+          navigate("/update-password", {
+            state: { email: location?.state?.email },
+          });
         } else {
           navigate("/review-profile");
         }
@@ -112,30 +119,54 @@ const VerifyOtpForm = () => {
           error?.response?.data?.message
         );
         toast.error(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
       }
     },
   });
 
   const handleResendOtp = async () => {
-    const endpoint =
-      verificationType === "email"
-        ? `${BASE_URL}/users/verify-email-send-email-otp`
-        : `${BASE_URL}/users/verify-phone-number-send-sms-otp`;
+    if (location?.state?.from === "forgot-password") {
+      try {
+        const res = await axios.post(
+          `${BASE_URL}/users/forgot-password-send-email-otp`,
+          { email: location?.state?.email },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        console.log("verify email resend otp res >> ", res);
+        toast.success(res?.data?.message);
+        setTimer(60);
+      } catch (error) {
+        console.log("verify email resend otp err  >> ", error);
+        toast.error(error?.response?.data?.message);
+      }
+    } else {
+      const endpoint =
+        verificationType === "email"
+          ? `${BASE_URL}/users/verify-email-send-email-otp`
+          : `${BASE_URL}/users/verify-phone-number-send-sms-otp`;
 
-    try {
-      const res = await axios.post(
-        endpoint,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
-      console.log("verify email otp res >> ", res);
-      toast.success(res?.data?.message);
-    } catch (error) {
-      console.log("verify email otp err  >> ", error);
+      try {
+        const res = await axios.post(
+          endpoint,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        console.log("verify email resend otp res >> ", res);
+        toast.success(res?.data?.message);
+        setTimer(60);
+      } catch (error) {
+        console.log("verify email resend otp err  >> ", error);
+        toast.error(error?.response?.data?.message);
+      }
     }
   };
 
@@ -179,6 +210,7 @@ const VerifyOtpForm = () => {
               maxLength="1"
               value={digit}
               onChange={(e) => handleOtpChange(e.target.value, index)}
+              onKeyDown={(e) => handleOtpKeyDown(e, index)}
               className="bg-[#fff] outline-none w-[60.5px] h-[60.5px] p-4 rounded-[20px] text-center blue-text text-[36px] font-bold"
             />
           ))}
@@ -192,18 +224,21 @@ const VerifyOtpForm = () => {
           <button
             type="button"
             onClick={handleResendOtp}
-            className="light-blue-text font-bold"
+            className={`light-blue-text font-bold ${
+              timer > 0 ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={timer > 0}
           >
-            Resend Now
+            Resend {timer > 0 && `in ${timer}`}
           </button>
         </div>
 
         <button
           type="submit"
-          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full"
+          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full cursor-pointer relative h-[50px]"
           disabled={otp.some((digit) => digit === "")}
         >
-          Verify
+          {loading ? <ButtonLoader /> : "Verify"}
         </button>
       </form>
     </div>

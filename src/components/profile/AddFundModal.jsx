@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 const AddFundModal = ({ showFundModal, setShowFundModal, onclick }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const { user, fetchUserProfile } = useContext(AuthContext);
-  const [amount, setAmonut] = useState(0);
+  const [amount, setAmonut] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleToggleSuccessModal = () => {

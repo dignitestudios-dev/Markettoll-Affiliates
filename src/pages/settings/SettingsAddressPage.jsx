@@ -7,7 +7,7 @@ const SettingsAddressPage = () => {
   const [showModal, setShowModal] = useState(false);
   const { userProfile } = useContext(AuthContext);
   const [addressId, setAddressId] = useState(null);
-  // console.log(userProfile?.pickupAddress?._id);
+  console.log("userProfile >>>", userProfile);
   const navigate = useNavigate();
 
   const handleShowDeleteModal = async (id) => {
@@ -79,13 +79,19 @@ const SettingsAddressPage = () => {
               Edit
             </button>
           </div>
-          <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
-            {userProfile?.apartment_suite} {userProfile?.pickupAddress?.city},{" "}
-            {userProfile?.pickupAddress?.streetAddress},{" "}
-            {userProfile?.pickupAddress?.state},{" "}
-            {userProfile?.pickupAddress?.country}{" "}
-            {userProfile?.pickupAddress?.zipCode}
-          </div>
+          {userProfile?.state ? (
+            <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
+              {userProfile?.apartment_suite} {userProfile?.pickupAddress?.city},{" "}
+              {userProfile?.pickupAddress?.streetAddress},{" "}
+              {userProfile?.pickupAddress?.state},{" "}
+              {userProfile?.pickupAddress?.country}{" "}
+              {userProfile?.pickupAddress?.zipCode}
+            </div>
+          ) : (
+            <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
+              N/A
+            </div>
+          )}
         </div>
 
         <div className="w-full">

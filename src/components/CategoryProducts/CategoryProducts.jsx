@@ -25,11 +25,11 @@ const CategoryProducts = () => {
     try {
       setLoading(true);
       const res = await axios.get(
-        `${BASE_URL}/users/home-screen-products`,
+        `${BASE_URL}/users/home-screen-searched-products?name=&category=${category.toLocaleLowerCase()}&subCategory=${category.toLocaleLowerCase()}&page=1`,
         options
       );
       setProducts(res?.data?.data);
-      //   console.log("products >>>>>", res?.data?.data);
+      console.log("products >>>>>", res?.data?.data);
     } catch (error) {
       console.log("home screen products err >>>>", error);
     } finally {

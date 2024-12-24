@@ -1,57 +1,64 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
-import { STATES } from "../../constants/states";
 import { LuMinus } from "react-icons/lu";
 import { HiPlus } from "react-icons/hi";
-// import { productCategories } from "../../constants/productCategories";
 import { AuthContext } from "../../context/authContext";
 import { ProductDataReview } from "../../context/addProduct";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { City, Country, State } from "country-state-city";
-import AddPickupAddressForm from "./AddPickupAddressForm";
 
 const AddProductForm = () => {
   const { user, userProfile } = useContext(AuthContext);
-  const [productName, setProductName] = useState("");
-  const [productCategory, setProductCategory] = useState("");
-  const [productSubCategory, setProductSubCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
-  const [productImages, setProductImages] = useState([]);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const location = useLocation();
+  const product = location?.state?.productData;
+  const [productName, setProductName] = useState(
+    product ? product?.productName : ""
+  );
+  const [productCategory, setProductCategory] = useState(
+    product ? product?.productCategory : ""
+  );
+  const [productSubCategory, setProductSubCategory] = useState(
+    product ? product?.productSubCategory : ""
+  );
+  const [description, setDescription] = useState(
+    product ? product?.description : ""
+  );
+  const [price, setPrice] = useState(product ? product?.price : "");
+  const [productImages, setProductImages] = useState(
+    product ? product?.productImages : []
+  );
+  const [selectedState, setSelectedState] = useState(
+    product ? product?.selectedState : ""
+  );
+  const [selectedCity, setSelectedCity] = useState(
+    product ? product?.selectedCity : ""
+  );
+  const [quantity, setQuantity] = useState(product ? product?.quantity : "");
   const [fulfillmentMethod, setFulfillmentMethod] = useState({
-    selfPickup: false,
-    delivery: false,
+    selfPickup: product ? product?.fulfillmentMethod?.selfPickup : false,
+    delivery: product ? product?.fulfillmentMethod?.delivery : false,
   });
   const [pickupAddress, setPickupAddress] = useState("");
   const [isPickupAddressSameAsProfile, setIsPickupAddressSameAsProfile] =
     useState(false);
-  const [coverImageIndex, setCoverImageIndex] = useState(null);
+  const [coverImageIndex, setCoverImageIndex] = useState(
+    product ? product?.coverImageIndex : ""
+  );
   const navigate = useNavigate();
-  const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [productCategories, setProductCategories] = useState([]);
-
-  const [fullStateName, setFullStateName] = useState("");
+  const [fullStateName, setFullStateName] = useState(
+    product ? product?.selectedState : ""
+  );
   const [states, setStates] = useState([]);
   const [stateCities, setStateCities] = useState([]);
 
-  // pickup address fields
-  const [pickupStreetAddress, setPickupStreetAddress] = useState("");
-  const [pickupApartment, setPickupApartment] = useState("");
-  const [pickupAddressState, setPickupAddressState] = useState("");
-  const [pickupAddressCity, setPickupAddresCity] = useState("");
-  const [pickupAddressZipCode, setPickupAddressZipCode] = useState("");
-
   useEffect(() => {
-    const allCountries = Country.getAllCountries();
     const usStates = State.getStatesOfCountry("US");
     setStates(usStates);
   }, []);
@@ -139,11 +146,6 @@ const AddProductForm = () => {
     setProductSubCategory(e.target.value);
   };
 
-  const selectedStateData = STATES.find(
-    (state) => state.name === selectedState
-  );
-  const cities = selectedStateData ? selectedStateData.cities : [];
-
   const handleImageChange = (e) => {
     const files = Array.from(event.target.files);
     if (productImages.length + files.length <= 5) {
@@ -160,6 +162,7 @@ const AddProductForm = () => {
     }
   };
   const handleCoverPhotoChange = (index) => {
+    console.log("cover image index >>>>", index);
     setCoverImageIndex(index);
   };
 
@@ -169,7 +172,7 @@ const AddProductForm = () => {
       toast.error("Please upload product images");
       return;
     }
-    if (!coverImageIndex) {
+    if (coverImageIndex === "") {
       toast.error("Please choose a cover image");
       return;
     }
@@ -218,29 +221,27 @@ const AddProductForm = () => {
       toast.error("Please choose a fulfillment method.");
       return;
     }
-    //  try {
-    //   const res = await axios.post()
-    //  } catch (error) {
 
-    //  }
-
-    setProductData({
-      productName,
-      description,
-      productCategory,
-      productSubCategory,
-      selectedState: fullStateName,
-      selectedCity,
-      fulfillmentMethod,
-      pickupAddress: isPickupAddressSameAsProfile
-        ? productPickupAddress
-        : pickupAddress,
-      price,
-      quantity,
-      productImages,
-      coverImageIndex,
+    navigate("/product-review", {
+      state: {
+        productData: {
+          productName,
+          description,
+          productCategory,
+          productSubCategory,
+          selectedState: fullStateName,
+          selectedCity,
+          fulfillmentMethod,
+          pickupAddress: isPickupAddressSameAsProfile
+            ? productPickupAddress
+            : pickupAddress,
+          price,
+          quantity,
+          productImages,
+          coverImageIndex,
+        },
+      },
     });
-    navigate("/product-review");
   };
 
   return (
@@ -273,10 +274,6 @@ const AddProductForm = () => {
               >
                 <div className="flex flex-col items-center justify-center w-full h-full rounded-full">
                   <GoPlus className="w-[48px] h-[48px] text-light-blue" />
-                  {/* {productImages.length === 0 ? (
-                  ) : (
-                    <GoPlus className="w-[48px] h-[48px] text-light-blue" />
-                  )} */}
                 </div>
                 <input
                   onChange={handleImageChange}
@@ -314,7 +311,7 @@ const AddProductForm = () => {
                   <div className="flex items-center gap-1 mt-1">
                     <input
                       type="checkbox"
-                      checked={coverImageIndex === index}
+                      checked={index === coverImageIndex}
                       onChange={() => handleCoverPhotoChange(index)}
                       className="w-[14px] h-[14px]"
                     />
@@ -412,7 +409,7 @@ const AddProductForm = () => {
                 Price
               </label>
               <input
-                type="text"
+                type="number"
                 placeholder="$199.00"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}

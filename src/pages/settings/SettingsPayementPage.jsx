@@ -4,6 +4,8 @@ import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import AddBankAccountForm from "./AddBankAccountForm";
 
 const SettingsPayementPage = () => {
   const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
@@ -11,6 +13,7 @@ const SettingsPayementPage = () => {
   const [isCardAdded, setIsCardAdded] = useState(false);
   const [isBankAccountAdded, setIsBankAccountAdded] = useState(false);
   const [addingAccount, setAddingAccount] = useState(false);
+  const navigate = useNavigate();
   const [bankDetails, setBankDetails] = useState({
     accountNumber: "",
     routingNumber: "",
@@ -21,7 +24,7 @@ const SettingsPayementPage = () => {
     year: "",
   });
   const [ssn, setSsn] = useState("");
-  console.log("userProfile >>", userProfile);
+  // console.log("userProfile >>", userProfile);
 
   const handleBankDetailsChange = (e) => {
     const { id, value } = e.target;
@@ -67,8 +70,9 @@ const SettingsPayementPage = () => {
         toast.success("Bank account added succesfully");
         setIsBankAccountAdded(false);
         fetchUserProfile();
+        navigate(-1);
       }
-      console.log("add bank accont res >>>>", res);
+      // console.log("add bank accont res >>>>", res);
     } catch (error) {
       console.log("error while adding bank account >>>>>>", error);
       toast.error(error.response.data.message);
@@ -182,104 +186,7 @@ const SettingsPayementPage = () => {
       )}
 
       {userProfile && userProfile?.stripeConnectedAccount?.id == null ? (
-        <form
-          onSubmit={handleAddbankAccount}
-          className="w-full flex flex-col items-start gap-5 mt-10"
-        >
-          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="w-full flex flex-col items-start gap-1">
-              <label
-                htmlFor="accountNumber"
-                className="text-[13px] font-medium"
-              >
-                Account Number
-              </label>
-              <input
-                type="text"
-                id="accountNumber"
-                placeholder="John Smith"
-                className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
-                value={bankDetails.accountNumber}
-                onChange={handleBankDetailsChange}
-              />
-            </div>
-            <div className="w-full flex flex-col items-start gap-1">
-              <label
-                htmlFor="routingNumber"
-                className="text-[13px] font-medium"
-              >
-                Routing Number
-              </label>
-              <input
-                type="text"
-                id="routingNumber"
-                placeholder="Routing Number"
-                className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
-                value={bankDetails.routingNumber}
-                onChange={handleBankDetailsChange}
-              />
-            </div>
-          </div>
-
-          <div className="w-full">
-            <label htmlFor="expiry" className="text-[13px] font-medium mb-2">
-              Date of Birth
-            </label>
-            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="w-full flex flex-col items-start gap-1">
-                <input
-                  type="text"
-                  id="day"
-                  placeholder="Day"
-                  className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
-                  value={dateOfBirth.day}
-                  onChange={handleDateOfBirthChange}
-                />
-              </div>
-              <div className="w-full flex flex-col items-start gap-1">
-                <input
-                  type="text"
-                  id="month"
-                  placeholder="Month"
-                  className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
-                  value={dateOfBirth.month}
-                  onChange={handleDateOfBirthChange}
-                />
-              </div>
-              <div className="w-full flex flex-col items-start gap-1">
-                <input
-                  type="text"
-                  id="year"
-                  placeholder="Year"
-                  className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
-                  value={dateOfBirth.year}
-                  onChange={handleDateOfBirthChange}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full flex flex-col items-start gap-1">
-            <label htmlFor="ssn" className="text-[13px] font-medium">
-              Social Security Number (SSN)
-            </label>
-            <input
-              type="text"
-              id="ssn"
-              placeholder="SSN"
-              className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
-              value={ssn}
-              onChange={(e) => setSsn(e.target.value)}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="text-base font-bold py-3 w-full text-white blue-bg rounded-2xl"
-          >
-            {addingAccount ? "Adding..." : "Add"}
-          </button>
-        </form>
+        <AddBankAccountForm />
       ) : (
         <button
           type="button"

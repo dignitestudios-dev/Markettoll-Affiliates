@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import ProductList from "../../components/Home/ProductList";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
@@ -7,6 +7,7 @@ import { IoClose } from "react-icons/io5";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
+import { toast } from "react-toastify";
 
 const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -43,12 +44,11 @@ const HomePage = () => {
       <div className="w-full flex items-center justify-between z-0">
         <h2 className="text-2xl lg:text-[36px] font-bold">
           <span className="blue-text">
-            Welcome{" "}
+            Welcome
             {userProfile?.name !== "" || userProfile?.name !== null
-              ? userProfile?.name
+              ? ` ${userProfile?.name}`
               : ""}
-            ,
-          </span>
+          </span>{" "}
           <span>Let’s Shop!</span>
         </h2>
         <button
@@ -69,6 +69,17 @@ const HomePage = () => {
 export default HomePage;
 
 const Popup = ({ openModal, onclick }) => {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleNavigate = (url, title) => {
+    if (!user) {
+      toast.error(`Login to add ${title}`);
+      onclick();
+      return;
+    }
+    navigate(url);
+  };
   return (
     openModal && (
       <div className="w-full h-screen bg-[rgba(0,0,0,0.5)] fixed inset-0 z-50 flex items-center justify-center">
@@ -81,8 +92,10 @@ const Popup = ({ openModal, onclick }) => {
             <IoClose className="w-full h-full" />
           </button>
           <h3 className="blue-text font-bold text-lg">Select Type</h3>
-          <Link
-            to="/add-product"
+          <button
+            type="button"
+            onClick={() => handleNavigate("/add-product", "product")}
+            // to="/add-product"
             className="w-[343px] bg-[#F2F2F2] rounded-[14px] p-4 flex items-center justify-between"
           >
             <div className="flex items-center justify-start gap-2">
@@ -94,9 +107,11 @@ const Popup = ({ openModal, onclick }) => {
             <div>
               <MdOutlineKeyboardArrowRight className="text-xl" />
             </div>
-          </Link>
-          <Link
-            to="/add-service"
+          </button>
+          <button
+            type="button"
+            // to="/add-service"
+            onClick={() => handleNavigate("/add-service", "service")}
             className="w-[343px] bg-[#F2F2F2] rounded-[14px] p-4 flex items-center justify-between"
           >
             <div className="flex items-center justify-start gap-2">
@@ -108,7 +123,7 @@ const Popup = ({ openModal, onclick }) => {
             <div>
               <MdOutlineKeyboardArrowRight className="text-xl" />
             </div>
-          </Link>
+          </button>
         </div>
       </div>
     )

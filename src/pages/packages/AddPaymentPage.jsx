@@ -9,6 +9,7 @@ import { BASE_URL } from "../../api/api";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import axios from "axios";
 import { toast } from "react-toastify";
+import ButtonLoader from "../../components/Global/ButtonLoader";
 
 const AddPaymentPage = () => {
   const [addCard, setAddCard] = useState(false);
@@ -20,10 +21,10 @@ const AddPaymentPage = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
-  console.log(user);
+  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
+  console.log("userProfile >>>", userProfile);
   const { plan } = location.state;
-  console.log("plan >>", plan);
+  const [loading, setLoading] = useState(false);
 
   const stripe = useStripe();
   const elements = useElements();
@@ -39,6 +40,7 @@ const AddPaymentPage = () => {
   };
 
   const handleAddCardFalse = async () => {
+    setLoading(true);
     try {
       if (!stripe || !elements) {
         console.log("Stripe.js has not loaded yet.");
@@ -64,7 +66,7 @@ const AddPaymentPage = () => {
         return;
       }
 
-      console.log("PaymentMethod Created:", paymentMethod.id);
+      fetchUserProfile();
       setPaymentMethodId(paymentMethod?.id);
       if (paymentMethod?.id) {
         // setAddCard(!addCard);
@@ -93,6 +95,8 @@ const AddPaymentPage = () => {
       }
     } catch (error) {
       console.log("err while adding card >>>", error?.response?.data);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -172,9 +176,9 @@ const AddPaymentPage = () => {
               <button
                 type="button"
                 onClick={handleAddCardFalse}
-                className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
+                className="py-3.5 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
               >
-                Save
+                {loading ? <ButtonLoader /> : "Save"}
               </button>
             </div>
           </div>
@@ -254,8 +258,8 @@ const AddPaymentPage = () => {
                     />
                     <span className="text-sm font-normal text-[#5C5C5C]">
                       {showCard
-                        ? "**** **** **** 8941"
-                        : "Add Debit/ Credit Card"}
+                        ? `**** **** **** ${userProfile?.stripeCustomer?.paymentMethod?.last4}`
+                        : `**** **** **** ${userProfile?.stripeCustomer?.paymentMethod?.last4}`}
                     </span>
                   </div>
                   <MdOutlineKeyboardArrowRight className="text-2xl light-blue-text" />
@@ -268,7 +272,7 @@ const AddPaymentPage = () => {
                 onClick={handleSubscribePlan}
                 className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
               >
-                {isProcessing ? "Processing..." : "Continue"}
+                {isProcessing ? <ButtonLoader /> : "Continue"}
               </button>
             </div>
           </div>

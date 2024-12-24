@@ -19,7 +19,7 @@ const ProductDetails = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [addToCart, setAddToCart] = useState(false);
   const { productId } = useParams();
-  const { user, userProfile } = useContext(AuthContext);
+  const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
   const [fulfillmentMethod, setFulfillmentMethod] = useState({
     selfPickup: null,
@@ -104,6 +104,10 @@ const ProductDetails = () => {
   };
 
   const handleIncrementQuantity = async (type) => {
+    if (!user) {
+      toast.error("Login first to add product in cart");
+      return;
+    }
     const endpoint =
       type === "increment"
         ? `${BASE_URL}/users/cart-product-increment-by-one/${productId}`
@@ -143,8 +147,9 @@ const ProductDetails = () => {
         );
         console.log("product added favorite >>>>>", res);
         if (res?.status == 201) {
-          fetchUserProfile();
           toast.success(res?.data?.message);
+          fetchUserProfile();
+          handleFetchProduct();
         }
       } catch (error) {
         console.log("product added favorite err >>>>>", error);

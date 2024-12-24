@@ -19,7 +19,7 @@ const Footer = () => {
             to={"tel:contact@markettoll.com"}
             className="font-medium text-[20px]"
           >
-            10 (87) 738-3940
+            1 (833) 770-2446
           </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
@@ -35,10 +35,10 @@ const Footer = () => {
               className="w-[20px] h-[20px]"
             />
             <Link
-              to={"mailto:contact@markettoll.com"}
+              to={"mailto:info@markettoll.com"}
               className="font-medium text-[20px]"
             >
-              contact@markettoll.com
+              info@markettoll.com
             </Link>
           </div>
         </div>
