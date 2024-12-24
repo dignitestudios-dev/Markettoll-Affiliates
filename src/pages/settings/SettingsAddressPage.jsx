@@ -76,7 +76,7 @@ const SettingsAddressPage = () => {
               // to={`/settings/addresses/edit-addresses/${userProfile?.pickupAddress?._id}`}
               className="text-sm font-medium"
             >
-              Edit
+              {userProfile?.pickupAddress?.state ? "Edit" : "Add"}
             </button>
           </div>
           {userProfile?.pickupAddress?.state ? (
