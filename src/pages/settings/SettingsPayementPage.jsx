@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import AddBankAccountForm from "./AddBankAccountForm";
 import { useFormik } from "formik";
+import ButtonLoader from "../../components/Global/ButtonLoader";
 
 const validate = (values) => {
   const errors = {};
@@ -62,6 +63,7 @@ const SettingsPayementPage = () => {
   const [isBankAccountAdded, setIsBankAccountAdded] = useState(false);
   const [addingAccount, setAddingAccount] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [bankDetails, setBankDetails] = useState({
     accountNumber: "",
     routingNumber: "",
@@ -84,9 +86,6 @@ const SettingsPayementPage = () => {
   };
 
   const [loading, setLoading] = useState(false);
-
-  const location = useLocation();
-  console.log(location?.pathname);
 
   const formik = useFormik({
     initialValues: {
@@ -126,7 +125,12 @@ const SettingsPayementPage = () => {
           toast.success("Bank account added succesfully");
           setIsBankAccountAdded(false);
           fetchUserProfile();
-          navigate(-1);
+          // navigate(-1);
+          if (location?.state) {
+            navigate(location?.state?.from);
+          } else {
+            navigate("/");
+          }
         }
       } catch (error) {
         console.log("error while adding bank account >>>>>>", error);

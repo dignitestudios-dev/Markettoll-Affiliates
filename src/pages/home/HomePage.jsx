@@ -78,7 +78,7 @@ const Popup = ({ openModal, onclick }) => {
       onclick();
       return;
     }
-    navigate(url);
+    navigate(url, { state: { from: "/" } });
   };
   return (
     openModal && (

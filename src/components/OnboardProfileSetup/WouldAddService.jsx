@@ -55,9 +55,11 @@ export const Popup = ({ showPopup, handleShowPopup }) => {
       userProfile?.stripeConnectedAccount?.id == undefined
     ) {
       toast.warn("Add Your Bank Account First");
-      navigate("/settings/payment");
+      navigate("/settings/payment", {
+        state: { from: "/add-service-or-product" },
+      });
     } else {
-      navigate("/add-product");
+      navigate("/add-product", { state: { from: "/add-service-or-product" } });
     }
   };
   const handleNavigateToAddService = () => {
@@ -66,9 +68,11 @@ export const Popup = ({ showPopup, handleShowPopup }) => {
       userProfile?.stripeConnectedAccount?.id == undefined
     ) {
       toast.warn("Add Your Bank Account First");
-      navigate("/settings/payment");
+      navigate("/settings/payment", {
+        state: { from: "/add-service-or-product" },
+      });
     } else {
-      navigate("/add-service");
+      navigate("/add-service", { state: { from: "/add-service-or-product" } });
     }
   };
   return (

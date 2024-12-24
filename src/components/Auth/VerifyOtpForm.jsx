@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-import { FaArrowLeftLong } from "react-icons/fa6";
-import Cookies from "js-cookie";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
@@ -52,7 +50,10 @@ const VerifyOtpForm = () => {
   const handleOtpPaste = (e) => {
     const pastedData = e.clipboardData.getData("Text").slice(0, 4);
     if (/^\d{4}$/.test(pastedData)) {
-      setOtp([...pastedData]);
+      const updatedOtp = [...pastedData];
+      setOtp(updatedOtp);
+
+      document.getElementById(`otp-3`).focus();
     }
   };
 

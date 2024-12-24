@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { LuEye, LuEyeOff } from "react-icons/lu";
@@ -18,6 +18,8 @@ const validate = (values) => {
 
   if (!values.confirmPassword) {
     errors.confirmPassword = "Required";
+  } else if (values.password !== values.confirmPassword) {
+    errors.confirmPassword = "Passwords do not match";
   }
 
   return errors;
@@ -28,6 +30,8 @@ const UpdatePasswordForm = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const location = useLocation();
+  // console.log(location);
 
   const formik = useFormik({
     initialValues: {
@@ -36,12 +40,17 @@ const UpdatePasswordForm = () => {
     },
     validate,
     onSubmit: async (values, { resetForm }) => {
+      if (!location?.state?.email) {
+        toast.error("Email is missing.");
+        return;
+      }
       setLoading(true);
-      const userEmail = JSON.parse(Cookies.get("user-email"));
+      // const userEmail = JSON.parse(Cookies.get("user-email"));
       try {
         const res = await axios.put(
           `${BASE_URL}/users/forgot-password-update-password`,
-          { password: values.password, email: userEmail }
+          { password: values.password, email: location?.state?.email },
+          { headers: { "Content-Type": "application/json" } }
         );
         navigate("/password-updated");
         resetForm();
@@ -50,6 +59,7 @@ const UpdatePasswordForm = () => {
       } catch (error) {
         console.log("password update error >>>>", error);
         toast.error(error?.response?.data?.message || "Something went wrong");
+        resetForm();
       } finally {
         setLoading(false);
       }

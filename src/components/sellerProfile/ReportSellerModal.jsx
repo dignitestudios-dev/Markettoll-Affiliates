@@ -5,6 +5,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const reportIssues = [
   "Item Not Received",
@@ -73,9 +74,14 @@ const ReportSellerModal = ({
       }
     } catch (error) {
       console.log("error while reporting user >>>", error);
+      toast.error(error?.response?.data?.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setOpenReportModal(!openReportModal);
   };
 
   return (
@@ -87,6 +93,7 @@ const ReportSellerModal = ({
               <h2 className="text-lg font-bold blue-text">Report Seller</h2>
               <button
                 type="button"
+                onClick={handleCloseModal}
                 className="w-6 h-6 rounded-full bg-gray-200 p-1"
               >
                 <IoClose />
@@ -128,9 +135,9 @@ const ReportSellerModal = ({
             <button
               type="button"
               onClick={() => handleReportUser()}
-              className="blue-bg text-white py-3.5 rounded-2xl w-full font-bold text-sm"
+              className="blue-bg text-white py-3 rounded-2xl w-full font-bold text-sm h-[50px]"
             >
-              {loading ? "Reporting..." : "Submit"}
+              {loading ? <ButtonLoader /> : "Submit"}
             </button>
           </div>
         </div>

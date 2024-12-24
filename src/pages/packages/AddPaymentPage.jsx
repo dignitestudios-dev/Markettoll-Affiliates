@@ -35,7 +35,6 @@ const AddPaymentPage = () => {
 
   const handleAddCardTrue = () => {
     setAddCard(!addCard);
-    console.log("addCard >>>>>", addCard);
   };
 
   const handleAddCardFalse = async () => {
@@ -65,8 +64,8 @@ const AddPaymentPage = () => {
         return;
       }
 
-      fetchUserProfile();
       setPaymentMethodId(paymentMethod?.id);
+      fetchUserProfile();
       if (paymentMethod?.id) {
         // setAddCard(!addCard);
         try {
@@ -86,6 +85,7 @@ const AddPaymentPage = () => {
           if (response?.data?.success) {
             // setShowSuccessModal(true);
             setAddCard(!addCard);
+            fetchUserProfile();
           }
           // setShowCard(!showCard);
         } catch (error) {
@@ -94,6 +94,7 @@ const AddPaymentPage = () => {
       }
     } catch (error) {
       console.log("err while adding card >>>", error?.response?.data);
+      toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
