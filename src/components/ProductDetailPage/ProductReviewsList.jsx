@@ -12,6 +12,7 @@ const ProductReviewsList = ({ avgRating }) => {
   const { user } = useContext(AuthContext);
   const [error, setError] = useState("");
   const [productRating, setProductRating] = useState("");
+  console.log(productRating);
 
   const fetchProductReviews = async () => {
     try {
@@ -23,7 +24,7 @@ const ProductReviewsList = ({ avgRating }) => {
           },
         }
       );
-      // console.log("product reviews >>>", res?.data?.data);
+      console.log("product reviews >>>", res?.data?.data);
       setProductReviews(res?.data?.data);
     } catch (error) {
       console.log("product reviews err >>>", error);
@@ -54,7 +55,11 @@ const ProductReviewsList = ({ avgRating }) => {
     <div>
       <div className="flex items-center gap-2">
         <h3 className="font-bold blue-text text-[18px]">Reviews</h3>
-        <span className="text-[13px] font-normal text-[#5C5C5C]">{`(${productRating})`}</span>
+        {productRating > 0 ? (
+          <span className="text-[13px] font-normal text-[#5C5C5C]">{`(${productRating})`}</span>
+        ) : (
+          <span className="text-[13px] font-normal text-[#5C5C5C]">(0)</span>
+        )}
       </div>
       {productRating !== null && productRating > 0 ? (
         <>

@@ -79,7 +79,7 @@ const ProductDetails = () => {
         `${BASE_URL}/users/product/${productId}`,
         config
       );
-      // console.log("product data >>>", res?.data?.data);
+      console.log("product data >>>", res?.data?.data);
       setProduct(res?.data?.data);
     } catch (error) {
       console.log("product err >>>", error);
