@@ -11,8 +11,13 @@ const CategoryProducts = () => {
   const [products, setProducts] = useState([]);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const location = useLocation();
   const { category } = useParams();
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const name = searchParams.get("name") || "";
+  const subCategory = searchParams.get("subCategory") || "";
+  const page = searchParams.get("page") || 1;
 
   const fetchProducts = async () => {
     const options = user?.token
@@ -22,23 +27,36 @@ const CategoryProducts = () => {
           },
         }
       : {};
+
     try {
       setLoading(true);
-      const res = await axios.get(
-        `${BASE_URL}/users/home-screen-searched-products?name=&category=${category.toLocaleLowerCase()}&subCategory=${category.toLocaleLowerCase()}&page=1`,
-        options
-      );
+
+      const apiUrl = `${BASE_URL}/users/home-screen-searched-products?name=${name}&category=${encodeURIComponent(
+        category
+      )}&subCategory=${subCategory}&page=${page}`;
+
+      const res = await axios.get(apiUrl, options);
+
       setProducts(res?.data?.data);
-      console.log("products >>>>>", res?.data?.data);
+      console.log("Fetched products >>>>>", res?.data?.data);
     } catch (error) {
-      console.log("home screen products err >>>>", error);
+      console.log("Error fetching products >>>>", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch products when component mounts or when the user changes
   useEffect(() => {
     fetchProducts();
+  }, []);
+
+  // Filter products based on category when products or category change
+  useEffect(() => {
+    if (products.length > 0 && category) {
+      const filteredCategory = products.filter((p) => p.category === category);
+      setFilteredProducts(filteredCategory);
+    }
   }, []);
 
   if (loading) {
