@@ -47,7 +47,7 @@ const Navbar = () => {
   };
 
   const handleOpenNotifications = () => {
-    setOpenNotifications(!openNotifications);
+    setOpenNotifications((prev) => !prev);
   };
 
   const fetchNotifications = async () => {

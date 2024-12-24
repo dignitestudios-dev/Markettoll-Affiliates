@@ -11,7 +11,7 @@ const NotificationsDropdown = ({
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenNotifications(false); // Close the dropdown
+        setOpenNotifications(false);
       }
     };
 
@@ -23,6 +23,7 @@ const NotificationsDropdown = ({
   }, [setOpenNotifications]);
 
   if (!openNotifications) return null;
+
   return (
     openNotifications && (
       <div
