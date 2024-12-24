@@ -8,6 +8,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import SuccessModal from "../Global/SuccessModal";
 import { toast } from "react-toastify";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const validate = (values) => {
   const errors = {};
@@ -286,9 +287,9 @@ const SignUpForm = () => {
 
         <button
           type="submit"
-          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mt-4"
+          className="blue-bg text-white rounded-[20px] text-base font-bold py-3 h-[50px] w-full mt-4"
         >
-          {loading ? "Submitting..." : "Sign Up"}
+          {loading ? <ButtonLoader /> : "Sign Up"}
         </button>
 
         <p className="text-sm text-center w-full">

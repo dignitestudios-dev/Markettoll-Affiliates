@@ -1,17 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ProductDataReview } from "../../context/addProduct";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
+import ButtonLoader from "../../components/Global/ButtonLoader";
 
 const ServiceReviewPage = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { serviceData } = useContext(ProductDataReview);
+  // const { serviceData } = useContext(ProductDataReview);
   const [loading, setLoading] = useState(false);
-  console.log(serviceData);
+  const location = useLocation();
+  const serviceData = location?.state?.serviceData;
 
   const [displayImage, setDisplayImage] = useState(null);
   useEffect(() => {
@@ -34,9 +36,6 @@ const ServiceReviewPage = () => {
     }
   }, [serviceData]);
 
-  const handleAddService = async () => {
-    navigate("/boost-service");
-  };
   const uploadService = async () => {
     setLoading(true);
     try {
@@ -92,6 +91,12 @@ const ServiceReviewPage = () => {
     }
   };
 
+  const handleNavigateBack = () => {
+    navigate("/add-service", {
+      state: { serviceData: location?.state?.serviceData },
+    });
+  };
+
   return (
     <div className="padding-x py-6 w-full">
       <div className="w-full px-4 md:px-8 lg:px-12 py-12 rounded-[30px] bg-[#F7F7F7]">
@@ -99,7 +104,9 @@ const ServiceReviewPage = () => {
           <div className="w-full">
             {displayImage && (
               <img
-                src={displayImage?.name} // Assuming `name` is the file name for the image URL
+                src={URL.createObjectURL(
+                  serviceData?.productImages[serviceData?.coverImageIndex]
+                )} // Assuming `name` is the file name for the image URL
                 alt="Service Image"
                 className="w-full h-auto lg:h-[336px] rounded-[20px]"
               />
@@ -109,9 +116,9 @@ const ServiceReviewPage = () => {
               {serviceData?.productImages?.map((image, index) => (
                 <img
                   key={index}
-                  src={image?.name} // Use `name` as the image source
+                  src={URL.createObjectURL(image)} // Use `name` as the image source
                   alt={`Thumbnail ${index + 1}`}
-                  className={`rounded-xl h-[97px] w-full object-cover cursor-pointer ${
+                  className={`rounded-xl h-[97px] w-[111px] object-cover cursor-pointer ${
                     image?.name === displayImage?.name
                       ? "border-2 border-blue-500"
                       : ""
@@ -157,18 +164,19 @@ const ServiceReviewPage = () => {
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-          <Link
-            to="/add-service"
+          <button
+            type="button"
+            onClick={handleNavigateBack}
             className="bg-white light-blue-text py-3 text-center rounded-full w-full text-sm font-bold"
           >
             Back
-          </Link>
+          </button>
           <button
             type="button"
             onClick={() => uploadService()}
-            className="blue-bg text-white py-3 text-center rounded-full w-full text-sm font-bold"
+            className="blue-bg text-white py-3 text-center rounded-full w-full text-sm font-bold h-[50px]"
           >
-            {loading ? "Posting..." : "Post Now"}
+            {loading ? <ButtonLoader /> : "Post Now"}
           </button>
         </div>
       </div>

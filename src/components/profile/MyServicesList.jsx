@@ -90,6 +90,12 @@ const MyServicesList = ({ postType }) => {
     });
   };
 
+  const handleNavigateToEdit = (id) => {
+    navigate(`/services/edit-service/${id}`, {
+      state: { from: "/account/my-listings" },
+    });
+  };
+
   return (
     <div className="w-full min-h-[50vh]">
       {myServices.length > 0 ? (
@@ -116,12 +122,13 @@ const MyServicesList = ({ postType }) => {
                           ref={dropdownRef}
                           className="absolute z-20 bg-white shadow-lg w-[151px] h-[122px] top-14 right-8 rounded-xl flex flex-col items-start p-5 justify-center gap-2"
                         >
-                          <Link
-                            to={`/services/edit-service/${service._id}`}
+                          <button
+                            type="button"
+                            onClick={() => handleNavigateToEdit(service?._id)}
                             className="font-medium text-base"
                           >
                             Edit
-                          </Link>
+                          </button>
                           <button
                             type="button"
                             onClick={() => handletoggleDeleteModal(service._id)}

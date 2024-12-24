@@ -79,7 +79,7 @@ const SettingsAddressPage = () => {
               Edit
             </button>
           </div>
-          {userProfile?.state ? (
+          {userProfile?.pickupAddress?.state ? (
             <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
               {userProfile?.apartment_suite} {userProfile?.pickupAddress?.city},{" "}
               {userProfile?.pickupAddress?.streetAddress},{" "}

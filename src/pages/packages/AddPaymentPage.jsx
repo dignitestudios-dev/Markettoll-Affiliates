@@ -22,7 +22,6 @@ const AddPaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
-  console.log("userProfile >>>", userProfile);
   const { plan } = location.state;
   const [loading, setLoading] = useState(false);
 
@@ -258,8 +257,13 @@ const AddPaymentPage = () => {
                     />
                     <span className="text-sm font-normal text-[#5C5C5C]">
                       {showCard
-                        ? `**** **** **** ${userProfile?.stripeCustomer?.paymentMethod?.last4}`
-                        : `**** **** **** ${userProfile?.stripeCustomer?.paymentMethod?.last4}`}
+                        ? `**** **** **** 1234`
+                        : `**** **** **** ${
+                            userProfile?.stripeCustomer?.paymentMethod?.last4
+                              ? userProfile?.stripeCustomer?.paymentMethod
+                                  ?.last4
+                              : "1234"
+                          }`}
                     </span>
                   </div>
                   <MdOutlineKeyboardArrowRight className="text-2xl light-blue-text" />

@@ -45,7 +45,7 @@ const BoostServicePage = () => {
           alt="boost-service-image"
           className="w-[157px] h-[157px]"
         />
-        <ul className="">
+        {/* <ul className="">
           {serviceFeatures.map((s, index) => {
             return (
               <li key={index} className="flex items-center gap-2 mt-3.5">
@@ -56,7 +56,7 @@ const BoostServicePage = () => {
               </li>
             );
           })}
-        </ul>
+        </ul> */}
 
         <div className="flex flex-col items-center gap-5">
           <button

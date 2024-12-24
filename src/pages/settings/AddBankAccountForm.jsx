@@ -3,7 +3,7 @@ import React, { useContext, useState } from "react";
 import ButtonLoader from "../../components/Global/ButtonLoader";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../api/api";
 import axios from "axios";
 
@@ -58,6 +58,8 @@ const AddBankAccountForm = ({ setIsBankAccountAdded }) => {
   const [loading, setLoading] = useState(false);
   const { fetchUserProfile, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  console.log(location?.pathname);
 
   const formik = useFormik({
     initialValues: {

@@ -7,6 +7,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const PersonalInfo = () => {
   const [openNameModal, setOpenNameModal] = useState(false);
@@ -131,8 +132,8 @@ const PersonalInfo = () => {
 export default PersonalInfo;
 
 const UpdateNameModal = ({ openNameModal, onclick }) => {
-  const { user, userProfile } = useContext(AuthContext);
-  const [name, setName] = useState("");
+  const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
+  const [name, setName] = useState(userProfile?.name || "");
   const [loading, setLoading] = useState(false);
 
   const handleUpdateName = async () => {
@@ -150,10 +151,11 @@ const UpdateNameModal = ({ openNameModal, onclick }) => {
           },
         }
       );
-      console.log("update name res >>>>>", res?.data);
+      fetchUserProfile();
       savedUser.name = res?.data?.data;
-      Cookies.set("user", JSON.stringify(savedUser));
+      // Cookies.set("user", JSON.stringify(savedUser));
       toast.success("Name updated");
+      onclick();
     } catch (error) {
       console.log("update name error >>>>", error);
       toast.error("Something went wrong");
@@ -191,11 +193,11 @@ const UpdateNameModal = ({ openNameModal, onclick }) => {
               placeholder="John Smith"
             />
             <button
-              className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4"
+              className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4 h-[50px]"
               type="button"
               onClick={handleUpdateName}
             >
-              {loading ? "Updating..." : "Update"}
+              {loading ? <ButtonLoader /> : "Update"}
             </button>
           </div>
         </div>
@@ -206,12 +208,13 @@ const UpdateNameModal = ({ openNameModal, onclick }) => {
 
 const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
   const [otpModal, setOtpModal] = useState(false);
+  const { userProfile } = useContext(AuthContext);
 
   const handleOtpModal = () => {
     setOtpModal(!otpModal);
   };
   const { user } = useContext(AuthContext);
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(userProfile?.phoneNumber?.value || "");
   const [loading, setLoading] = useState(false);
 
   const handleUpdatePhoneNumber = async () => {
@@ -234,6 +237,7 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
       );
       console.log("update phone res >>>>>", res?.data);
       if (res?.data?.success) {
+        onclick();
         localStorage.setItem("phone", phone);
         setOtpModal(true);
         // toast.success(res?.data?.message);
@@ -241,6 +245,7 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
     } catch (error) {
       console.log("update phone number error >>>>", error);
       toast.error(error?.response?.data?.message);
+      onclick();
     } finally {
       setLoading(false);
     }
@@ -276,11 +281,11 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
               placeholder="+1 000 000 0000"
             />
             <button
-              className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4"
+              className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4 h-[50px]"
               type="button"
               onClick={handleUpdatePhoneNumber}
             >
-              {loading ? "Updating..." : "Update"}
+              {loading ? <ButtonLoader /> : "Update"}
             </button>
           </div>
         </div>
@@ -319,6 +324,7 @@ const UpdateProfileImage = ({ openProfileImageModal, onclick }) => {
     } catch (error) {
       console.log("update name error >>>>", error);
       toast.error("Something went wrong");
+      onclick();
     } finally {
       setLoading(false);
     }
@@ -369,11 +375,11 @@ const UpdateProfileImage = ({ openProfileImageModal, onclick }) => {
           </div>
           <div className="w-[80%] flex flex-col text-center gap-1 items-start justify-center">
             <button
-              className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4"
+              className="w-full w-ful py-3 rounded-[15px] blue-bg text-white font-semibold mt-4 h-[50px]"
               type="button"
               onClick={handleUpdateProfileImage}
             >
-              {loading ? "Updating..." : "Update"}
+              {loading ? <ButtonLoader /> : "Update"}
             </button>
           </div>
         </div>

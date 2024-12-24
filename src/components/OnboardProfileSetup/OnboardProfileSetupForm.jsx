@@ -7,6 +7,7 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const OnboardProfileSetupForm = () => {
   const [count, setCount] = useState(1);
@@ -136,17 +137,23 @@ const OnboardProfileSetupForm = () => {
           <button
             type={count > 1 ? "submit" : "button"}
             onClick={count > 1 ? handleSubmit : handleNext}
-            className="blue-bg text-white rounded-full font-bold py-3 w-full lg:w-[635px]"
+            className="blue-bg text-white rounded-full font-bold py-3 w-full lg:w-[635px] h-[50px]"
           >
-            {count === 1
-              ? image
-                ? loading
-                  ? "Uploading..."
-                  : "Next"
-                : "Upload Photo"
-              : loading
-              ? "Adding..."
-              : "Add"}
+            {count === 1 ? (
+              image ? (
+                loading ? (
+                  <ButtonLoader />
+                ) : (
+                  "Next"
+                )
+              ) : (
+                "Upload Photo"
+              )
+            ) : loading ? (
+              <ButtonLoader />
+            ) : (
+              "Add"
+            )}
           </button>
         </div>
       </form>

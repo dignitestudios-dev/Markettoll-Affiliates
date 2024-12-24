@@ -106,14 +106,13 @@ const ServiceBoostPackageCard = ({
   };
 
   const handleClosePlanModal = () => {
-    console.log("eowqnoiwqno");
     setShowPlanModal(false);
     setShowSuccessModal(true);
   };
   const handleClosePlanModal2 = () => {
-    console.log("eowqnoiwqno");
     setShowPlanModal(false);
     setShowSuccessModal(false);
+    navigate("/");
   };
 
   return (

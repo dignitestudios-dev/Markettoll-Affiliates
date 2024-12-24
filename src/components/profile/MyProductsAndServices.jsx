@@ -7,15 +7,11 @@ import { FiPlus } from "react-icons/fi";
 import { AuthContext } from "../../context/authContext";
 import MyServicesList from "./MyServicesList";
 import MyProductsList from "./MyProductsList";
-// import { Popup } from "../OnboardProfileSetup/WouldAddService";
 
 const MyProductsAndServices = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [state, setState] = useState(false);
-  const [showBoostedServices, setShowBoostedService] = useState(false);
-  const [showBoostedProducts, setShowBoostedProducts] = useState(false);
   const [postType, setPostType] = useState("post");
-  console.log("postType >>>", postType);
 
   const handleShowPopup = () => {
     setShowPopup(!showPopup);

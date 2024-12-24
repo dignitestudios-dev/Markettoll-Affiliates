@@ -6,6 +6,7 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import RequestSentModal from "../../components/Global/RequestSentModal";
+import ButtonLoader from "../../components/Global/ButtonLoader";
 
 const EmailSupportPage = () => {
   const [title, setTitle] = useState("");
@@ -86,9 +87,9 @@ const EmailSupportPage = () => {
 
         <button
           type="submit"
-          className="blue-bg text-white py-3 text-base font-bold rounded-2xl w-full"
+          className="blue-bg text-white py-3 text-base font-bold rounded-2xl w-full h-[50px]"
         >
-          {loading ? "Submitting..." : "Submit Request"}
+          {loading ? <ButtonLoader /> : "Submit Request"}
         </button>
       </form>
       <RequestSentModal onclose={handleCloseModal} success={success} />

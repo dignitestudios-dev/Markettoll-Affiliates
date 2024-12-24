@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
@@ -10,62 +10,72 @@ import { toast } from "react-toastify";
 import { Country, State, City } from "country-state-city";
 
 const AddServiceForm = () => {
-  const [productImages, setProductImages] = useState([]);
-  const [serviceName, setServiceName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [coverImageIndex, setCoverImageIndex] = useState(null);
-  const { setServiceData } = useContext(ProductDataReview);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [productImages, setProductImages] = useState(
+    location?.state?.serviceData?.productImages || []
+  );
+  const [serviceName, setServiceName] = useState(
+    location?.state?.serviceData?.serviceName || ""
+  );
+  const [description, setDescription] = useState(
+    location?.state?.serviceData?.description || ""
+  );
+  const [price, setPrice] = useState(location?.state?.serviceData?.price || "");
+  const [selectedState, setSelectedState] = useState(
+    location?.state?.serviceData?.selectedState || ""
+  );
+  const [selectedCity, setSelectedCity] = useState(
+    location?.state?.serviceData?.selectedCity || ""
+  );
+  const [coverImageIndex, setCoverImageIndex] = useState(
+    location?.state?.serviceData?.coverImageIndex || ""
+  );
+  const { setServiceData } = useContext(ProductDataReview);
+  console.log(location?.state?.serviceData);
 
-  const [fullStateName, setFullStateName] = useState(""); // New state for full state name
+  const [fullStateName, setFullStateName] = useState(
+    location?.state?.serviceData?.selectedState || ""
+  );
   const [states, setStates] = useState([]);
-  const [stateCities, setStateCities] = useState([]); // Corrected name for cities state
+  const [stateCities, setStateCities] = useState([]);
 
-  // Fetch states when the component mounts
   useEffect(() => {
-    const allCountries = Country.getAllCountries(); // Ensure this is correctly imported
-    const usStates = State.getStatesOfCountry("US"); // Ensure this is correctly imported
+    const usStates = State.getStatesOfCountry("US");
     setStates(usStates);
   }, []);
 
-  // Fetch cities when the selected state changes
   useEffect(() => {
     if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState); // Ensure this is correctly imported
-      setStateCities(allCities); // Correctly set the fetched cities here
+      const allCities = City.getCitiesOfState("US", selectedState);
+      setStateCities(allCities);
     } else {
-      setStateCities([]); // Clear cities if no state is selected
+      setStateCities([]);
     }
   }, [selectedState]);
 
-  // Function to get the full state name by its abbreviation
   const getStateFullName = (abbreviation) => {
     const state = states.find((state) => state.isoCode === abbreviation);
     return state ? state.name : abbreviation;
   };
 
-  // Update fullStateName whenever selectedState changes
   useEffect(() => {
     if (selectedState) {
       const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState); // Set the full state name in the state
+      setFullStateName(fullState);
     } else {
-      setFullStateName(""); // Clear full state name if no state is selected
+      setFullStateName("");
     }
   }, [selectedState]);
 
   const handleStateChange = (event) => {
-    setSelectedState(event.target.value); // Update selected state
-    setSelectedCity(""); // Clear selected city when state changes
+    setSelectedState(event.target.value);
+    setSelectedCity("");
   };
 
   const selectedStateData = STATES.find(
     (state) => state.name === selectedState
   );
-  const cities = selectedStateData ? selectedStateData.cities : [];
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -94,7 +104,7 @@ const AddServiceForm = () => {
       toast.error("At least three images are required");
       return;
     }
-    if (!coverImageIndex) {
+    if (coverImageIndex === "") {
       toast.error("Please choose a cover image");
       return;
     }
@@ -132,7 +142,19 @@ const AddServiceForm = () => {
       selectedCity,
       coverImageIndex,
     });
-    navigate("/service-review");
+    navigate("/service-review", {
+      state: {
+        serviceData: {
+          productImages,
+          serviceName,
+          description,
+          price,
+          selectedState: fullStateName,
+          selectedCity,
+          coverImageIndex,
+        },
+      },
+    });
   };
 
   return (
@@ -205,7 +227,10 @@ const AddServiceForm = () => {
                   <div className="flex items-center gap-1 mt-1">
                     <input
                       type="checkbox"
-                      checked={coverImageIndex === index}
+                      checked={
+                        location?.state?.serviceData?.coverImageIndex ||
+                        coverImageIndex === index
+                      }
                       onChange={() => handleCoverPhotoChange(index)}
                       className="w-[14px] h-[14px]"
                     />

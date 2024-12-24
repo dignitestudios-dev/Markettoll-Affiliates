@@ -10,6 +10,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useStripe, Elements } from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
+import ButtonLoader from "../../components/Global/ButtonLoader";
 
 const stripePromise = loadStripe(
   "pk_test_51OsZBgRuyqVfnlHK0Z5w3pTL7ncHPcC75EwkxqQX9BAlmcXeKappekueIzmpWzWYK9L9HEGH3Y2Py2hC7KyVY0Al00przQczPf"
@@ -230,9 +231,9 @@ const PackageCard = ({
         type="button"
         onClick={() => handleSubscription()}
         disabled={userProfile?.subscriptionPlan?.name == planType}
-        className="blue-bg text-white font-bold text-center py-3.5 mt-5 rounded-[20px] disabled:cursor-not-allowed"
+        className="blue-bg text-white font-bold text-center py-3 mt-5 rounded-[20px] disabled:cursor-not-allowed h-[50px]"
       >
-        {loading ? "Upgrading..." : "Upgrade"}
+        {loading ? <ButtonLoader /> : "Upgrade"}
       </button>
       <PlanPurchaseSuccessModal
         showModal={showModal}

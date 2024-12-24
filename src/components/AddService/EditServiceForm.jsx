@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
@@ -12,6 +12,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const EditServiceForm = () => {
   const [service, setService] = useState(null);
@@ -26,6 +27,7 @@ const EditServiceForm = () => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [update, setUpdate] = useState(false);
+  const location = useLocation();
 
   const handleFetchService = async () => {
     setLoading(true);
@@ -105,6 +107,10 @@ const EditServiceForm = () => {
     } finally {
       setUpdate(false);
     }
+  };
+
+  const handleNavigateBack = () => {
+    navigate(location?.state?.from || "/");
   };
 
   return (
@@ -273,17 +279,18 @@ const EditServiceForm = () => {
             </div>
 
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
-              <Link
-                to="/add-service-or-product"
+              <button
+                type="button"
+                onClick={() => handleNavigateBack()}
                 className="bg-white light-blue-text font-semibold text-sm py-3 rounded-[20px] text-center"
               >
                 Cancel
-              </Link>
+              </button>
               <button
                 type="submit"
-                className="blue-bg text-white font-semibold text-sm py-3 rounded-[20px]"
+                className="blue-bg text-white font-semibold text-sm py-3 rounded-[20px] h-[50px]"
               >
-                {update ? "Saving..." : "Save"}
+                {update ? <ButtonLoader /> : "Save"}
               </button>
             </div>
           </div>

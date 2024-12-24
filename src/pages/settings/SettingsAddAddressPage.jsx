@@ -9,6 +9,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { Country, State, City } from "country-state-city";
+import { toast } from "react-toastify";
 
 const SettingsAddAddressPage = () => {
   const [streetAddress, setStreetAddress] = useState("");
@@ -65,7 +66,7 @@ const SettingsAddAddressPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!streetAddress || !selectedState || !selectedCity) {
-      alert("Please fill the required fields");
+      toast.error("Please fill the required fields");
     }
     setLoading(true);
     try {
