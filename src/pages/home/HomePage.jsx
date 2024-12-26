@@ -45,9 +45,7 @@ const HomePage = () => {
         <h2 className="text-2xl lg:text-[36px] font-bold">
           <span className="blue-text">
             Welcome
-            {userProfile?.name !== "" || userProfile?.name !== null
-              ? ` ${userProfile?.name}`
-              : ""}
+            {userProfile?.name ? `${userProfile?.name},` : ""}
           </span>{" "}
           <span>Let’s Shop!</span>
         </h2>

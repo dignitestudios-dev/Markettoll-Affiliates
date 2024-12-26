@@ -35,15 +35,15 @@ const ProductDetails = () => {
   const handleShowPopup = () => {
     if (!user) {
       toast.error("You must be logged in");
-      return navigate("/login");
+      return;
     }
     setShowPopup(!showPopup);
   };
 
   const handleAddToCart = async (method) => {
     if (!user) {
-      toast.error("You must be logged in");
-      return navigate("/login");
+      toast.error("You must be logged in to add product in cart");
+      return;
     }
     setFulfillmentMethod(method);
     try {
@@ -134,6 +134,10 @@ const ProductDetails = () => {
 
   const handleAddToFavorite = async () => {
     // alert("Added favorite");
+    if (!user) {
+      toast.error("You must be logged in");
+      return;
+    }
     if (user?.token) {
       try {
         const res = await axios.post(
@@ -193,7 +197,7 @@ const ProductDetails = () => {
     <div className="w-full relative">
       <div className="w-full p-4 rounded-[30px] bg-[#F7F7F7]">
         <div className="w-full p-6 rounded-[30px] bg-[#ffff]">
-          <Link to="/" className="flex items-center gap-1 mb-5">
+          <Link to="/" className="flex items-center gap-1 mb-5 w-20">
             <GoArrowLeft className="text-xl" />
             <span className="font-medium text-sm text-[#5C5C5C]">Back</span>
           </Link>

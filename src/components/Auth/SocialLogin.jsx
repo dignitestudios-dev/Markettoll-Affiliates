@@ -8,7 +8,7 @@ import {
   appleProvider,
 } from "../../firebase/firebase";
 import Cookies from "js-cookie";
-import { FaApple, FaFacebookF } from "react-icons/fa";
+import { FaFacebookF } from "react-icons/fa";
 import {
   FacebookAuthProvider,
   OAuthProvider,
@@ -156,7 +156,6 @@ const SocialLogin = () => {
           } catch (error) {
             console.log(error);
             setGoogleLoading(false);
-            // ErrorToast(error.response.data.message || "Something went wrong.");
           } finally {
             setGoogleLoading(false);
           }
@@ -165,7 +164,6 @@ const SocialLogin = () => {
     } catch (err) {
       setGoogleLoading(false);
       console.log(err);
-      // ErrorToast("Cannot open google signin modal.");
     } finally {
       setGoogleLoading(false);
     }
@@ -173,8 +171,6 @@ const SocialLogin = () => {
 
   return (
     <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-3">
-      {/* <SocialSignupModal isOpen={openModal} setIsOpen={setOpenModal} /> */}
-
       <button
         type="button"
         onClick={handleGoogleLogin}

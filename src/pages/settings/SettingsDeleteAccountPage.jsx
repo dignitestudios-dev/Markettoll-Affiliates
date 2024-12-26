@@ -8,35 +8,51 @@ import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
+import Cookies from "js-cookie";
 
 const SettingsDeleteAccountPage = () => {
   const [showPass, setShowPass] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const navigate = useNavigate();
-  const { userProfile, user } = useContext(AuthContext);
-  // console.log("user >>>", userProfile);
+  const { userProfile, user, fetchUserProfile } = useContext(AuthContext);
   const [currentPass, setCurrentPass] = useState("");
-  // console.log("currentPass >>", currentPass);
-
+  //  `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
   const handleDeleteAccount = async () => {
-    // if (isDeleted) {
-    //   navigate("/login");
-    // } else {
-    //   setIsDeleted(true);
-    // }
     try {
-      const res = await axios.post(
-        `${BASE_URL}/users/delete`,
-        {
-          password: currentPass,
-        },
+      const unsubscribeResponse = await axios.post(
+        `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
           },
         }
       );
-      console.log("delete account res >>>", res);
+
+      if (unsubscribeResponse?.data?.success) {
+        const res = await axios.post(
+          `${BASE_URL}/users/delete`,
+          {
+            password: currentPass,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        console.log("delete account res >>>", res);
+        if (res?.status == 200) {
+          navigate("/login");
+          Cookies.remove("market-signup");
+          Cookies.remove("user");
+          localStorage.removeItem("user");
+          localStorage.removeItem("market-signup");
+          fetchUserProfile();
+        }
+      } else {
+        toast.error("Something went wrong while deleting your account.");
+      }
     } catch (error) {
       console.log("error deleting account >>>", error?.response?.data);
       toast.error(error?.response?.data?.message);

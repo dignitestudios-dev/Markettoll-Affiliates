@@ -66,7 +66,7 @@ const PackageCard = ({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  // console.log("userProfile  >>>", userProfile);
+  console.log("userProfile  >>>", userProfile);
 
   const handleCloseModal = () => {
     setShowModal(!showModal);
@@ -98,7 +98,7 @@ const PackageCard = ({
 
   const handleSubscription = async () => {
     setLoading(true);
-    if (userProfile?.subscriptionPlan?.name === "No Plan") {
+    if (userProfile?.subscriptionPlan?.name === "Free Plan") {
       navigate("/account/subscriptions/upgrade-plan/add-payment-details", {
         state: {
           from: window.location.href,
@@ -131,8 +131,10 @@ const PackageCard = ({
           );
           console.log("handle Subscription (No Plan) res >>>>>", res);
           if (res?.status === 201) {
-            fetchUserProfile(); // Refresh user profile after subscription
-            handleCloseModal(); // Close the modal after successful subscription
+            fetchUserProfile();
+            handleCloseModal();
+            toast.success(res?.data?.message);
+            navigate("/account/subscriptions");
           } else {
             toast.error("Something went wrong while subscribing.");
           }

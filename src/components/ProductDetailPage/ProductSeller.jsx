@@ -19,7 +19,7 @@ const ProductSeller = ({ productData }) => {
               ? productData?.sellerDetails?.profileImage
               : "https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png"
           }
-          alt="seller profile image"
+          alt={productData?.sellerDetails?.name || "Seller Profile Image"}
           className="w-[68px] h-[68px] rounded-full bg-cover"
         />
         <div className="flex flex-col items-start">

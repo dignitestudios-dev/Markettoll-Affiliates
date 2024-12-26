@@ -9,6 +9,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import SocialLogin from "./SocialLogin";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const validate = (values) => {
   const errors = {};
@@ -30,7 +31,7 @@ const validate = (values) => {
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { user, fetchUserProfile } = useContext(AuthContext);
+  const { fetchUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -175,9 +176,9 @@ const LoginForm = () => {
 
         <button
           type="submit"
-          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full"
+          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 h-[50px] w-full"
         >
-          Log In
+          {loading ? <ButtonLoader /> : "Log In"}
         </button>
 
         <p className="text-center text-xs text-[#8B8B8B] mx-auto mt-2.5">OR</p>

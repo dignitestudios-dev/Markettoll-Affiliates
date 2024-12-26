@@ -38,7 +38,7 @@ const AddProductForm = () => {
   const [selectedCity, setSelectedCity] = useState(
     product ? product?.selectedCity : ""
   );
-  const [quantity, setQuantity] = useState(product ? product?.quantity : "");
+  const [quantity, setQuantity] = useState(product ? product?.quantity : 1);
   const [fulfillmentMethod, setFulfillmentMethod] = useState({
     selfPickup: product ? product?.fulfillmentMethod?.selfPickup : false,
     delivery: product ? product?.fulfillmentMethod?.delivery : false,
