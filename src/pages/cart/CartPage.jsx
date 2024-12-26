@@ -22,6 +22,7 @@ const CartPage = () => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [isAnyProductToDeliver, setIsAnyProductToDeliver] = useState(null);
+  console.log("isAnyProductToDeliver >>>", isAnyProductToDeliver);
 
   const fetchCartProducts = async () => {
     setLoading(true);
@@ -31,7 +32,7 @@ const CartPage = () => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      console.log("cartProducts >>>", res?.data?.data);
+      // console.log("cartProducts >>>", res?.data?.data);
       setCartProducts(res?.data?.data);
     } catch (error) {
       console.log("cartProducts err >>>", error);
@@ -42,12 +43,14 @@ const CartPage = () => {
 
   useEffect(() => {
     fetchCartProducts();
+  }, []);
+
+  useEffect(() => {
     const checkFulfillmentMethod = cartProducts?.find((p) => {
       return p?.fulfillmentMethod?.delivery === true;
     });
-
     setIsAnyProductToDeliver(checkFulfillmentMethod !== undefined);
-  }, []);
+  }, [cartProducts]);
 
   const handleIncrementCount = () => {
     setCount(count + 1);
@@ -76,11 +79,9 @@ const CartPage = () => {
               fetchCartProducts={fetchCartProducts}
             />
           ) : count === 1 ? (
-            // Show the delivery address only if there's a product to deliver
             isAnyProductToDeliver ? (
               <DeliveryAddress onclick={handleDecrementCount} />
             ) : (
-              // Skip delivery address step if no product needs delivery
               <Elements stripe={stripePromise}>
                 <SelectPaymentMethod onclick={handleDecrementCount} />
               </Elements>

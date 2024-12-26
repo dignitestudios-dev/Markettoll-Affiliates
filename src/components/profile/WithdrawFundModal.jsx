@@ -11,7 +11,7 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
   const [loading, setLoading] = useState(false);
   const { user, fetchUserProfile } = useContext(AuthContext);
 
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState("");
 
   const handleWithdrawFund = async () => {
     setLoading(true);
@@ -67,7 +67,7 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
             <div className="w-full border rounded-2xl px-3 flex items-center gap-2">
               <span className="light-blue-text text-sm">$</span>
               <input
-                type="text"
+                type="number"
                 placeholder="200"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}

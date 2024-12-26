@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import ProductRating from "../../components/Global/ProductRating";
+import { GoArrowLeft } from "react-icons/go";
 
 const ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
@@ -74,7 +75,11 @@ const ServiceDetailsPage = () => {
   return (
     <div className="padding-x py-6 w-full">
       <div className="w-full bg-[#F7F7F7] p-5 rounded-[30px]">
-        <div className="w-full bg-white px-4 md:px-8 lg:px-12 py-12 rounded-[30px]">
+        <div className="w-full bg-white px-4 md:px-4 lg:px-6 py-6 rounded-[30px]">
+          <Link to="/" className="flex items-center gap-1 mb-5 w-20">
+            <GoArrowLeft className="text-xl" />
+            <span className="font-medium text-sm text-[#5C5C5C]">Back</span>
+          </Link>
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
             <div className="w-full">
               <img

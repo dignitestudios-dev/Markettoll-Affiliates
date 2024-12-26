@@ -29,6 +29,13 @@ select {
   appearance: none;
 }
 
+.product-description {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  word-break: break-all;
+}
+
 /* Webkit Browsers (Chrome, Safari, Edge) */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
@@ -111,15 +118,6 @@ input[type="number"]::-ms-clear {
   height: 15px;
   margin-top: 9px;
 }
-
-/* .button-spinner.center {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 9px;
-  bottom: 0;
-  margin: auto;
-} */
 
 .button-spinner .spinner-blade {
   position: absolute;
@@ -243,4 +241,53 @@ input[type="number"]::-ms-clear {
 
 .settings::-webkit-scrollbar {
   display: none;
+}
+
+/* product swiper */
+/* ProductImageSlider.css */
+
+/* Container for the product images */
+.product-image-slider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px; /* Adjust as per your design */
+  margin: 0 auto;
+}
+
+/* Main image container */
+.main-image-container {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+  background-position: center;
+  background-size: cover;
+}
+
+.main-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover; /* Ensures image covers the container proportionally */
+  border-radius: 8px;
+}
+
+/* Thumbnails container */
+.thumbnails-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+/* Add hover effect for thumbnails */
+.thumbnail:hover {
+  transform: scale(1.1);
 }

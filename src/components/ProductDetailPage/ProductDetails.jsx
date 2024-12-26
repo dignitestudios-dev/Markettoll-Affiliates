@@ -12,6 +12,19 @@ import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import ProductSeller from "./ProductSeller";
 import { HiOutlineDotsVertical } from "react-icons/hi";
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+
+// Import Swiper type
+import { Swiper as SwiperType } from "swiper";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+
+// import required modules
+import { Thumbs } from "swiper/modules";
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
@@ -202,7 +215,7 @@ const ProductDetails = () => {
             <span className="font-medium text-sm text-[#5C5C5C]">Back</span>
           </Link>
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
-            <div className="w-full relative">
+            <div className="w-full relative lg:max-w-1/2">
               {product?.seller === userProfile?._id ? (
                 <>
                   <button
@@ -260,19 +273,21 @@ const ProductDetails = () => {
                 className="w-full h-auto lg:h-[376px] object-cover rounded-xl"
               />
               <div className="w-full overflow-x-scroll flex items-start gap-5 mt-3 thumbnail-scroll">
-                {product?.images?.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image?.url}
-                    alt={`Thumbnail ${index + 1}`}
-                    className={`rounded-xl h-[97px] w-[120px] object-cover cursor-pointer ${
-                      image?.url === displayImage?.url
-                        ? "border-2 border-blue-500"
-                        : ""
-                    }`}
-                    onClick={() => handleThumbnailClick(image)}
-                  />
-                ))}
+                {product?.images?.map((image, index) => {
+                  return (
+                    <img
+                      key={index}
+                      src={image?.url}
+                      alt={`Thumbnail ${index + 1}`}
+                      className={`rounded-xl h-[97px] w-[120px] object-cover cursor-pointer ${
+                        image?.url === displayImage?.url
+                          ? "border-2 border-blue-500"
+                          : ""
+                      } `}
+                      onClick={() => handleThumbnailClick(image)}
+                    />
+                  );
+                })}
               </div>
 
               <div className="mt-16 hidden lg:block">
@@ -280,7 +295,7 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            <div className="w-full flex flex-col items-start gap-5">
+            <div className="w-full flex flex-col items-start gap-5 lg:max-w-1/2">
               <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between">
                 <h2 className="text-[20px] blue-text font-bold">
                   {product?.name}
@@ -315,11 +330,11 @@ const ProductDetails = () => {
 
               <div className="w-full border" />
 
-              <div className="w-full">
+              <div className="w-full text-wrap">
                 <p className="text-[16px] text-[#003DAC] font-bold mb-3">
                   Description
                 </p>
-                <p className="text-[14px] font-normal">
+                <p className="text-[14px] font-normal text-wrap product-description">
                   {product?.description}
                 </p>
               </div>
