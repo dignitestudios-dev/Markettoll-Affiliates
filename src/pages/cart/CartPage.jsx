@@ -22,7 +22,6 @@ const CartPage = () => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [isAnyProductToDeliver, setIsAnyProductToDeliver] = useState(null);
-  console.log("isAnyProductToDeliver >>>", isAnyProductToDeliver);
 
   const fetchCartProducts = async () => {
     setLoading(true);

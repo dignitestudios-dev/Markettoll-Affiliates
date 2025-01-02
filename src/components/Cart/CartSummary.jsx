@@ -21,10 +21,8 @@ const CartSummary = ({
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  console.log(cartProducts);
 
   const handlePlaceOrder = async () => {
-    console.log("calling place order api");
     setLoading(true);
     try {
       const res = await axios.post(
@@ -57,12 +55,13 @@ const CartSummary = ({
             fetchCartProducts();
           }
         } catch (error) {
-          console.log("order failed >>>>", error?.response?.data?.message);
+          // console.log("order failed >>>>", error?.response?.data?.message);
           toast.error(error?.response?.data?.message);
         }
       }
     } catch (error) {
       console.log("place order err >>>", error?.response?.data?.message);
+      toast.error(error?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -70,7 +69,8 @@ const CartSummary = ({
 
   const handleCloseModal = () => {
     setIsOrderPlaced(!isOrderPlaced);
-    navigate("/");
+    navigate(`/`);
+    // navigate(`/order-details/${orderId}`);
   };
 
   return (

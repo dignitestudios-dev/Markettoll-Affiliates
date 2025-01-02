@@ -65,6 +65,7 @@ import SubCategoriesPage from "../pages/categoryProducts/SubCategoriesPage";
 import CategoriesList from "../components/Categories/CategoriesList";
 import CategoryProducts from "../components/CategoryProducts/CategoryProducts";
 import AddPhoneNumberFromSocialLogin from "../components/Auth/AddPhoneNumberFromSocialLogin";
+import ReviewOrderDetails from "../components/Cart/ReviewOrderDetails";
 
 const AppRoutes = () => {
   return (
@@ -212,6 +213,10 @@ const AppRoutes = () => {
         />
 
         <Route path="/cart" element={<Layout page={<CartPage />} />} />
+        <Route
+          path="/order-details/:orderId"
+          element={<Layout page={<ReviewOrderDetails />} />}
+        />
 
         {/* chat routes */}
         <Route path="/chats" element={<Layout page={<ChatPage />} />} />

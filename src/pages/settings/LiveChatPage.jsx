@@ -18,7 +18,7 @@ const LiveChatPage = () => {
   const { user } = useContext(AuthContext);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const adminId = "67351d5724efdd69e5728f5c";
+  const adminId = "6759530c2f12b98bc6a5c19b";
   const userId = user?._id;
 
   const handleSendMessage = async () => {
