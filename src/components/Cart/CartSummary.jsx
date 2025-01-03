@@ -21,6 +21,8 @@ const CartSummary = ({
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [orderId, setOrderId] = useState(null);
+  const [orderData, setOrderData] = useState(null);
 
   const handlePlaceOrder = async () => {
     setLoading(true);
@@ -37,7 +39,6 @@ const CartSummary = ({
           },
         }
       );
-      console.log("place order res >>>", res);
       if (res?.status == 201) {
         try {
           const response = await axios.post(
@@ -50,12 +51,14 @@ const CartSummary = ({
             }
           );
           console.log("order placed >>>", response);
+          setOrderId(response?.data?.data?._id);
+          setOrderData(response?.data?.data);
           if (response?.status == 201) {
             setIsOrderPlaced(!isOrderPlaced);
-            fetchCartProducts();
+            // fetchCartProducts();
           }
         } catch (error) {
-          // console.log("order failed >>>>", error?.response?.data?.message);
+          console.log("order failed >>>>", error?.response?.data?.message);
           toast.error(error?.response?.data?.message);
         }
       }
@@ -69,8 +72,8 @@ const CartSummary = ({
 
   const handleCloseModal = () => {
     setIsOrderPlaced(!isOrderPlaced);
-    navigate(`/`);
-    // navigate(`/order-details/${orderId}`);
+    // navigate(`/`);
+    navigate(`/order-details/${orderId}`, { state: { orderData } });
   };
 
   return (
