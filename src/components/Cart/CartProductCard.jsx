@@ -10,6 +10,7 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
   const { user } = useContext(AuthContext);
 
   const handleIncrementQuantity = async (type) => {
+    alert("hi")
     const endpoint =
       type === "increment"
         ? `${BASE_URL}/users/cart-product-increment-by-one/${products?.product?._id}`

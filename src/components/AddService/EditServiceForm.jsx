@@ -244,7 +244,13 @@ const EditServiceForm = () => {
                 type="text"
                 placeholder="$199.00"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  const filteredValue = newValue.replace(/[^0-9]/g, "");
+                  if (filteredValue === "" || Number(filteredValue) >= 1) {
+                    setPrice(filteredValue);
+                  }
+                }}
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
             </div>

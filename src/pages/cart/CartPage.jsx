@@ -19,10 +19,10 @@ const CartPage = () => {
   const [count, setCount] = useState(0);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [cartProducts, setCartProducts] = useState([]);
-  const { user } = useContext(AuthContext);
+  const { user,quantity } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [isAnyProductToDeliver, setIsAnyProductToDeliver] = useState(null);
-
+  // const [cartQTYUpdate,setcartQTYUpdate]=useState(null)
   const fetchCartProducts = async () => {
     setLoading(true);
     try {
@@ -59,11 +59,17 @@ const CartPage = () => {
     setCount(count - 1);
   };
 
-  let totalAmount = cartProducts.reduce((total, cartItem) => {
+  const [totalPrice,setTotalPrice]=useState(0);
+useEffect(()=>{
+  cartProducts.reduce((total, cartItem) => {
     const price = cartItem.product.price;
-    const quantity = cartItem.quantity;
+    const quantity = cartItem.quantity;    
+    setTotalPrice(total + price * quantity)
     return total + price * quantity;
   }, 0);
+},[])
+
+ 
 
   if (loading) {
     return <Loader />;
@@ -107,7 +113,7 @@ const CartPage = () => {
             isOrderPlaced={isOrderPlaced}
             setIsOrderPlaced={setIsOrderPlaced}
             cartProducts={cartProducts}
-            totalAmount={totalAmount}
+            totalAmount={totalPrice}
             fetchCartProducts={fetchCartProducts}
           />
         </div>

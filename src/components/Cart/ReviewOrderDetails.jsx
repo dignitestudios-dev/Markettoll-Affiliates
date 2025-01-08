@@ -11,6 +11,8 @@ const ReviewOrderDetails = () => {
   const { user } = useContext(AuthContext);
   const [sellerProfile, setSellerProfile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [orderDate, setOrderDate] = useState('');
+
   const [products, setProducts] = useState(
     location?.state?.orderData?.products[0]?.fulfillmentMethods
   );
@@ -47,6 +49,19 @@ const ReviewOrderDetails = () => {
   useEffect(() => {
     fetchSellerPrfile();
   }, []);
+
+
+  useEffect(() => {
+    const currentDate = new Date();
+    // Format the current date as 'DD MMM, YYYY'
+    const formattedDate = currentDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+    setOrderDate(formattedDate);
+  }, []);
+
   return (
     <div className="w-full padding-x py-6">
       <div className="bg-[#F7F7F7] rounded-[30px] p-5">
@@ -63,7 +78,7 @@ const ReviewOrderDetails = () => {
               </p>
               <p>
                 <span className="font-medium">Order Placed:</span>{" "}
-                <span className="text-[#808080]">21 Jan, 2024</span>
+                <span className="text-[#808080]">{orderDate}</span>
               </p>
             </div>
 
