@@ -8,13 +8,14 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
+import { CartProductContext } from "../../context/cartProductContext";
 
 const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
   const { user, userProfile, setUserProfile } = useContext(AuthContext);
   const userCookie = localStorage.getItem("user");
   const user2 = userCookie ? JSON.parse(userCookie) : null;
-
+const { setData } = useContext(CartProductContext);
   const fetchUserProfile = async () => {
     if (user2?.token) {
       try {
@@ -32,6 +33,7 @@ const HomePage = () => {
   };
 
   useEffect(() => {
+    setData({ deliveryAddress:''});
     fetchUserProfile();
   }, []);
 

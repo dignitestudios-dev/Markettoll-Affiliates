@@ -9,8 +9,7 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
   const [quantity, setQuantity] = useState(products?.quantity);
   const { user } = useContext(AuthContext);
 
-  const handleIncrementQuantity = async (type) => {
-    alert("hi")
+  const handleIncrementQuantity = async (type) => {  
     const endpoint =
       type === "increment"
         ? `${BASE_URL}/users/cart-product-increment-by-one/${products?.product?._id}`
@@ -28,6 +27,7 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
       console.log("increment by one res >>>>>>", res);
       if (res.status == 200) {
         setQuantity(res?.data?.data?.quantity);
+        fetchCartProducts()
       }
     } catch (error) {
       console.log("decrement by one err >>>>>>", error);

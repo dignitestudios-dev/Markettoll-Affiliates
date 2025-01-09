@@ -17,7 +17,7 @@ const CartSummary = ({
   totalAmount,
   fetchCartProducts,
 }) => {
-  const { data } = useContext(CartProductContext);
+  const { data,cartCount } = useContext(CartProductContext);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -51,6 +51,7 @@ const CartSummary = ({
             }
           );
           console.log("order placed >>>", response);
+          // fetchCartProducts();
           setOrderId(response?.data?.data?._id);
           setOrderData(response?.data?.data);
           if (response?.status == 201) {
@@ -82,7 +83,7 @@ const CartSummary = ({
 
       <div className="w-full mt-4 flex items-center justify-between">
         <span className="text-base text-[#000000B2]">
-          Subtotal ({cartProducts?.quantity} items)
+          Subtotal ({cartCount} items)
         </span>
         <span className="text-base text-[#000000B2]">
           ${totalAmount.toFixed(2)}

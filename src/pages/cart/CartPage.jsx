@@ -10,6 +10,7 @@ import { BASE_URL } from "../../api/api";
 import Loader from "../../components/Global/Loader";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { CartProductContext } from "../../context/cartProductContext";
 
 const stripePromise = loadStripe(
   "pk_test_51OsZBgRuyqVfnlHK0Z5w3pTL7ncHPcC75EwkxqQX9BAlmcXeKappekueIzmpWzWYK9L9HEGH3Y2Py2hC7KyVY0Al00przQczPf"
@@ -19,9 +20,11 @@ const CartPage = () => {
   const [count, setCount] = useState(0);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [cartProducts, setCartProducts] = useState([]);
-  const { user,quantity } = useContext(AuthContext);
+  const { data,setCartCount} = useContext(CartProductContext);
+  const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [isAnyProductToDeliver, setIsAnyProductToDeliver] = useState(null);
+
   // const [cartQTYUpdate,setcartQTYUpdate]=useState(null)
   const fetchCartProducts = async () => {
     setLoading(true);
@@ -33,6 +36,7 @@ const CartPage = () => {
       });
       // console.log("cartProducts >>>", res?.data?.data);
       setCartProducts(res?.data?.data);
+      setCartCount(res?.data?.data?.length)
     } catch (error) {
       console.log("cartProducts err >>>", error);
     } finally {
@@ -52,24 +56,28 @@ const CartPage = () => {
   }, [cartProducts]);
 
   const handleIncrementCount = () => {
-    setCount(count + 1);
+    if (count == 1) {
+      if (data?.deliveryAddress) {
+        setCount(count + 1);
+      }
+    } else {
+      setCount(count + 1);
+    }
   };
 
   const handleDecrementCount = () => {
     setCount(count - 1);
   };
 
-  const [totalPrice,setTotalPrice]=useState(0);
-useEffect(()=>{
-  cartProducts.reduce((total, cartItem) => {
-    const price = cartItem.product.price;
-    const quantity = cartItem.quantity;    
-    setTotalPrice(total + price * quantity)
-    return total + price * quantity;
-  }, 0);
-},[])
-
- 
+  const [totalPrice, setTotalPrice] = useState(0);
+  useEffect(() => {
+    cartProducts.reduce((total, cartItem) => {
+      const price = cartItem.product.price;
+      const quantity = cartItem.quantity;
+      setTotalPrice(total + price * quantity);
+      return total + price * quantity;
+    }, 0);
+  }, [cartProducts]);
 
   if (loading) {
     return <Loader />;

@@ -287,7 +287,7 @@ const AddPaymentMethod = ({ state, onclick }) => {
 
 const AddFund = ({ state, onclick }) => {
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
-  const { user, fetchUserProfile } = useContext(AuthContext);
+  const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
 
@@ -362,7 +362,9 @@ const AddFund = ({ state, onclick }) => {
             <span className="text-sm font-medium">
               Available Wallet balance
             </span>
-            <span className="text-sm font-bold">$240.00</span>
+            <span className="text-sm font-bold">
+              ${userProfile?.walletBalance.toFixed(2)}
+            </span>
           </div>
 
           <div className="w-full flex flex-col items-start gap-1">

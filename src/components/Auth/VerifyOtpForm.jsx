@@ -199,7 +199,11 @@ const VerifyOtpForm = () => {
         </button>
         <h2 className="blue-text text-[36px] font-bold">Verification</h2>
         <p className="text-base font-medium lg:w-[90%]">
-          Please enter the code that we sent to your email.
+          Please enter the code that we sent to your {verificationType === "email"
+          ? `email`
+          : verificationType === "forgot-password"
+          ? `email`
+          : `phone number`}.
         </p>
 
         <div className="w-full flex items-center justify-between mt-2">

@@ -93,8 +93,8 @@ const LoginForm = () => {
         <h2 className={`blue-text text-[36px] font-bold`}>
           Welcome To Markettoll!
         </h2>
-        <p className="text-base font-medium">
-          Where every need finds its perfect match
+        <p className="text-base font-medium capitalize">
+        Where every need finds its perfect match
         </p>
         {error !== "" && (
           <p className="text-base font-medium text-center mx-auto text-red-500">
@@ -106,7 +106,7 @@ const LoginForm = () => {
           <label htmlFor="email" className="text-[14px] font-medium">
             Email
           </label>
-          <div className="bg-[#fff] rounded-[20px] w-full flex items-center justify-start gap-3 p-4">
+          <div className="bg-[#FFFFFF80] rounded-[20px] w-full flex items-center justify-start gap-3 p-4">
             <img
               src="/mail-icon.png"
               alt="mail-icon.png"
@@ -120,7 +120,7 @@ const LoginForm = () => {
               onBlur={formik.handleBlur}
               value={formik.values.email}
               placeholder="johnsmith@gmail.com"
-              className="w-full bg-white text-[14px] font-[400] text-[#5C5C5C] outline-none"
+              className="w-full bg-transparent text-[14px] font-[400] text-[#5C5C5C] outline-none"
             />
           </div>
           {formik.errors.email ? (
@@ -133,7 +133,7 @@ const LoginForm = () => {
             Password
           </label>
 
-          <div className="bg-[#fff] rounded-[20px] w-full flex items-center justify-start gap-3 p-4">
+          <div className="bg-[#FFFFFF80] rounded-[20px] w-full flex items-center justify-start gap-3 p-4">
             <img
               src="/password-icon.png"
               alt="password-icon"
@@ -153,7 +153,7 @@ const LoginForm = () => {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? (
+              {!showPassword ? (
                 <LuEye className="text-[#606060]" />
               ) : (
                 <LuEyeOff className="text-[#606060]" />

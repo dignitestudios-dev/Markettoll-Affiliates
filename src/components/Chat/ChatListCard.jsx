@@ -13,7 +13,7 @@ const ChatListCard = ({ item,selectedUser }) => {
               : "/chat-img.png"
           }
           alt="chat-img"
-          className="w-[42px] h-[42px]"
+          className="w-[42px] rounded-full h-[42px]"
         />
         <div className="flex flex-col items-start">
           <span className="text-[13px]">{item?.lastMessage?.profileName}</span>

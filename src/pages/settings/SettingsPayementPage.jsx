@@ -260,6 +260,7 @@ const SettingsPayementPage = () => {
               </label>
               <input
                 type="text"
+                maxLength={12}
                 id="accountNumber"
                 placeholder="John Smith"
                 className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
@@ -282,6 +283,7 @@ const SettingsPayementPage = () => {
               <input
                 type="text"
                 id="routingNumber"
+                maxLength={9}
                 placeholder="Routing Number"
                 className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
                 onChange={formik.handleChange}
@@ -304,6 +306,7 @@ const SettingsPayementPage = () => {
                 <input
                   type="text"
                   id="day"
+                  maxLength={2}
                   placeholder="Day"
                   className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
                   onChange={formik.handleChange}
@@ -319,6 +322,7 @@ const SettingsPayementPage = () => {
                 <input
                   type="text"
                   id="month"
+                  maxLength={2}
                   placeholder="Month"
                   className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
                   onChange={formik.handleChange}
@@ -334,6 +338,7 @@ const SettingsPayementPage = () => {
                 <input
                   type="text"
                   id="year"
+                  maxLength={4}
                   placeholder="Year"
                   className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
                   onChange={formik.handleChange}
@@ -355,6 +360,7 @@ const SettingsPayementPage = () => {
             <input
               type="text"
               id="ssn"
+              maxLength={9}
               placeholder="SSN"
               className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
               onChange={formik.handleChange}

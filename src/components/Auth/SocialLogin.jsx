@@ -175,7 +175,7 @@ const SocialLogin = () => {
         type="button"
         onClick={handleGoogleLogin}
         aria-label="Sign in with Google"
-        className="flex items-center justify-center w-full h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
+        className="flex items-center justify-center w-full h-12 bg-[#FFFFFF80] border hover:bg-gray-50 border-button-border-light rounded-full p-1 pr-3"
       >
         {googleLoading ? (
           <div
@@ -186,19 +186,19 @@ const SocialLogin = () => {
             <span className="sr-only">Loading...</span>
           </div>
         ) : (
-          <div className="flex items-center justify-center bg-white w-9 h-9 rounded-l">
-            {/* <img src={Google} className="w-4 " alt="" /> */}
+          <div className="flex items-center justify-center  w-9 h-9 rounded-l">
+            <img src={'/google-icon.png'} className="w-[22px] h-[22px] " alt="" />
           </div>
         )}
-        <span className="text-xs text-google-text-gray tracking-wider">
-          Continue with Google
-        </span>
+        {/* <span className="text-xs text-google-text-gray tracking-wider">
+        
+        </span> */}
       </button>
       <button
         type="button"
         onClick={handleAppleLogin}
         aria-label="Sign in with Google"
-        className="flex items-center w-full justify-center h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
+        className="flex items-center w-full justify-center h-12 bg-[#FFFFFF80] border hover:bg-gray-50 border-button-border-light rounded-full p-1 pr-3"
       >
         {appleLoading ? (
           <div
@@ -209,7 +209,7 @@ const SocialLogin = () => {
             <span className="sr-only">Loading...</span>
           </div>
         ) : (
-          <div className="flex items-center text-gray-800 justify-center bg-white w-9 h-9 rounded-l">
+          <div className="flex items-center text-gray-800 justify-center bg-[#FFFFFF80] w-9 h-9 rounded-full">
             <svg
               stroke="currentColor"
               fill="currentColor"
@@ -225,15 +225,15 @@ const SocialLogin = () => {
           </div>
         )}
 
-        <span className="text-xs text-google-text-gray tracking-wider">
+        {/* <span className="text-xs text-google-text-gray tracking-wider">
           Continue with Apple
-        </span>
+        </span> */}
       </button>
       <button
         type="button"
         onClick={handleFacebookLogin}
         aria-label="Sign in with Facebook"
-        className="flex items-center justify-center h-12 bg-white border hover:bg-gray-50 border-button-border-light rounded-lg p-1 pr-3"
+        className="flex items-center justify-center h-12 bg-[#FFFFFF80] border hover:bg-gray-50 border-button-border-light rounded-full p-1 pr-3"
       >
         {facebookLoading ? (
           <div
@@ -244,14 +244,13 @@ const SocialLogin = () => {
             <span className="sr-only">Loading...</span>
           </div>
         ) : (
-          <div className="flex items-center justify-center bg-white w-9 h-9 rounded-lg">
+          <div className="flex items-center justify-center bg-[#FFFFFF80] w-9 h-9 rounded-full">
             <FaFacebookF className="text-xl text-[#1877F2]" />
           </div>
         )}
-
-        <span className="text-xs text-google-text-gray tracking-wider">
+        {/* <span className="text-xs text-google-text-gray tracking-wider">
           Sign in with Facebook
-        </span>
+        </span> */}
       </button>
     </div>
   );

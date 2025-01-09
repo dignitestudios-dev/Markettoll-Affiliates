@@ -11,6 +11,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import Sidebar from "./Sidebar";
+import { CartProductContext } from "../../context/cartProductContext";
 
 const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -19,6 +20,7 @@ const Navbar = () => {
 
   const navigate = useNavigate();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
+  const { cartCount, setCartCount } = useContext(CartProductContext);
   const { searchQuery, setSearchQuery, searchResults, setSearchResults } =
     useContext(SearchedProductContext);
   const [notifications, setNotifications] = useState([]);
@@ -103,11 +105,10 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="padding-x w-full py-5 flex items-center justify-between border-b relative blue-bg">
+    <nav className="padding-x w-full py-5 flex items-center justify-between border-b  blue-bg sticky top-0 z-50 ">
       <Link to="/">
         <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
-
       <div className="hidden lg:flex items-center justify-end gap-3">
         <form
           onSubmit={handleSearchProduct}
@@ -168,13 +169,16 @@ const Navbar = () => {
           type="button"
           onClick={() => handleNavigate("/cart", "Login to see cart")}
           to="/cart"
-          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
+          className="w-[32px] h-[32px] rounded-[10px] bg-white relative inline-flex items-center text-center justify-center"
         >
           <img
             src="/cart-icon-blue.png"
             alt="cart-icon"
             className="w-[18px] h-[18px]"
           />
+          <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-3 -end-3 dark:border-gray-900">
+            {user?cartCount : 0}
+          </div>
         </button>
         {user ? (
           <button

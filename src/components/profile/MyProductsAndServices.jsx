@@ -61,7 +61,7 @@ const MyProductsAndServices = () => {
             id="countries"
             value={postType}
             onChange={(e) => setPostType(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none"
+            className="bg-gray-50 border border-gray-300 !appearance-auto text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none"
           >
             <option selected defaultValue="post">
               Post

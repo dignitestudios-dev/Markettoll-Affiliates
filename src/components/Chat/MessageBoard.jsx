@@ -88,16 +88,16 @@ const MessageBoard = ({
       console.error("Error sending message: ", error);
     }
   };
-
+console.log(seller?.lastMessage,"sellerImages")
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
       <div className="chat-header w-full h-[8%] border-b flex items-center justify-between px-5">
         <div className="flex items-center gap-2">
           <img
-            src="/chat-img.png"
+            src={seller?.lastMessage?.profileImage?seller?.lastMessage?.profileImage:"/chat-img.png"}
             alt="user profile"
-            className="w-[42px] h-[42px]"
+            className="w-[42px] rounded-full h-[42px]"
           />
           <span className="text-sm font-semibold">
             {seller?.lastMessage?.profileName}

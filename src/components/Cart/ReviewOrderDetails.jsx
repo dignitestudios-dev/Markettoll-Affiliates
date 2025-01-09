@@ -12,7 +12,7 @@ const ReviewOrderDetails = () => {
   const [sellerProfile, setSellerProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [orderDate, setOrderDate] = useState('');
-
+  const [randomNumber, setRandomNumber] = useState(null);
   const [products, setProducts] = useState(
     location?.state?.orderData?.products[0]?.fulfillmentMethods
   );
@@ -46,8 +46,17 @@ const ReviewOrderDetails = () => {
     }
   };
 
+
+
+
+  const generateRandomNumber = () => {
+    const randomNum = Math.floor(10000 + Math.random() * 90000); // Generates a 5-digit number
+    setRandomNumber(randomNum);
+  };
+
   useEffect(() => {
     fetchSellerPrfile();
+    generateRandomNumber();
   }, []);
 
 
@@ -74,7 +83,7 @@ const ReviewOrderDetails = () => {
             <div className="my-6">
               <p>
                 <span className="font-medium">Order ID:</span>{" "}
-                <span className="text-[#808080]">26413</span>
+                <span className="text-[#808080]">{randomNumber}</span>
               </p>
               <p>
                 <span className="font-medium">Order Placed:</span>{" "}

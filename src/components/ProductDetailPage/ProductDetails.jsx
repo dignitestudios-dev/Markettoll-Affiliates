@@ -17,20 +17,20 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 // Import Swiper type
 import { Swiper as SwiperType } from "swiper";
-
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-
 // import required modules
 import { Thumbs } from "swiper/modules";
+import { CartProductContext } from "../../context/cartProductContext";
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [showPopup, setShowPopup] = useState(false);
   const [addToCart, setAddToCart] = useState(false);
+  const {fetchCartProducts} = useContext(CartProductContext);
   const { productId } = useParams();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
@@ -53,6 +53,9 @@ const ProductDetails = () => {
     setShowPopup(!showPopup);
   };
 
+
+
+
   const handleAddToCart = async (method) => {
     if (!user) {
       toast.error("You must be logged in to add product in cart");
@@ -71,6 +74,7 @@ const ProductDetails = () => {
           },
         }
       );
+      fetchCartProducts();
       console.log("add to cart res >>>>>>", res);
       if (res.status == 201) {
         setAddToCart(true);
