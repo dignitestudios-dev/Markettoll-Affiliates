@@ -6,6 +6,8 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import ProductRating from "../../components/Global/ProductRating";
 import { GoArrowLeft } from "react-icons/go";
+import { FaHeart } from "react-icons/fa6";
+import { FiHeart } from "react-icons/fi";
 
 const ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
@@ -13,6 +15,7 @@ const ServiceDetailsPage = () => {
   const { serviceId } = useParams();
   const { user } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
+  const { userProfile } = useContext(AuthContext);
 
   const handleFetchService = async () => {
     const headers = user?.token
@@ -81,11 +84,28 @@ const ServiceDetailsPage = () => {
             <span className="font-medium text-sm text-[#5C5C5C]">Back</span>
           </Link>
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
-            <div className="w-full">
+            <div className="w-full relative">
+              {service?.seller !== userProfile?._id && (
+                <button
+                  type="button"
+                  className="absolute z-10 top-5 right-5"
+                  // onClick={() =>
+                  //   product?.isWishListed
+                  //     ? handleRemoveFromFavorite()
+                  //     : handleAddToFavorite()
+                  // }
+                >
+                  {service?.isWishListed ? (
+                    <FaHeart className="text-gray-300 text-2xl" />
+                  ) : (
+                    <FiHeart className="text-gray-300 text-2xl" />
+                  )}
+                </button>
+              )}
               <img
                 src={displayImage?.url}
                 alt="product image"
-                className="w-full h-auto lg:h-[376px] object-contain rounded-xl"
+                className="w-full h-auto lg:h-[376px] object-cover rounded-xl"
               />
               <div className="w-full max-h-[109px] overflow-x-scroll flex items-start gap-5 mt-6 thumbnail-scroll">
                 {service?.images?.map((image, index) => (

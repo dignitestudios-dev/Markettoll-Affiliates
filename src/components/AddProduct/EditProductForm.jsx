@@ -13,6 +13,7 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { LuMinus } from "react-icons/lu";
 import { HiPlus } from "react-icons/hi";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const EditProductForm = () => {
   const [service, setService] = useState(null);
@@ -23,14 +24,16 @@ const EditProductForm = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [coverImageIndex, setCoverImageIndex] = useState(null);
-  const { setServiceData } = useContext(ProductDataReview);
-  const navigate = useNavigate();
   const { productId } = useParams();
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(service?.quantity);
+  const [fulfillmentMethod, setFulfillmentMethod] = useState({
+    selfPickup: false,
+    delivery: false,
+  });
+  const navigate = useNavigate();
 
-  const [fullStateName, setFullStateName] = useState("");
   const [states, setStates] = useState([]);
   const [stateCities, setStateCities] = useState([]);
 
@@ -66,8 +69,17 @@ const EditProductForm = () => {
       const existingImages = service?.images || [];
       setProductImages(existingImages);
       setQuantity(service?.quantity);
+      setFulfillmentMethod(service?.fulfillmentMethod);
     }
   }, [service]);
+
+  const handleBackClick = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/add-service-or-product");
+    }
+  };
 
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
@@ -102,7 +114,7 @@ const EditProductForm = () => {
         }
       );
 
-      console.log("Service uploaded successfully:", response.data);
+      console.log("product updated successfully:", response.data);
       if (response.data.success) {
         toast.success(response.data.message);
         navigate(`/products/${response?.data?.data?._id}`);
@@ -130,49 +142,25 @@ const EditProductForm = () => {
         className="w-full bg-[#F7F7F7] rounded-[30px] px-4 lg:px-8 py-12"
       >
         <div className="w-full flex items-center gap-6">
-          <Link
-            to="/add-service-or-product"
+          <button
+            type="button"
+            onClick={handleBackClick}
             className="flex items-center gap-1"
           >
             <GoArrowLeft className="light-blue-text text-xl" />{" "}
             <span className="text-sm font-medium text-[#5C5C5C]">Back</span>
-          </Link>
+          </button>
 
           <h2 className="blue-text font-bold text-[24px]">
-            Add Product Details
+            Edit Product Details
           </h2>
         </div>
 
         <div className="w-full padding-x mt-6">
           <label htmlFor="productImage" className="text-sm font-semibold">
-            Product Photos
+            Upload Photos
           </label>
           <div className="w-full flex items-start justify-start mt-2 gap-6">
-            {/* Image Upload Area */}
-            {/* <div className="flex items-start flex-col justify-start">
-              <label
-                htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center h-[170px] w-[170px] rounded-[20px] cursor-pointer bg-white hover:bg-gray-100 relative"
-              >
-                <div className="flex flex-col items-center justify-center w-full h-full rounded-full">
-                  <GoPlus className="w-[48px] h-[48px] text-light-blue" />
-                </div>
-                <input
-                  onChange={handleImageChange}
-                  id="dropzone-file"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  multiple
-                  disabled={productImages.length >= 5}
-                />
-              </label>
-              <span className="text-sm font-normal mt-1 mx-auto">
-                Upload Product Photo
-              </span>
-            </div> */}
-
-            {/* Image Preview and Selection */}
             <div className="flex gap-6">
               {productImages.map((image, index) => {
                 const imageUrl =
@@ -185,26 +173,6 @@ const EditProductForm = () => {
                       alt={`product-image-${index}`}
                       className="h-[170px] w-[170px] rounded-[20px] object-cover"
                     />
-                    {/* <button
-                      type="button"
-                      onClick={() => handleDeleteImage(index)}
-                      className="w-5 h-5 z-20 rounded-full bg-gray-300 p-1 absolute top-2 right-2"
-                    >
-                      <IoClose className="w-full h-full" />
-                    </button> */}
-
-                    {/* Checkbox for selecting cover photo */}
-                    {/* <div className="flex items-center gap-1 mt-1">
-                      <input
-                        type="checkbox"
-                        checked={coverImageIndex === index}
-                        onChange={() => handleCoverPhotoChange(index)}
-                        className="w-[14px] h-[14px]"
-                      />
-                      <label className="text-sm font-medium">
-                        Select as cover photo
-                      </label>
-                    </div> */}
                   </div>
                 );
               })}
@@ -254,7 +222,6 @@ const EditProductForm = () => {
                 type="text"
                 placeholder="$199.00"
                 value={price}
-                disabled
                 onChange={(e) => setPrice(e.target.value)}
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
@@ -332,10 +299,44 @@ const EditProductForm = () => {
               </div>
             </div>
 
+            <div className="flex flex-col gap-1.5 mt-4">
+              <label
+                htmlFor="fulfillmentMethod"
+                className="text-sm font-semibold mb-2"
+              >
+                Fulfillment Method
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="selfPickup"
+                  id="selfPickup"
+                  className="w-[16px] h-[16px]"
+                  checked={fulfillmentMethod.selfPickup}
+                />
+                <label htmlFor="selfPickup" className="text-sm font-medium">
+                  Self Pickup
+                </label>
+              </div>
+              {/* Delivery Checkbox */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="delivery"
+                  id="delivery"
+                  className="w-[16px] h-[16px]"
+                  checked={fulfillmentMethod.delivery}
+                />
+                <label htmlFor="delivery" className="text-sm font-medium">
+                  Delivery
+                </label>
+              </div>
+            </div>
+
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
               <Link
                 to="/add-service-or-product"
-                className="bg-white light-blue-text font-semibold text-sm py-3 rounded-[20px] text-center"
+                className="bg-white light-blue-text font-semibold text-sm py-3 rounded-[20px] text-center outline-none"
               >
                 Cancel
               </Link>
@@ -343,7 +344,7 @@ const EditProductForm = () => {
                 type="submit"
                 className="blue-bg text-white font-semibold text-sm py-3 rounded-[20px]"
               >
-                Save
+                {loading ? <ButtonLoader /> : "Save"}
               </button>
             </div>
           </div>

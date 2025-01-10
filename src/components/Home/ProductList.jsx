@@ -16,7 +16,7 @@ const ProductList = () => {
   const [services, setServices] = useState([]);
   const { user, setUserProfile } = useContext(AuthContext);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { searchResults } = useContext(SearchedProductContext);
   const [categories, setCategories] = useState([]);
   const [productCategory, setProductCategory] = useState("All");
@@ -29,8 +29,8 @@ const ProductList = () => {
           },
         }
       : {};
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/users/home-screen-products`,
         options
@@ -53,8 +53,8 @@ const ProductList = () => {
           },
         }
       : {};
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/users/home-screen-services?page=${page}`,
         options
@@ -246,60 +246,57 @@ const ProductList = () => {
             </h3>
           </div>
 
+          <div className="w-full mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services && services?.length > 0 ? (
+              <>
+                {services?.map((service, index) => {
+                  return <ServiceCard service={service} key={index} />;
+                })}
+              </>
+            ) : (
+              <p>No services found</p>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
           {loading ? (
             <Loader />
           ) : (
             <>
-              <div className="w-full mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {services && services?.length > 0 ? (
-                  <>
-                    {services?.map((service, index) => {
-                      return <ServiceCard service={service} key={index} />;
-                    })}
-                  </>
-                ) : null}
-              </div>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          {Array.isArray(products) && filteredProducts.length > 0 ? (
-            <>
-              {filteredProducts?.map((productList, index) => {
-                return (
-                  <div key={index} className="mt-10">
-                    <div className="w-full flex items-center justify-between">
-                      <h3 className="text-2xl lg:text-[28px] font-bold blue-text">
-                        {productList?.category}
-                      </h3>
-                      <Link
-                        to={`/categories/${productList?.category}`}
-                        className="text-[#6C6C6C] text-[18px] font-medium"
-                      >
-                        See all
-                      </Link>
-                    </div>
+              {filteredProducts.length > 0 ? (
+                <>
+                  {filteredProducts?.map((productList, index) => {
+                    return (
+                      <div key={index} className="mt-10">
+                        <div className="w-full flex items-center justify-between">
+                          <h3 className="text-2xl lg:text-[28px] font-bold blue-text">
+                            {productList?.category}
+                          </h3>
+                          <Link
+                            to={`/categories/${productList?.category}`}
+                            className="text-[#6C6C6C] text-[18px] font-medium"
+                          >
+                            See all
+                          </Link>
+                        </div>
 
-                    <div className="w-full mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {productList?.products?.length > 0 ? (
-                        productList?.products
-                          ?.slice(0, 4)
-                          ?.map((product, i) => (
-                            <ProductCard product={product} key={i} />
-                          ))
-                      ) : (
-                        <p>No products available in this category.</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                        <div className="w-full mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                          {productList?.products?.length > 0 &&
+                            productList?.products
+                              ?.slice(0, 4)
+                              ?.map((product, i) => (
+                                <ProductCard product={product} key={i} />
+                              ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                <p className="mt-5 text-sm blue-text">No products found.</p>
+              )}
             </>
-          ) : (
-            <p className="mt-5 text-sm blue-text">
-              No products available in this category.
-            </p>
           )}
         </>
       )}
