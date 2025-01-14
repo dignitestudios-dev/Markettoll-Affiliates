@@ -16,7 +16,7 @@ const ReviewOrderDetails = () => {
   const [products, setProducts] = useState(
     location?.state?.orderData?.products[0]?.fulfillmentMethods
   );
-  // console.log("products >>>", products);
+  console.log("products >>>", products);
 
   const fetchSellerPrfile = async () => {
     const headers = user?.token

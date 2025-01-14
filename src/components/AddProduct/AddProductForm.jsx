@@ -172,6 +172,10 @@ const AddProductForm = () => {
       toast.error("Please upload product images");
       return;
     }
+    if (productImages === null || productImages.length < 3) {
+      toast.error("Please upload atleast 3 product images");
+      return;
+    }
     if (coverImageIndex === "") {
       toast.error("Please choose a cover image");
       return;

@@ -30,6 +30,7 @@ const ProductReviewPage = () => {
   }, [location]);
 
   const handleThumbnailClick = (image) => {
+    console.log(image,"imagespathss")
     setDisplayImage(image);
   };
 
@@ -107,9 +108,11 @@ const ProductReviewPage = () => {
                 state?.productData.productImages.length > 0 && (
                   <img
                     src={
-                      state?.productData?.productImages[
-                        state?.productData?.coverImageIndex
-                      ]
+                      displayImage
+                        ? URL.createObjectURL(displayImage)  // If displayImage contains a valid image path, use it
+                        : state?.productData?.productImages[
+                            state?.productData?.coverImageIndex
+                          ]
                         ? URL.createObjectURL(
                             state?.productData?.productImages[
                               state?.productData?.coverImageIndex
