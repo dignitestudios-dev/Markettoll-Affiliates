@@ -3,6 +3,7 @@ import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
 import axios from "axios";
 import Loader from "../Global/Loader";
+import { toast } from "react-toastify";
 
 const OrdersReceivedCurrent = () => {
   const [orders, setOrders] = useState([]);
@@ -25,6 +26,7 @@ const OrdersReceivedCurrent = () => {
       setOrders(res?.data?.data);
     } catch (error) {
       console.log("orders received current err >>>>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }

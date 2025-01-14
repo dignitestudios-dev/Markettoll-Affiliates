@@ -32,7 +32,6 @@ const ChatList = ({ selectedUser }) => {
       // Real-time updates using onSnapshot
       onSnapshot(sellerRef, (snapshot) => {
         const updatedUserList = snapshot.docs.map((doc) => doc.data());
-        console.log(updatedUserList, "userData");
         setUserList(updatedUserList);
         setOriginalUserList(updatedUserList);
       });

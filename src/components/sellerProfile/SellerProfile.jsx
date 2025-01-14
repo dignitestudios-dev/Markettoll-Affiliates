@@ -38,7 +38,7 @@ const SellerProfile = () => {
           headers: headers,
         }
       );
-      // console.log("user profile >>", res?.data?.data);
+      // console.log("seller profile >>", res?.data?.data);
       setMyProfile(res?.data?.data);
     } catch (error) {
       console.log(
@@ -60,7 +60,7 @@ const SellerProfile = () => {
           },
         }
       );
-      // console.log("seller reviews >>>", res?.data);
+      console.log("seller reviews >>>", res?.data);
       setSellerReviwes(res?.data?.data);
     } catch (error) {
       console.log("error while fetch seller reviews >>>>", error);
@@ -111,9 +111,6 @@ const SellerProfile = () => {
                     <IoIosStar className="text-xl text-yellow-400" />
                     <IoIosStar className="text-xl text-gray-300" />
                     <span className="text-sm">
-                      {sellerReviews && sellerReviews?.length}
-                    </span>
-                    <span className="text-sm text-gray-500">
                       {sellerReviews && sellerReviews?.length}
                     </span>
                   </>

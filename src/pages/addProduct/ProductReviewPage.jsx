@@ -19,16 +19,18 @@ const ProductReviewPage = () => {
     navigate("/add-product", { state: { productData: state?.productData } });
   };
 
+  // Set the default display image on component load
   useEffect(() => {
     if (state?.productData?.productImages?.length > 0) {
       const defaultDisplayImage =
-        state?.productData.productImages.find(
+        state?.productData?.productImages.find(
           (image) => image.displayImage === true
-        ) || state?.productData.productImages[0];
+        ) || state?.productData?.productImages[0];
       setDisplayImage(defaultDisplayImage);
     }
-  }, [location]);
+  }, [state]);
 
+  // Handle thumbnail click to update display image
   const handleThumbnailClick = (image) => {
     setDisplayImage(image);
   };
@@ -71,7 +73,7 @@ const ProductReviewPage = () => {
       });
 
       // Handle success
-      console.log("Product uploaded successfully:", response.data);
+      // console.log("Product uploaded successfully:", response.data);
       toast.success(response.data.message);
       navigate("/would-you-boost-your-product", {
         state: {
@@ -83,7 +85,10 @@ const ProductReviewPage = () => {
       localStorage.setItem("product", JSON.stringify(response.data));
       return response.data;
     } catch (error) {
-      console.error("Error uploading product:", error);
+      // console.error("Error uploading product:", error);
+      if (error) {
+        toast.error(error?.response?.data?.message || "Something went wrong");
+      }
       if (error.status == 409) {
         // navigate("/subscriptions");
         setOpenModal(true);
@@ -103,24 +108,16 @@ const ProductReviewPage = () => {
         <div className="w-full px-4 md:px-8 lg:px-12 py-12 rounded-[30px] bg-[#fff]">
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
             <div className="w-full lg:w-1/2">
-              {state?.productData.productImages &&
-                state?.productData.productImages.length > 0 && (
-                  <img
-                    src={
-                      state?.productData?.productImages[
-                        state?.productData?.coverImageIndex
-                      ]
-                        ? URL.createObjectURL(
-                            state?.productData?.productImages[
-                              state?.productData?.coverImageIndex
-                            ]
-                          )
-                        : "/placeholder-image.jpg"
-                    }
-                    alt="product thumbnail"
-                    className="w-full h-auto lg:h-[336px] rounded-[20px]"
-                  />
-                )}
+              {/* Main displayed image */}
+              {displayImage && (
+                <img
+                  src={URL.createObjectURL(displayImage)}
+                  alt="product thumbnail"
+                  className="w-full h-auto lg:h-[336px] rounded-[20px]"
+                />
+              )}
+
+              {/* Thumbnails */}
               <div className="w-full flex gap-5 overflow-x-auto mt-3 thumbnail-scroll">
                 {state?.productData?.productImages?.map((image, index) => (
                   <img
@@ -128,9 +125,7 @@ const ProductReviewPage = () => {
                     src={URL.createObjectURL(image)}
                     alt={`Thumbnail ${index + 1}`}
                     className={`rounded-xl h-[97px] w-[97px] object-cover cursor-pointer ${
-                      image?.url === displayImage?.url
-                        ? "border-2 border-blue-500"
-                        : ""
+                      image === displayImage ? "border-2 border-blue-500" : ""
                     }`}
                     onClick={() => handleThumbnailClick(image)}
                   />

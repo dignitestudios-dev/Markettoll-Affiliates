@@ -1,27 +1,26 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
-import { STATES } from "../../constants/states";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
-import { useFormik } from "formik";
+import { Country, State, City } from "country-state-city";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
-import { AuthContext } from "../../context/authContext";
-import { Country, State, City } from "country-state-city";
 import { toast } from "react-toastify";
+import { AuthContext } from "../../context/authContext";
 
-const SettingsAddAddressPage = () => {
+const AddPickupAddress = () => {
+  const location = useLocation();
   const [streetAddress, setStreetAddress] = useState("");
-  const [apartment, setApartment] = useState("");
+  const [apartmentSuite, setApartmentSuite] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
-  const [zipCode, setZipCode] = useState("");
-
   const navigate = useNavigate();
-  const { user, fetchUserProfile } = useContext(AuthContext);
   const [addressAdded, setAddressAdded] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
 
   const [stateFullName, setStateFullName] = useState("");
   const [fullStateName, setFullStateName] = useState("");
@@ -65,42 +64,83 @@ const SettingsAddAddressPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!streetAddress || !selectedState || !selectedCity || !zipCode) {
-      toast.error("Please fill the required fields");
-      return;
-    }
-    if (zipCode.length > 5 || zipCode.length < 5) {
-      toast.error("Zip Code must be 5 digits.");
-      return;
-    }
     setLoading(true);
-    try {
-      const res = await axios.post(
-        `${BASE_URL}/users/delivery-address`,
-        {
-          streetAddress,
-          apartment_suite: apartment,
-          country: "United States",
-          state: stateFullName,
-          city: selectedCity,
-          zipCode,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
+    if (!streetAddress) {
+      toast.error("Add street address");
+      return;
+    }
+    if (!selectedState) {
+      toast.error("Please choose a state");
+      return;
+    }
+    if (!selectedCity) {
+      toast.error("Please choose a city");
+      return;
+    }
+    if (location?.state?.type == "pickupAddress") {
+      try {
+        const res = await axios.put(
+          `${BASE_URL}/users/pickup-address`,
+          {
+            streetAddress,
+            apartment_suite: apartmentSuite,
+            country: "United States",
+            state: stateFullName,
+            city: selectedCity,
+            zipCode,
           },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        // console.log("pickup address added >>>", res);
+        if (res?.status == 200) {
+          setAddressAdded(!addressAdded);
+          fetchUserProfile();
         }
-      );
-      console.log("address added >>>", res);
-      if (res?.status == 201) {
-        setAddressAdded(!addressAdded);
-        fetchUserProfile();
-        // navigate("/settings/addresses");
+      } catch (error) {
+        // console.log(
+        //   "error while adding pickup address >>>",
+        //   error?.response?.data
+        // );
+        toast.error(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.log("add delivery address err >>>", error?.response?.data);
-    } finally {
-      setLoading(false);
+    } else if (location?.state?.type == "deliveryAddress") {
+      try {
+        const res = await axios.put(
+          `${BASE_URL}/users/delivery-address/${userProfile?.address?._id}`,
+          {
+            streetAddress,
+            apartment_suite: apartmentSuite,
+            country: "United States",
+            state: stateFullName,
+            city: selectedCity,
+            zipCode,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        // console.log("pickup address added >>>", res);
+        if (res?.status == 200) {
+          setAddressAdded(!addressAdded);
+          fetchUserProfile();
+        }
+      } catch (error) {
+        // console.log(
+        //   "error while adding pickup address >>>",
+        //   error?.response?.data
+        // );
+        toast.error(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -110,12 +150,12 @@ const SettingsAddAddressPage = () => {
   };
 
   return (
-    <div className="w-full px-5">
-      <Link to="/settings/addresses" className="flex items-center gap-2">
+    <div className="w-full">
+      {/* <Link to="/settings/addresses" className="flex items-center gap-2">
         <GoArrowLeft className="text-2xl" />
-        <span className="font-bold text-[28px] blue-text">Add Addresses</span>
+        <span className="font-bold text-[28px] blue-text">Edit Addresses</span>
       </Link>
-      <div className="w-full border mt-5 mb-4" />
+      <div className="w-full border mt-5 mb-4" /> */}
       <form
         onSubmit={handleSubmit}
         className="w-full flex flex-col items-start gap-5"
@@ -126,9 +166,9 @@ const SettingsAddAddressPage = () => {
           </label>
           <input
             type="text"
-            placeholder="Street address"
             value={streetAddress}
             onChange={(e) => setStreetAddress(e.target.value)}
+            placeholder="Street address"
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -139,8 +179,8 @@ const SettingsAddAddressPage = () => {
           <input
             type="text"
             placeholder="Apartment/ Suite"
-            value={apartment}
-            onChange={(e) => setApartment(e.target.value)}
+            value={apartmentSuite}
+            onChange={(e) => setApartmentSuite(e.target.value)}
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -152,7 +192,7 @@ const SettingsAddAddressPage = () => {
             type="text"
             placeholder="Country"
             disabled
-            value={"United States"}
+            value={"United State"}
             className="border bg-white rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
@@ -209,12 +249,12 @@ const SettingsAddAddressPage = () => {
             className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
           />
         </div>
-        <button
+        {/* <button
           type="submit"
           className="text-base font-bold py-3 w-full text-white blue-bg rounded-2xl"
         >
-          {loading ? "Adding..." : "Add"}
-        </button>
+          {loading ? "Saving..." : "Save"}
+        </button> */}
       </form>
       <AddressModal
         addressAdded={addressAdded}
@@ -224,7 +264,7 @@ const SettingsAddAddressPage = () => {
   );
 };
 
-export default SettingsAddAddressPage;
+export default AddPickupAddress;
 
 const AddressModal = ({ addressAdded, onclose }) => {
   return (
@@ -242,8 +282,8 @@ const AddressModal = ({ addressAdded, onclose }) => {
           <div className="rounded-full blue-bg w-[69.67px] h-[69.67px] p-3">
             <FaCheck className="text-white w-full h-full" />
           </div>
-          <span className="text-lg blue-text font-bold">Address Added</span>
-          <span className="text-[#5c5c5c]">Address added successfully</span>
+          <span className="text-lg blue-text font-bold">Address Changed</span>
+          <span className="text-[#5c5c5c]">Address changed successfully</span>
         </div>
       </div>
     )

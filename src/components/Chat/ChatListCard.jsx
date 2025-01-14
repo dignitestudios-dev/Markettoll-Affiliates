@@ -1,10 +1,13 @@
 import React from "react";
 
-const ChatListCard = ({ item,selectedUser }) => {
+const ChatListCard = ({ item, selectedUser }) => {
   return (
-    <div onClick={()=>{
-      selectedUser(item)
-    }} className="py-3 px-5 flex items-start justify-between border-b hover:bg-gray-50 transition-all duration-300 cursor-pointer">
+    <div
+      onClick={() => {
+        selectedUser(item);
+      }}
+      className="py-3 px-5 flex items-start justify-between border-b hover:bg-gray-50 transition-all duration-300 cursor-pointer"
+    >
       <div className="flex items-center gap-2">
         <img
           src={
@@ -19,7 +22,7 @@ const ChatListCard = ({ item,selectedUser }) => {
           <span className="text-[13px]">{item?.lastMessage?.profileName}</span>
           <span className="text-xs text-[#757575]">
             {item?.lastMessage?.contentType == "text"
-              ? item?.lastMessage?.content
+              ? `${item?.lastMessage?.content.slice(0, 40)}.....`
               : ""}
           </span>
         </div>

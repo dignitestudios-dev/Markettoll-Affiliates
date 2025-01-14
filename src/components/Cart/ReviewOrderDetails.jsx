@@ -1,22 +1,41 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import Cookies from "js-cookie";
 import { BASE_URL } from "../../api/api";
 import axios from "axios";
+import Loader from "../Global/Loader";
 
 const ReviewOrderDetails = () => {
   const location = useLocation();
-  console.log("orderData >>>", location?.state);
-  const { user } = useContext(AuthContext);
+  // console.log("orderData >>>", location?.state?.orderData);
+  const { user, userProfile } = useContext(AuthContext);
   const [sellerProfile, setSellerProfile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [orderDate, setOrderDate] = useState('');
-  const [randomNumber, setRandomNumber] = useState(null);
-  const [products, setProducts] = useState(
-    location?.state?.orderData?.products[0]?.fulfillmentMethods
+  const navigate = useNavigate();
+  if (!location?.state?.orderData) {
+    return navigate(-1);
+  }
+
+  // Extract products by fulfillment methods
+  const extractedProducts = location?.state?.orderData?.products.reduce(
+    (acc, product) => {
+      if (Array.isArray(product.fulfillmentMethods)) {
+        product.fulfillmentMethods.forEach((fulfillment) => {
+          if (fulfillment.method === "selfPickup") {
+            acc.selfPickup = [
+              ...acc.selfPickup,
+              ...(fulfillment.products || []),
+            ];
+          } else if (fulfillment.method === "delivery") {
+            acc.delivery = [...acc.delivery, ...(fulfillment.products || [])];
+          }
+        });
+      }
+      return acc;
+    },
+    { selfPickup: [], delivery: [] }
   );
-  // console.log("products >>>", products);
 
   const fetchSellerPrfile = async () => {
     const headers = user?.token
@@ -46,30 +65,28 @@ const ReviewOrderDetails = () => {
     }
   };
 
-
-
-
-  const generateRandomNumber = () => {
-    const randomNum = Math.floor(10000 + Math.random() * 90000); // Generates a 5-digit number
-    setRandomNumber(randomNum);
-  };
-
   useEffect(() => {
     fetchSellerPrfile();
-    generateRandomNumber();
   }, []);
 
+  function formatDate(isoDate) {
+    if (!isoDate) {
+      return null;
+    }
+    const date = new Date(isoDate);
 
-  useEffect(() => {
-    const currentDate = new Date();
-    // Format the current date as 'DD MMM, YYYY'
-    const formattedDate = currentDate.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-    setOrderDate(formattedDate);
-  }, []);
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    };
+    return new Intl.DateTimeFormat("en-US", options).format(date);
+  }
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="w-full padding-x py-6">
@@ -83,171 +100,186 @@ const ReviewOrderDetails = () => {
             <div className="my-6">
               <p>
                 <span className="font-medium">Order ID:</span>{" "}
-                <span className="text-[#808080]">{randomNumber}</span>
+                <span className="text-[#808080]">
+                  {location?.state?.orderData?._id?.substr(-7)}
+                </span>
               </p>
               <p>
                 <span className="font-medium">Order Placed:</span>{" "}
-                <span className="text-[#808080]">{orderDate}</span>
+                <span className="text-[#808080]">
+                  {location?.state?.orderData &&
+                    formatDate(location?.state?.orderData?.createdAt)}
+                </span>
               </p>
             </div>
 
             <div className="">
-              {products?.some(
-                (p) => p.method === "selfPickup" && p.products?.length > 0
-              ) && (
-                <>
-                  <h3 className="font-bold mb-2">Pickup Orders</h3>
-                  <div className="w-full flex items-center gap-2">
-                    <img
-                      src={sellerProfile?.profileImage}
-                      alt={sellerProfile?.name}
-                      className="w-[28px] h-[28px] rounded-full object-cover"
-                    />
-                    <p className="font-medium">{sellerProfile?.name}</p>
-                    <Link
-                      to={`/seller-profile/${location?.state?.orderData?.products[0]?.seller?.id}`}
-                      className="text-[13px] font-semibold underline"
-                    >
-                      View Profile
-                    </Link>
-                  </div>
-                  <div className="w-full border-t border-[#D6D6D6] mt-5 pt-3">
-                    {products?.map((p, index) => {
+              <h3 className="font-bold mb-2">Delivery Orders</h3>
+              <div className="w-full flex items-center gap-2">
+                <img
+                  src={sellerProfile?.profileImage}
+                  alt={sellerProfile?.name}
+                  className="w-[28px] h-[28px] rounded-full object-cover"
+                />
+                <p className="font-medium">{sellerProfile?.name}</p>
+                <Link
+                  to={`/seller-profile/${location?.state?.orderData?.products[0]?.seller?.id}`}
+                  className="text-[13px] font-semibold underline"
+                >
+                  View Profile
+                </Link>
+              </div>
+              <div className="w-full mt-5 pt-3">
+                {extractedProducts?.delivery?.length > 0 && (
+                  <div className="w-full">
+                    {extractedProducts?.delivery?.map((prod, i) => {
                       return (
-                        p?.method === "selfPickup" &&
-                        p?.products?.length > 0 && (
-                          <div className="w-full" key={index}>
-                            {p?.products?.map((prod, i) => {
-                              return (
-                                <div
-                                  className="w-full flex items-center justify-between"
-                                  key={i}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <img
-                                      src={prod?.product?.images[0]?.url}
-                                      alt=""
-                                      className="w-[80px] h-[80px] rounded-[15px] object-cover"
-                                    />
-                                    <div>
-                                      <p className="text-base font-semibold">
-                                        {prod?.product?.name}
-                                      </p>
-                                      <p className="text-sm text-[#9D9D9DDD]">
-                                        Pickup
-                                      </p>
-                                      <Link
-                                        to={``}
-                                        className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
-                                      >
-                                        <img
-                                          src="/chat-icon.png"
-                                          alt="chat icon"
-                                          className="w-[18px] h-[18px]"
-                                        />
-                                        Chat With Seller
-                                      </Link>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-[#9D9D9DDD]">
-                                      Price
-                                    </p>
-                                    <p className="text-[20px] font-semibold blue-text">
-                                      ${prod?.product?.price}
-                                    </p>
-                                  </div>
-                                </div>
-                              );
-                            })}
+                        <div
+                          className="w-full flex items-center justify-between border-t border-b border-[#D6D6D6] py-3"
+                          key={i}
+                        >
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={prod?.product?.images[0]?.url}
+                              alt=""
+                              className="w-[80px] h-[80px] rounded-[15px] object-cover"
+                            />
+                            <div>
+                              <p className="text-base font-semibold">
+                                {prod?.product?.name}
+                              </p>
+                              <p className="text-sm text-[#9D9D9DDD]">
+                                {prod?.fulfillmentMethod?.delivery
+                                  ? "Delivery"
+                                  : "Self Pickup"}
+                              </p>
+                              <Link
+                                to={`/chats`}
+                                className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
+                              >
+                                <img
+                                  src="/chat-icon.png"
+                                  alt="chat icon"
+                                  className="w-[18px] h-[18px]"
+                                />
+                                Chat With Seller
+                              </Link>
+                            </div>
                           </div>
-                        )
+                          <div>
+                            <p className="text-sm text-[#9D9D9DDD]">Price</p>
+                            <p className="text-[20px] font-semibold blue-text">
+                              ${prod?.product?.price}
+                            </p>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
-                </>
-              )}
+                )}
+              </div>
             </div>
 
-            {products?.some(
-              (p) => p.method === "delivery" && p.products?.length > 0
-            ) && (
-              <div className="w-full border-t mt-5 pt-4">
-                <div className="">
-                  <h3 className="font-bold mb-2">Delivery Orders</h3>
-                  <div className="w-full flex items-center gap-2">
-                    <img
-                      src={sellerProfile?.profileImage}
-                      alt={sellerProfile?.name}
-                      className="w-[28px] h-[28px] rounded-full object-cover"
-                    />
-                    <p className="font-medium">{sellerProfile?.name}</p>
-                    <Link
-                      to={`/seller-profile/${location?.state?.orderData?.products[0]?.seller?.id}`}
-                      className="text-[13px] font-semibold underline"
-                    >
-                      View Profile
-                    </Link>
-                  </div>
+            <div className="w-full mt-8 pt-4">
+              <div className="">
+                <h3 className="font-bold mb-2">Pickup Orders</h3>
+                <div className="w-full flex items-center gap-2">
+                  <img
+                    src={sellerProfile?.profileImage}
+                    alt={sellerProfile?.name}
+                    className="w-[28px] h-[28px] rounded-full object-cover"
+                  />
+                  <p className="font-medium">{sellerProfile?.name}</p>
+                  <Link
+                    to={`/seller-profile/${location?.state?.orderData?.products[0]?.seller?.id}`}
+                    className="text-[13px] font-semibold underline"
+                  >
+                    View Profile
+                  </Link>
                 </div>
-                <div className="w-full mt-5">
-                  {products?.map((p, index) => {
+              </div>
+              <div className="w-full mt-5">
+                <div className="w-full">
+                  {extractedProducts?.selfPickup?.map((prod, i) => {
                     return (
-                      p?.method === "delivery" &&
-                      p?.products?.length > 0 && (
-                        <>
-                          <div className="w-full" key={index}>
-                            {p?.products?.map((prod, i) => {
-                              return (
-                                <div
-                                  className="w-full flex items-center justify-between border-t border-b border-[#D6D6D6] py-3"
-                                  key={i}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <img
-                                      src={prod?.product?.images[0]?.url}
-                                      alt=""
-                                      className="w-[80px] h-[80px] rounded-[15px] object-cover"
-                                    />
-                                    <div className="">
-                                      <p className="text-base font-semibold">
-                                        {prod?.product?.name}
-                                      </p>
-                                      <p className="text-sm text-[#9D9D9DDD]">
-                                        Pickup
-                                      </p>
-                                      <Link
-                                        to={``}
-                                        className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
-                                      >
-                                        <img
-                                          src="/chat-icon.png"
-                                          alt="chat icon"
-                                          className="w-[18px] h-[18px]"
-                                        />
-                                        Chat With Seller
-                                      </Link>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-[#9D9D9DDD]">
-                                      Price
-                                    </p>
-                                    <p className="text-[20px] font-semibold blue-text">
-                                      ${prod?.product?.price}
-                                    </p>
-                                  </div>
-                                </div>
-                              );
-                            })}
+                      <div
+                        key={i}
+                        className="w-full border-t border-b border-[#D6D6D6] py-3"
+                      >
+                        <div className="w-full flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={prod?.product?.images[0]?.url}
+                              alt=""
+                              className="w-[80px] h-[80px] rounded-[15px] object-cover"
+                            />
+                            <div className="">
+                              <p className="text-base font-semibold">
+                                {prod?.product?.name}
+                              </p>
+                              <p className="text-sm text-[#9D9D9DDD]">
+                                {prod?.fulfillmentMethod?.delivery
+                                  ? "Delivery"
+                                  : "Self Pickup"}
+                              </p>
+                              <Link
+                                to={`/chats`}
+                                className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
+                              >
+                                <img
+                                  src="/chat-icon.png"
+                                  alt="chat icon"
+                                  className="w-[18px] h-[18px]"
+                                />
+                                Chat With Seller
+                              </Link>
+                            </div>
                           </div>
-                        </>
-                      )
+                          <div>
+                            <p className="text-sm text-[#9D9D9DDD]">Price</p>
+                            <p className="text-[20px] font-semibold blue-text">
+                              ${prod?.product?.price}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="w-full pt-3">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src="/call-icon-filled.png"
+                              alt="call-icon-filled"
+                              className="w-[15px] h-[15px]"
+                            />
+                            <span className="text-black text-sm">
+                              {prod?.product?.seller?.phoneNumber?.value}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <img
+                              src="/location-icon.png"
+                              alt="call-icon-filled"
+                              className="w-[18px] h-[20px]"
+                            />
+                            <span className="text-black text-sm">
+                              {
+                                prod?.product?.seller?.pickupAddress
+                                  ?.apartment_suite
+                              }{" "}
+                              {
+                                prod?.product?.seller?.pickupAddress
+                                  ?.streetAddress
+                              }{" "}
+                              {prod?.product?.seller?.pickupAddress?.city}{" "}
+                              {prod?.product?.seller?.pickupAddress?.state}{" "}
+                              {prod?.product?.seller?.pickupAddress?.country}{" "}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* order summary */}
@@ -259,7 +291,10 @@ const ReviewOrderDetails = () => {
 
               <div className="w-full flex items-center justify-between mt-10">
                 <span className="text-[#000000B2] font-[400]">
-                  Subtotal (3 items)
+                  Subtotal (
+                  {extractedProducts?.delivery?.length +
+                    extractedProducts?.selfPickup?.length}{" "}
+                  items)
                 </span>
                 <span className="text-[#000000B2] font-[400]">
                   ${location?.state?.orderData?.total}

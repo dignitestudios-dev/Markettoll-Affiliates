@@ -21,7 +21,6 @@ import { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-// import required modules
 import { Thumbs } from "swiper/modules";
 import { CartProductContext } from "../../context/cartProductContext";
 
@@ -30,7 +29,7 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [showPopup, setShowPopup] = useState(false);
   const [addToCart, setAddToCart] = useState(false);
-  const {fetchCartProducts} = useContext(CartProductContext);
+  const { fetchCartProducts } = useContext(CartProductContext);
   const { productId } = useParams();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
@@ -40,6 +39,7 @@ const ProductDetails = () => {
   });
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
   const handleToggleDropdown = () => {
     setOpenDropdown(!openDropdown);
@@ -52,9 +52,6 @@ const ProductDetails = () => {
     }
     setShowPopup(!showPopup);
   };
-
-
-
 
   const handleAddToCart = async (method) => {
     if (!user) {
@@ -92,13 +89,22 @@ const ProductDetails = () => {
       ? `${BASE_URL}/users/product/${productId}`
       : `${BASE_URL}/users/product/${productId}`;
     try {
-      const res = await axios.get(
-        `${BASE_URL}/users/product/${productId}`,
-        config
-      );
-      console.log("product data >>>", res?.data?.data);
-      setProduct(res?.data?.data);
+      if (user?.token) {
+        const res = await axios.get(`${BASE_URL}/users/product/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        });
+        setProduct(res?.data?.data);
+      } else {
+        const res = await axios.get(`${BASE_URL}/users/product/${productId}`);
+        setProduct(res?.data?.data);
+      }
     } catch (error) {
+      if (error?.status === 404) {
+        toast.error(error?.response?.data?.message);
+        setNotFound(true);
+      }
       console.log("product err >>>", error);
     }
   };
@@ -122,7 +128,7 @@ const ProductDetails = () => {
 
   const handleIncrementQuantity = async (type) => {
     if (!user) {
-      toast.error("Login first to add product in cart");
+      toast.error("You must be logged in");
       return;
     }
     const endpoint =
@@ -139,12 +145,12 @@ const ProductDetails = () => {
           },
         }
       );
-      console.log("increment by one res >>>>>>", res);
+      // console.log("increment by one res >>>>>>", res);
       if (res.status == 200) {
         setQuantity(res?.data?.data?.quantity);
       }
     } catch (error) {
-      console.log("decrement by one err >>>>>>", error);
+      // console.log("decrement by one err >>>>>>", error);
       toast.error(error?.response?.data?.message);
     }
   };
@@ -166,17 +172,17 @@ const ProductDetails = () => {
             },
           }
         );
-        console.log("product added favorite >>>>>", res);
+        // console.log("product added favorite >>>>>", res);
         if (res?.status == 201) {
           toast.success(res?.data?.message);
           fetchUserProfile();
           handleFetchProduct();
         }
       } catch (error) {
-        console.log("product added favorite err >>>>>", error);
-        if (error?.status === 409) {
-          toast.error(error?.response?.data?.message);
-        }
+        // console.log("product added favorite err >>>>>", error);
+        // if (error?.status === 409) {
+        toast.error(error?.response?.data?.message);
+        // }
       }
     } else {
       navigate("/login");
@@ -194,7 +200,7 @@ const ProductDetails = () => {
             },
           }
         );
-        console.log("product removed from favorite >>>>>", res);
+        // console.log("product removed from favorite >>>>>", res);
         if (res?.status == 200) {
           fetchUserProfile();
           toast.success(res?.data?.message);
@@ -210,6 +216,14 @@ const ProductDetails = () => {
     }
   };
 
+  if (notFound) {
+    return (
+      <div className="w-full h-screen flex flex-1 items-center justify-center">
+        <h2>Oops! Something went wrong.</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full relative">
       <div className="w-full p-4 rounded-[30px] bg-[#F7F7F7]">
@@ -220,44 +234,10 @@ const ProductDetails = () => {
           </Link>
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
             <div className="w-full relative lg:max-w-1/2">
-              {product?.seller === userProfile?._id ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleToggleDropdown}
-                    className="absolute z-10 top-4 right-4 bg-white w-[34px] h-[34px] rounded-lg flex items-center justify-center"
-                  >
-                    <HiOutlineDotsVertical className="text-xl" />
-                  </button>
-                  {openDropdown && (
-                    <div className="w-[151px] h-[122px] bg-white border absolute top-14 rounded-xl right-4 flex flex-col items-start justify-center p-5 gap-1">
-                      <Link
-                        to={`/edit-product/${product?._id}`}
-                        className="font-medium"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        type="button"
-                        className="font-medium"
-                        onClick={() => handletoggleDeleteModal(product._id)}
-                      >
-                        Delete
-                      </button>
-                      <button
-                        type="button"
-                        className="font-medium"
-                        onClick={() => handleBoostProduct()}
-                      >
-                        Boost Post
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
+              {product?.seller !== userProfile?._id && (
                 <button
                   type="button"
-                  className="absolute z-10 top-4 right-4"
+                  className="absolute z-10 top-5 right-5"
                   onClick={() =>
                     product?.isWishListed
                       ? handleRemoveFromFavorite()
@@ -304,7 +284,46 @@ const ProductDetails = () => {
                 <h2 className="text-[20px] blue-text font-bold">
                   {product?.name}
                 </h2>
-                <h3 className="text-[24px] font-bold">${product?.price}.00</h3>
+                <div className="flex items-center justify-end gap-4">
+                  <h3 className="text-[24px] font-bold">
+                    ${product?.price}.00
+                  </h3>
+                  {product?.seller === userProfile?._id && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleToggleDropdown}
+                        className=" z-10 bg-white w-[34px] h-[34px] rounded-lg flex items-center justify-center"
+                      >
+                        <HiOutlineDotsVertical className="text-xl" />
+                      </button>
+                      {openDropdown && (
+                        <div className="w-[151px] h-[122px] bg-white border absolute top-32 rounded-xl right-14 flex flex-col items-start justify-center p-5 gap-1">
+                          <Link
+                            to={`/edit-product/${product?._id}`}
+                            className="font-medium"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            type="button"
+                            className="font-medium"
+                            onClick={() => handletoggleDeleteModal(product._id)}
+                          >
+                            Delete
+                          </button>
+                          <button
+                            type="button"
+                            className="font-medium"
+                            onClick={() => handleBoostProduct()}
+                          >
+                            Boost Post
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="w-full border" />

@@ -3,6 +3,7 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Loader from "../Global/Loader";
+import { toast } from "react-toastify";
 
 const OrdersReceivedPast = () => {
   const [pastOrders, setPastOrders] = useState([]);
@@ -21,17 +22,17 @@ const OrdersReceivedPast = () => {
           },
         }
       );
-      //   console.log("past orders data >>>>>", res?.data?.data);
+      console.log("past orders data >>>>>", res?.data?.data);
       setPastOrders(res?.data?.data);
     } catch (error) {
       console.log("past orders data err >>>>>", error?.response?.data);
+      toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log("received past orders >>>>");
     fetchPastPurchasedProducts();
   }, []);
 

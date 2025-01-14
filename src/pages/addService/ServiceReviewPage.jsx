@@ -46,7 +46,7 @@ const ServiceReviewPage = () => {
       });
 
       formData.append("displayImageIndex", serviceData?.coverImageIndex);
-      formData.append("name", serviceData?.productName);
+      formData.append("name", serviceData?.serviceName);
       formData.append("description", serviceData?.description);
       formData.append("country", "United States");
       formData.append("state", serviceData?.selectedState);
@@ -61,8 +61,7 @@ const ServiceReviewPage = () => {
         },
       });
 
-      // Handle success
-      console.log("Service uploaded successfully:", response.data);
+      // console.log("Service uploaded successfully:", response.data);
       if (response.data.success) {
         toast.success(response.data.message);
         localStorage.setItem("serviceId", JSON.stringify(response.data.data));
@@ -104,9 +103,7 @@ const ServiceReviewPage = () => {
           <div className="w-full">
             {displayImage && (
               <img
-                src={URL.createObjectURL(
-                  serviceData?.productImages[serviceData?.coverImageIndex]
-                )} // Assuming `name` is the file name for the image URL
+                src={URL.createObjectURL(displayImage)}
                 alt="Service Image"
                 className="w-full h-auto lg:h-[336px] rounded-[20px]"
               />
@@ -116,12 +113,10 @@ const ServiceReviewPage = () => {
               {serviceData?.productImages?.map((image, index) => (
                 <img
                   key={index}
-                  src={URL.createObjectURL(image)} // Use `name` as the image source
+                  src={URL.createObjectURL(image)}
                   alt={`Thumbnail ${index + 1}`}
                   className={`rounded-xl h-[97px] w-[111px] object-cover cursor-pointer ${
-                    image?.name === displayImage?.name
-                      ? "border-2 border-blue-500"
-                      : ""
+                    image === displayImage ? "border-2 border-blue-500" : ""
                   }`} // Highlight the active thumbnail
                   onClick={() => handleThumbnailClick(image)}
                 />

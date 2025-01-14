@@ -3,8 +3,19 @@ import CartProductCard from "./CartProductCard";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
+import Loader from "../Global/Loader";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-const CartProductList = ({ cartProducts, fetchCartProducts }) => {
+const CartProductList = ({
+  cartProducts,
+  fetchCartProducts,
+  removeCartProducts,
+  loading,
+}) => {
+  // if (loading) {
+  //   return <Loader />;
+  // }
   return (
     <div className="bg-white p-6 rounded-[20px]">
       <div className="w-full flex items-center justify-between mb-5">
@@ -12,7 +23,7 @@ const CartProductList = ({ cartProducts, fetchCartProducts }) => {
         <button
           type="button"
           disabled={cartProducts?.length == 0 || !cartProducts}
-          onClick={() => handleRemoveCartItems()}
+          onClick={() => removeCartProducts()}
           className="text-sm text-[#9D9D9DDD] flex items-center gap-1 disabled:cursor-not-allowed"
         >
           <img

@@ -66,6 +66,8 @@ import CategoriesList from "../components/Categories/CategoriesList";
 import CategoryProducts from "../components/CategoryProducts/CategoryProducts";
 import AddPhoneNumberFromSocialLogin from "../components/Auth/AddPhoneNumberFromSocialLogin";
 import ReviewOrderDetails from "../components/Cart/ReviewOrderDetails";
+import OnBoardingProfileReviewUpdate from "../components/OnboardProfileSetup/OnBoardingProfileReviewUpdate";
+import AddLocation from "../pages/onboardProfile/AddLocation";
 
 const AppRoutes = () => {
   return (
@@ -121,6 +123,14 @@ const AppRoutes = () => {
         <Route
           path="/profile-setup"
           element={<Layout page={<OnboardProfileSetupPage />} />}
+        />
+        <Route
+          path="/review-profile-image"
+          element={<Layout page={<OnBoardingProfileReviewUpdate />} />}
+        />
+        <Route
+          path="/add-location"
+          element={<Layout page={<AddLocation />} />}
         />
 
         <Route

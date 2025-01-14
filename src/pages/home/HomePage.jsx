@@ -15,7 +15,7 @@ const HomePage = () => {
   const { user, userProfile, setUserProfile } = useContext(AuthContext);
   const userCookie = localStorage.getItem("user");
   const user2 = userCookie ? JSON.parse(userCookie) : null;
-const { setData } = useContext(CartProductContext);
+  const { setData } = useContext(CartProductContext);
   const fetchUserProfile = async () => {
     if (user2?.token) {
       try {
@@ -33,7 +33,7 @@ const { setData } = useContext(CartProductContext);
   };
 
   useEffect(() => {
-    setData({ deliveryAddress:''});
+    setData({ deliveryAddress: "" });
     fetchUserProfile();
   }, []);
 
@@ -46,7 +46,7 @@ const { setData } = useContext(CartProductContext);
       <div className="w-full flex items-center justify-between z-0">
         <h2 className="text-2xl lg:text-[36px] font-bold">
           <span className="blue-text">
-            Welcome  {userProfile?.name ? `${userProfile?.name},` : ""}
+            Welcome {userProfile?.name ? `${userProfile?.name},` : ""}
           </span>{" "}
           <span>Let’s Shop!</span>
         </h2>

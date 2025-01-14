@@ -17,7 +17,7 @@ const CartSummary = ({
   totalAmount,
   fetchCartProducts,
 }) => {
-  const { data,cartCount } = useContext(CartProductContext);
+  const { data, cartCount } = useContext(CartProductContext);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -50,8 +50,7 @@ const CartSummary = ({
               },
             }
           );
-          console.log("order placed >>>", response);
-          // fetchCartProducts();
+          // console.log("order placed >>>", response);
           setOrderId(response?.data?.data?._id);
           setOrderData(response?.data?.data);
           if (response?.status == 201) {

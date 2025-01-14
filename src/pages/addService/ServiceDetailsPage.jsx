@@ -6,6 +6,10 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import ProductRating from "../../components/Global/ProductRating";
 import { GoArrowLeft } from "react-icons/go";
+import { FaHeart } from "react-icons/fa6";
+import { FiHeart } from "react-icons/fi";
+import { toast } from "react-toastify";
+import ServiceSellerAndRatings from "./ServiceSellerAndRatings";
 
 const ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
@@ -13,7 +17,7 @@ const ServiceDetailsPage = () => {
   const { serviceId } = useParams();
   const { user } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
-
+  const { userProfile } = useContext(AuthContext);
   const handleFetchService = async () => {
     const headers = user?.token
       ? { Authorization: `Bearer ${user?.token}` }
@@ -72,6 +76,50 @@ const ServiceDetailsPage = () => {
       service?.avgRating?.fiveStar);
   const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
 
+  const addServiceToWishlist = async () => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/wishlist-service/${serviceId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("service add to wishlist res >>>>", res);
+      if (res?.status === 201) {
+        toast.success(res?.data?.message || "Service added to wishlist");
+        handleFetchService();
+      }
+    } catch (error) {
+      // console.log("err while adding servie to wishlist >>>", error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  const handleRemoveFromFavorite = async () => {
+    try {
+      const res = await axios.delete(
+        `${BASE_URL}/users/wishlist-service/${serviceId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("service removed from wishlist res >>>>", res);
+      if (res?.status === 200) {
+        toast.success(res?.data?.message || "Service removed from wishlist");
+        handleFetchService();
+      }
+    } catch (error) {
+      // console.log("err while removing servie from wishlist >>>", error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
   return (
     <div className="padding-x py-6 w-full">
       <div className="w-full bg-[#F7F7F7] p-5 rounded-[30px]">
@@ -81,11 +129,28 @@ const ServiceDetailsPage = () => {
             <span className="font-medium text-sm text-[#5C5C5C]">Back</span>
           </Link>
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
-            <div className="w-full">
+            <div className="w-full relative">
+              {service?.seller !== userProfile?._id && (
+                <button
+                  type="button"
+                  className="absolute z-10 top-5 right-5"
+                  onClick={() =>
+                    service?.isWishListed
+                      ? handleRemoveFromFavorite()
+                      : addServiceToWishlist()
+                  }
+                >
+                  {service?.isWishListed ? (
+                    <FaHeart className="text-gray-300 text-2xl" />
+                  ) : (
+                    <FiHeart className="text-gray-300 text-2xl" />
+                  )}
+                </button>
+              )}
               <img
                 src={displayImage?.url}
                 alt="product image"
-                className="w-full h-auto lg:h-[376px] object-contain rounded-xl"
+                className="w-full h-auto lg:h-[376px] object-cover rounded-xl"
               />
               <div className="w-full max-h-[109px] overflow-x-scroll flex items-start gap-5 mt-6 thumbnail-scroll">
                 {service?.images?.map((image, index) => (
@@ -152,9 +217,9 @@ const ServiceDetailsPage = () => {
                         </span>
                         <div className="flex items-center gap-2">
                           <p className="text-[16px] font-medium min-w-20">
-                            {service?.sellerDetails?.name}{" "}
+                            {service?.name}{" "}
                           </p>
-                          <ProductRating productAvgRating={safeAvgRating} />
+                          <ServiceSellerAndRatings serviceData={service} />
                         </div>
                         <Link
                           to={`/seller-profile/${service?.sellerDetails?._id}`}
