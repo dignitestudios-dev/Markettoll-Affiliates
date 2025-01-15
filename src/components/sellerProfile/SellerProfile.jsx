@@ -35,13 +35,14 @@ const SellerProfile = () => {
       const res = await axios.get(`${BASE_URL}/users/profile/${sellerId}`, {
         headers: headers,
       });
-      console.log("seller profile >>", res?.data?.data);
+      // console.log("seller profile >>", res?.data?.data);
       setMyProfile(res?.data?.data);
     } catch (error) {
       console.log(
         "err while fetching user profile >>>>",
         error?.response?.data
       );
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +61,8 @@ const SellerProfile = () => {
       // console.log("seller reviews >>>", res?.data);
       setSellerReviwes(res?.data?.data);
     } catch (error) {
-      console.log("error while fetch seller reviews >>>>", error);
+      // console.log("error while fetch seller reviews >>>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     }
   };
 

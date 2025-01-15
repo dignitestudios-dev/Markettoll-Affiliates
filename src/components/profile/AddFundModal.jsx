@@ -13,7 +13,7 @@ const AddFundModal = ({
   currentBalance,
 }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const { user, fetchUserProfile } = useContext(AuthContext);
+  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
   const [amount, setAmonut] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -72,7 +72,9 @@ const AddFundModal = ({
               alt="mastercard icon"
               className="w-[24.79px] h-[15.33px]"
             />
-            <span className="text-sm text-[#5C5C5C]">**** **** **** 8941</span>
+            <span className="text-sm text-[#5C5C5C]">
+              **** **** **** {userProfile?.stripeCustomer?.paymentMethod?.last4}
+            </span>
           </div>
 
           <div className="w-full flex items-center justify-between">

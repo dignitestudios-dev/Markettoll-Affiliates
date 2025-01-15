@@ -28,7 +28,7 @@ const BoostServicePage = () => {
     });
   };
   return (
-    <div className="padding-x w-full">
+    <div className="padding-x w-full py-6">
       <div className="w-full bg-[#F7F7F7] rounded-[30px] relative py-12 px-4 lg:px-10 flex flex-col items-center gap-8">
         <Link
           to="/service-review"
@@ -66,7 +66,10 @@ const BoostServicePage = () => {
           >
             Yes, I Would Like to Boost My Post
           </button>
-          <Link to="/review-service" className="blue-text font-bold text-sm">
+          <Link
+            to={`/services/${serviceId?._id}`}
+            className="blue-text font-bold text-sm"
+          >
             No, I Would Boost Later
           </Link>
         </div>

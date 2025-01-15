@@ -34,6 +34,10 @@ const EditProductForm = () => {
   });
   const navigate = useNavigate();
 
+  const navigateBack = () => {
+    navigate(-1);
+  };
+
   const [states, setStates] = useState([]);
   const [stateCities, setStateCities] = useState([]);
 
@@ -334,12 +338,13 @@ const EditProductForm = () => {
             </div>
 
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
-              <Link
-                to="/add-service-or-product"
+              <button
+                type="button"
+                onClick={navigateBack}
                 className="bg-white light-blue-text font-semibold text-sm py-3 rounded-[20px] text-center outline-none"
               >
                 Cancel
-              </Link>
+              </button>
               <button
                 type="submit"
                 className="blue-bg text-white font-semibold text-sm py-3 rounded-[20px]"

@@ -224,10 +224,7 @@ const MyWallet = () => {
                     />
                     <span className="text-sm text-[#5C5C5C]">
                       **** **** ****{" "}
-                      {
-                        userProfile?.stripeConnectedAccount?.external_account
-                          ?.last4
-                      }
+                      {userProfile?.stripeCustomer?.paymentMethod?.last4}
                     </span>
                   </div>
                   {userProfile?.stripeCustomer?.paymentMethodId && (
