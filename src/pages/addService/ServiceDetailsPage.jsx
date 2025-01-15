@@ -56,10 +56,6 @@ const ServiceDetailsPage = () => {
     setDisplayImage(image);
   };
 
-  const handleAddService = () => {
-    navigate("/boost-service");
-  };
-
   const userDetail = {
     lastMessage: {
       profileImage: service?.sellerDetails?.profileImage,
