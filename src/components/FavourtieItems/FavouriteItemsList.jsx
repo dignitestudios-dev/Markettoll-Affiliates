@@ -92,6 +92,33 @@ const FavouriteItemsList = () => {
       navigate("/login");
     }
   };
+  const handleRemoveServiceFromFavorite = async (id) => {
+    if (user?.token) {
+      try {
+        const res = await axios.delete(
+          `${BASE_URL}/users/wishlist-service/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        console.log("product removed from favorite >>>>>", res);
+        if (res?.status == 200) {
+          fetchUserProfile();
+          fetchServices();
+          // toast.success(res?.data?.message);
+        }
+      } catch (error) {
+        console.log("product removed from favorite err >>>>>", error);
+        if (error?.status === 409) {
+          toast.error(error?.response?.data?.message);
+        }
+      }
+    } else {
+      navigate("/login");
+    }
+  };
 
   const handleShowServices = (category) => {
     if (category == "services") {
@@ -105,7 +132,7 @@ const FavouriteItemsList = () => {
     return <Loader />;
   }
   return (
-    <div className="w-full min-h-96">
+    <div className="w-full min-h-screen">
       <div className="w-full flex items-center justify-between">
         <h2 className="text-[28px] font-bold blue-text">
           {showServices ? "Favorite Services" : "Favorite Products"}
@@ -141,7 +168,7 @@ const FavouriteItemsList = () => {
                   <FavoriteServiceCard
                     service={service}
                     key={index}
-                    handleRemoveFromFavorite={handleRemoveFromFavorite}
+                    handleRemoveFromFavorite={handleRemoveServiceFromFavorite}
                   />
                 );
               })}

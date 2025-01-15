@@ -22,9 +22,10 @@ const FavoriteServiceCard = ({ service, handleRemoveFromFavorite }) => {
   const displayImage = service?.serviceDetails?.images?.find(
     (image) => image.displayImage === true
   );
+  console.log("service >>>>", service);
 
   const handleNavigateToProductDetails = () => {
-    navigate(`/services/${service?._id}`);
+    navigate(`/services/${service?.serviceDetails?._id}`);
   };
 
   return (
@@ -33,7 +34,7 @@ const FavoriteServiceCard = ({ service, handleRemoveFromFavorite }) => {
         <button
           type="button"
           className="absolute z-10 top-4 right-4"
-          onClick={() => handleRemoveFromFavorite(product?.serviceDetails?._id)}
+          onClick={() => handleRemoveFromFavorite(service?.serviceDetails?._id)}
         >
           <FaHeart className="text-white text-2xl" />
         </button>

@@ -536,7 +536,7 @@ const AddProductForm = () => {
               </>
             )}
 
-            {selfPickup && userProfile.pickupAddress.state !== "" ? (
+            {selfPickup && userProfile.pickupAddress._id !== "" ? (
               <div className="">
                 <div className="w-full">
                   <label
@@ -554,9 +554,9 @@ const AddProductForm = () => {
                   />
                 </div>
 
-                {!userProfile.pickupAddress.state && (
+                {userProfile?.pickupAddress?.state !== "" && (
                   <div>
-                    <label className="inline-flex items-center cursor-pointer">
+                    <label className="inline-flex mt-3 items-center cursor-pointer">
                       <input
                         type="checkbox"
                         value={isPickupAddressSameAsProfile}

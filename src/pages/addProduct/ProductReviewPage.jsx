@@ -18,6 +18,7 @@ const ProductReviewPage = () => {
   const handleNavigate = () => {
     navigate("/add-product", { state: { productData: state?.productData } });
   };
+  console.log(state);
 
   // Set the default display image on component load
   useEffect(() => {
@@ -177,7 +178,12 @@ const ProductReviewPage = () => {
                   Pickup Address
                 </p>
                 <p className="text-[13px] font-medium">
-                  {state?.productData?.pickupAddress}
+                  {typeof state?.productData?.pickupAddress === "string"
+                    ? state.productData.pickupAddress
+                    : typeof state?.productData?.pickupAddress === "object" &&
+                      state?.productData?.pickupAddress !== null
+                    ? `${state.productData.pickupAddress?.apartment_suite}, ${state.productData.pickupAddress?.streetAddress}, ${state.productData.pickupAddress?.state}, ${state.productData.pickupAddress?.city}, ${state.productData.pickupAddress?.country} - ${state.productData.pickupAddress?.zipCode}`
+                    : "Invalid or No Address"}
                 </p>
               </div>
 

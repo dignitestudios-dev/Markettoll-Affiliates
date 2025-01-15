@@ -16,6 +16,7 @@ const HomePage = () => {
   const userCookie = localStorage.getItem("user");
   const user2 = userCookie ? JSON.parse(userCookie) : null;
   const { setData } = useContext(CartProductContext);
+
   const fetchUserProfile = async () => {
     if (user2?.token) {
       try {

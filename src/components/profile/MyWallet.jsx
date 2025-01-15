@@ -318,6 +318,7 @@ const MyWallet = () => {
         showFundModal={showFundModal}
         setShowFundModal={setShowFundModal}
         onclick={handleToggleAddFundModal}
+        currentBalance={userProfile?.walletBalance}
       />
     </div>
   );

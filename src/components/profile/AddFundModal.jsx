@@ -6,7 +6,12 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 
-const AddFundModal = ({ showFundModal, setShowFundModal, onclick }) => {
+const AddFundModal = ({
+  showFundModal,
+  setShowFundModal,
+  onclick,
+  currentBalance,
+}) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const { user, fetchUserProfile } = useContext(AuthContext);
   const [amount, setAmonut] = useState("");
@@ -74,7 +79,9 @@ const AddFundModal = ({ showFundModal, setShowFundModal, onclick }) => {
             <span className="text-sm font-medium">
               Available Wallet balance
             </span>
-            <span className="font-bold text-[15px]">$240.00</span>
+            <span className="font-bold text-[15px]">
+              ${currentBalance?.toFixed(2)}
+            </span>
           </div>
 
           <div className="w-full flex flex-col items-start gap-1">

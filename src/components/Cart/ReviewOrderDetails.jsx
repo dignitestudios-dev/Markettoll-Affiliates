@@ -36,6 +36,7 @@ const ReviewOrderDetails = () => {
     },
     { selfPickup: [], delivery: [] }
   );
+  console.log("extractedProducts >>>>", extractedProducts);
 
   const fetchSellerPrfile = async () => {
     const headers = user?.token
@@ -113,173 +114,185 @@ const ReviewOrderDetails = () => {
               </p>
             </div>
 
-            <div className="">
-              <h3 className="font-bold mb-2">Delivery Orders</h3>
-              <div className="w-full flex items-center gap-2">
-                <img
-                  src={sellerProfile?.profileImage}
-                  alt={sellerProfile?.name}
-                  className="w-[28px] h-[28px] rounded-full object-cover"
-                />
-                <p className="font-medium">{sellerProfile?.name}</p>
-                <Link
-                  to={`/seller-profile/${location?.state?.orderData?.products[0]?.seller?.id}`}
-                  className="text-[13px] font-semibold underline"
-                >
-                  View Profile
-                </Link>
-              </div>
-              <div className="w-full mt-5 pt-3">
-                {extractedProducts?.delivery?.length > 0 && (
-                  <div className="w-full">
-                    {extractedProducts?.delivery?.map((prod, i) => {
-                      return (
-                        <div
-                          className="w-full flex items-center justify-between border-t border-b border-[#D6D6D6] py-3"
-                          key={i}
-                        >
-                          <div className="flex items-center gap-4">
-                            <img
-                              src={prod?.product?.images[0]?.url}
-                              alt=""
-                              className="w-[80px] h-[80px] rounded-[15px] object-cover"
-                            />
-                            <div>
-                              <p className="text-base font-semibold">
-                                {prod?.product?.name}
-                              </p>
-                              <p className="text-sm text-[#9D9D9DDD]">
-                                {prod?.fulfillmentMethod?.delivery
-                                  ? "Delivery"
-                                  : "Self Pickup"}
+            {extractedProducts?.delivery?.length > 0 && (
+              <div className="">
+                <h3 className="font-bold mb-2">Delivery Orders</h3>
+
+                <div className="w-full">
+                  {extractedProducts?.delivery?.length > 0 && (
+                    <div className="w-full">
+                      {extractedProducts?.delivery?.map((prod, i) => {
+                        return (
+                          <div className="w-full" key={i}>
+                            <div className="w-full flex items-center gap-2">
+                              <img
+                                src={prod?.product?.seller?.profileImage}
+                                alt={sellerProfile?.product?.name}
+                                className="w-[28px] h-[28px] rounded-full object-cover"
+                              />
+                              <p className="font-medium">
+                                {prod?.product?.seller?.name}
                               </p>
                               <Link
-                                to={`/chats`}
-                                className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
+                                to={`/seller-profile/${prod?.product?.seller?._id}`}
+                                className="text-[13px] font-semibold underline"
                               >
-                                <img
-                                  src="/chat-icon.png"
-                                  alt="chat icon"
-                                  className="w-[18px] h-[18px]"
-                                />
-                                Chat With Seller
+                                View Profile
                               </Link>
                             </div>
+
+                            <div className="w-full flex items-center justify-between border-t border-b border-[#D6D6D6] py-3 mt-2">
+                              <div className="flex items-center gap-4">
+                                <img
+                                  src={prod?.product?.images[0]?.url}
+                                  alt=""
+                                  className="w-[80px] h-[80px] rounded-[15px] object-cover"
+                                />
+                                <div>
+                                  <p className="text-base font-semibold">
+                                    {prod?.product?.name}
+                                  </p>
+                                  <p className="text-sm text-[#9D9D9DDD]">
+                                    {prod?.fulfillmentMethod?.delivery
+                                      ? "Delivery"
+                                      : "Self Pickup"}
+                                  </p>
+                                  <Link
+                                    to={`/chats`}
+                                    className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
+                                  >
+                                    <img
+                                      src="/chat-icon.png"
+                                      alt="chat icon"
+                                      className="w-[18px] h-[18px]"
+                                    />
+                                    Chat With Seller
+                                  </Link>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-sm text-[#9D9D9DDD]">
+                                  Price
+                                </p>
+                                <p className="text-[20px] font-semibold blue-text">
+                                  ${prod?.product?.price}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm text-[#9D9D9DDD]">Price</p>
-                            <p className="text-[20px] font-semibold blue-text">
-                              ${prod?.product?.price}
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {extractedProducts?.selfPickup?.length > 0 && (
+              <div className="w-full mt-8 pt-4">
+                <div className="w-full mt-5">
+                  <div className="w-full">
+                    {extractedProducts?.selfPickup?.map((prod, i) => {
+                      return (
+                        <div className="w-full" key={i}>
+                          <div className="w-full flex items-center gap-2">
+                            <img
+                              src={prod?.product?.seller?.profileImage}
+                              alt={sellerProfile?.product?.name}
+                              className="w-[28px] h-[28px] rounded-full object-cover"
+                            />
+                            <p className="font-medium">
+                              {prod?.product?.seller?.name}
                             </p>
+                            <Link
+                              to={`/seller-profile/${prod?.product?.seller?._id}`}
+                              className="text-[13px] font-semibold underline"
+                            >
+                              View Profile
+                            </Link>
+                          </div>
+                          <div className="w-full border-t border-b border-[#D6D6D6] py-3 mt-2">
+                            <div className="w-full flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <img
+                                  src={prod?.product?.images[0]?.url}
+                                  alt=""
+                                  className="w-[80px] h-[80px] rounded-[15px] object-cover"
+                                />
+                                <div className="">
+                                  <p className="text-base font-semibold">
+                                    {prod?.product?.name}
+                                  </p>
+                                  <p className="text-sm text-[#9D9D9DDD]">
+                                    {prod?.fulfillmentMethod?.delivery
+                                      ? "Delivery"
+                                      : "Self Pickup"}
+                                  </p>
+                                  <Link
+                                    to={`/chats`}
+                                    className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
+                                  >
+                                    <img
+                                      src="/chat-icon.png"
+                                      alt="chat icon"
+                                      className="w-[18px] h-[18px]"
+                                    />
+                                    Chat With Seller
+                                  </Link>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-sm text-[#9D9D9DDD]">
+                                  Price
+                                </p>
+                                <p className="text-[20px] font-semibold blue-text">
+                                  ${prod?.product?.price}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="w-full pt-3">
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src="/call-icon-filled.png"
+                                  alt="call-icon-filled"
+                                  className="w-[15px] h-[15px]"
+                                />
+                                <span className="text-black text-sm">
+                                  {prod?.product?.seller?.phoneNumber?.value}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <img
+                                  src="/location-icon.png"
+                                  alt="call-icon-filled"
+                                  className="w-[18px] h-[20px]"
+                                />
+                                <span className="text-black text-sm">
+                                  {
+                                    prod?.product?.seller?.pickupAddress
+                                      ?.apartment_suite
+                                  }{" "}
+                                  {
+                                    prod?.product?.seller?.pickupAddress
+                                      ?.streetAddress
+                                  }{" "}
+                                  {prod?.product?.seller?.pickupAddress?.city}{" "}
+                                  {prod?.product?.seller?.pickupAddress?.state}{" "}
+                                  {
+                                    prod?.product?.seller?.pickupAddress
+                                      ?.country
+                                  }{" "}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="w-full mt-8 pt-4">
-              <div className="">
-                <h3 className="font-bold mb-2">Pickup Orders</h3>
-                <div className="w-full flex items-center gap-2">
-                  <img
-                    src={sellerProfile?.profileImage}
-                    alt={sellerProfile?.name}
-                    className="w-[28px] h-[28px] rounded-full object-cover"
-                  />
-                  <p className="font-medium">{sellerProfile?.name}</p>
-                  <Link
-                    to={`/seller-profile/${location?.state?.orderData?.products[0]?.seller?.id}`}
-                    className="text-[13px] font-semibold underline"
-                  >
-                    View Profile
-                  </Link>
                 </div>
               </div>
-              <div className="w-full mt-5">
-                <div className="w-full">
-                  {extractedProducts?.selfPickup?.map((prod, i) => {
-                    return (
-                      <div
-                        key={i}
-                        className="w-full border-t border-b border-[#D6D6D6] py-3"
-                      >
-                        <div className="w-full flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <img
-                              src={prod?.product?.images[0]?.url}
-                              alt=""
-                              className="w-[80px] h-[80px] rounded-[15px] object-cover"
-                            />
-                            <div className="">
-                              <p className="text-base font-semibold">
-                                {prod?.product?.name}
-                              </p>
-                              <p className="text-sm text-[#9D9D9DDD]">
-                                {prod?.fulfillmentMethod?.delivery
-                                  ? "Delivery"
-                                  : "Self Pickup"}
-                              </p>
-                              <Link
-                                to={`/chats`}
-                                className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
-                              >
-                                <img
-                                  src="/chat-icon.png"
-                                  alt="chat icon"
-                                  className="w-[18px] h-[18px]"
-                                />
-                                Chat With Seller
-                              </Link>
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-sm text-[#9D9D9DDD]">Price</p>
-                            <p className="text-[20px] font-semibold blue-text">
-                              ${prod?.product?.price}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-full pt-3">
-                          <div className="flex items-center gap-2">
-                            <img
-                              src="/call-icon-filled.png"
-                              alt="call-icon-filled"
-                              className="w-[15px] h-[15px]"
-                            />
-                            <span className="text-black text-sm">
-                              {prod?.product?.seller?.phoneNumber?.value}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <img
-                              src="/location-icon.png"
-                              alt="call-icon-filled"
-                              className="w-[18px] h-[20px]"
-                            />
-                            <span className="text-black text-sm">
-                              {
-                                prod?.product?.seller?.pickupAddress
-                                  ?.apartment_suite
-                              }{" "}
-                              {
-                                prod?.product?.seller?.pickupAddress
-                                  ?.streetAddress
-                              }{" "}
-                              {prod?.product?.seller?.pickupAddress?.city}{" "}
-                              {prod?.product?.seller?.pickupAddress?.state}{" "}
-                              {prod?.product?.seller?.pickupAddress?.country}{" "}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* order summary */}

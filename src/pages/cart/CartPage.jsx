@@ -62,6 +62,8 @@ const CartPage = () => {
       if (data?.deliveryAddress) {
         setCount(count + 1);
       }
+    } else if (count === 2 && !data?.paymentMethod) {
+      setCount(count);
     } else {
       setCount(count + 1);
     }
@@ -132,14 +134,14 @@ const CartPage = () => {
           ) : count === 1 ? (
             isAnyProductToDeliver ? (
               <DeliveryAddress onclick={handleDecrementCount} />
-            ) : (
-              <Elements stripe={stripePromise}>
-                <SelectPaymentMethod onclick={handleDecrementCount} />
-              </Elements>
-            )
+            ) : null
           ) : count === 2 ? (
             <Elements stripe={stripePromise}>
-              <SelectPaymentMethod onclick={handleDecrementCount} />
+              <SelectPaymentMethod
+                onclick={handleDecrementCount}
+                count={count}
+                setCount={setCount}
+              />
             </Elements>
           ) : count === 3 ? (
             <OrderReview

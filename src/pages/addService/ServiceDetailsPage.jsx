@@ -10,6 +10,7 @@ import { FaHeart } from "react-icons/fa6";
 import { FiHeart } from "react-icons/fi";
 import { toast } from "react-toastify";
 import ServiceSellerAndRatings from "./ServiceSellerAndRatings";
+import Loader from "../../components/Global/Loader";
 
 const ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
@@ -18,7 +19,10 @@ const ServiceDetailsPage = () => {
   const { user } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
   const { userProfile } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+
   const handleFetchService = async () => {
+    setLoading(true);
     const headers = user?.token
       ? { Authorization: `Bearer ${user?.token}` }
       : {};
@@ -30,6 +34,8 @@ const ServiceDetailsPage = () => {
       setService(res?.data?.data);
     } catch (error) {
       console.log("service details err >>>", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,6 +125,10 @@ const ServiceDetailsPage = () => {
       toast.error(error?.response?.data?.message);
     }
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="padding-x py-6 w-full">
@@ -217,7 +227,7 @@ const ServiceDetailsPage = () => {
                         </span>
                         <div className="flex items-center gap-2">
                           <p className="text-[16px] font-medium min-w-20">
-                            {service?.name}{" "}
+                            {service?.sellerDetails?.name}{" "}
                           </p>
                           <ServiceSellerAndRatings serviceData={service} />
                         </div>

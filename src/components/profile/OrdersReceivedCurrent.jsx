@@ -22,7 +22,7 @@ const OrdersReceivedCurrent = () => {
           },
         }
       );
-      //   console.log("orders received current >>>>>", res?.data?.data);
+      // console.log("orders received current >>>>>", res?.data?.data);
       setOrders(res?.data?.data);
     } catch (error) {
       console.log("orders received current err >>>>>", error);
@@ -33,7 +33,6 @@ const OrdersReceivedCurrent = () => {
   };
 
   useEffect(() => {
-    console.log("orders received current");
     fetchPastPurchasedProducts();
   }, []);
 
@@ -47,7 +46,11 @@ const OrdersReceivedCurrent = () => {
     );
   }
 
-  return <div>OrdersReceivedCurrent</div>;
+  return (
+    <div className="w-full">
+      <div className=""></div>
+    </div>
+  );
 };
 
 export default OrdersReceivedCurrent;

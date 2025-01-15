@@ -17,7 +17,7 @@ const CartSummary = ({
   totalAmount,
   fetchCartProducts,
 }) => {
-  const { data, cartCount } = useContext(CartProductContext);
+  const { data, cartCount, setCartCount } = useContext(CartProductContext);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -55,6 +55,7 @@ const CartSummary = ({
           setOrderData(response?.data?.data);
           if (response?.status == 201) {
             setIsOrderPlaced(!isOrderPlaced);
+            setCartCount(0);
             // fetchCartProducts();
           }
         } catch (error) {
