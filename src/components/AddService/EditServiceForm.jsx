@@ -29,6 +29,10 @@ const EditServiceForm = () => {
   const [update, setUpdate] = useState(false);
   const location = useLocation();
 
+  const navigateBack = () => {
+    navigate(-1);
+  };
+
   const handleFetchService = async () => {
     setLoading(true);
     try {
@@ -120,13 +124,14 @@ const EditServiceForm = () => {
         className="w-full bg-[#F7F7F7] rounded-[30px] px-4 lg:px-8 py-12"
       >
         <div className="w-full flex items-center gap-6">
-          <Link
-            to="/add-service-or-product"
+          <button
+            type="button"
+            onClick={navigateBack}
             className="flex items-center gap-1"
           >
             <GoArrowLeft className="light-blue-text text-xl" />{" "}
             <span className="text-sm font-medium text-[#5C5C5C]">Back</span>
-          </Link>
+          </button>
 
           <h2 className="blue-text font-bold text-[24px]">
             Add Service Details
@@ -287,7 +292,7 @@ const EditServiceForm = () => {
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
               <button
                 type="button"
-                onClick={() => handleNavigateBack()}
+                onClick={() => navigateBack()}
                 className="bg-white light-blue-text font-semibold text-sm py-3 rounded-[20px] text-center"
               >
                 Cancel

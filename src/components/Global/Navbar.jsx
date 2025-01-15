@@ -105,7 +105,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="padding-x w-full py-5 flex items-center justify-between border-b  blue-bg sticky top-0 z-50 ">
+    <nav className="padding-x w-full py-5 flex items-center justify-between blue-bg sticky top-0 z-50 ">
       <Link to="/">
         <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
@@ -177,7 +177,7 @@ const Navbar = () => {
             className="w-[18px] h-[18px]"
           />
           <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-3 -end-3 dark:border-gray-900">
-            {user?cartCount : 0}
+            {user ? cartCount : 0}
           </div>
         </button>
         {user ? (

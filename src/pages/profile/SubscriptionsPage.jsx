@@ -66,7 +66,6 @@ const PackageCard = ({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  console.log("userProfile  >>>", userProfile);
 
   const handleCloseModal = () => {
     setShowModal(!showModal);
@@ -129,7 +128,7 @@ const PackageCard = ({
               },
             }
           );
-          console.log("handle Subscription (No Plan) res >>>>>", res);
+          // console.log("handle Subscription (No Plan) res >>>>>", res);
           if (res?.status === 201) {
             fetchUserProfile();
             handleCloseModal();
@@ -150,10 +149,7 @@ const PackageCard = ({
                 },
               }
             );
-            console.log(
-              "plan unsubscribed successfully >>>>",
-              unsubscribeResponse
-            );
+
             if (unsubscribeResponse?.status === 200) {
               const res = await axios.post(
                 `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,

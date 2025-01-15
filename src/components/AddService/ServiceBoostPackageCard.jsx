@@ -42,7 +42,10 @@ const ServiceBoostPackageCard = ({
     } else {
       setLoading(true);
       let URL;
-      if (location?.state?.type === "service") {
+      if (
+        location?.state?.type === "service" ||
+        location?.state?.type === "edit-service"
+      ) {
         URL = `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${location?.state?.id}`;
       } else if (location?.state?.type === "product") {
         URL = `${BASE_URL}/stripe/product-boost-paid-plan-stripe/${location?.state?.id}`;
@@ -68,7 +71,7 @@ const ServiceBoostPackageCard = ({
           }, 2000);
         }
       } catch (error) {
-        console.log("error while boosting service >>>>", error?.response?.data);
+        console.log("error while boosting service 1 >>>>", error);
         toast.error(error?.response?.data?.message);
       } finally {
         setLoading(false);
@@ -95,7 +98,7 @@ const ServiceBoostPackageCard = ({
             }, 2000);
           }
         } catch (error) {
-          console.log("error while boosting service >>>>", error);
+          console.log("error while boosting service 2 >>>>", error);
           toast.error(error?.response?.data?.message);
         } finally {
           setLoading(false);

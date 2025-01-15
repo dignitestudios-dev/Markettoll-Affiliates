@@ -12,6 +12,7 @@ import { IoClose } from "react-icons/io5";
 import ProductRating from "./ProductRating";
 
 const ProductCard = ({ product, fetchMyProducts }) => {
+  // console.log("product >>>", product);
   const navigate = useNavigate();
   const { user, fetchUserProfile } = useContext(AuthContext);
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -179,7 +180,7 @@ const ProductCard = ({ product, fetchMyProducts }) => {
         <p className="my-1 text-sm text-[#9D9D9DDD]">
           {product?.fulfillmentMethod?.selfPickup ? "Pickup" : "Delivery"}
         </p>
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full flex items-center justify-between">
           <ProductRating productAvgRating={safeAvgRating} />
           <p className="text-[18px] font-bold blue-text">
             ${product?.price}.00

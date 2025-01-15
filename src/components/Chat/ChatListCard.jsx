@@ -51,6 +51,12 @@ const ChatListCard = ({ item, selectedUser, lastMessage, onlineStatus,toggleChat
             hour: "2-digit",
             minute: "2-digit",
           })}
+          {new Date(
+            lastMessage?.lastMessage?.timestamp?.toDate()
+          ).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </span>
       </div>
     </div>

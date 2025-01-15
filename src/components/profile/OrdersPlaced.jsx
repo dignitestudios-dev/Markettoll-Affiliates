@@ -30,7 +30,7 @@ const OrdersPlaced = () => {
           Past
         </button>
       </div>
-      <div className="w-ful mt-10">
+      <div className="w-ful mt-10 min-h-[50vh]">
         {orderType ? <PastOrderList /> : <CurrentOrderList />}
       </div>
     </div>

@@ -5,13 +5,16 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import ServiceCard from "../Global/ServiceCard";
 import { useParams } from "react-router-dom";
+import Loader from "../Global/Loader";
 
 const SellerServices = () => {
   const [myServices, setMyServices] = useState([]);
   const { user } = useContext(AuthContext);
   const { sellerId } = useParams();
+  const [loading, setLoading] = useState(false);
 
   const fetchUserServices = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(
         `${BASE_URL}/users/seller-services/${sellerId}?page=1`,
@@ -21,19 +24,23 @@ const SellerServices = () => {
           },
         }
       );
-      // console.log("my services >>>", res?.data?.data);
       setMyServices(res?.data?.data);
     } catch (error) {
       console.log(
         "error while fetching services >>>",
         error?.response?.data?.message
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchUserServices();
   }, []);
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="w-full mt-8">

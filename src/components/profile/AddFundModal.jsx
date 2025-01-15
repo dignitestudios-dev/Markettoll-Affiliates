@@ -6,20 +6,23 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 
-const AddFundModal = ({ showFundModal, setShowFundModal, onclick }) => {
+const AddFundModal = ({
+  showFundModal,
+  setShowFundModal,
+  onclick,
+  currentBalance,
+}) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const { user, fetchUserProfile } = useContext(AuthContext);
+  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
   const [amount, setAmonut] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleToggleSuccessModal = () => {
     if (showSuccessModal) {
-      // Close both modals when success modal is closed
       setShowSuccessModal(false);
       setShowFundModal(false);
       setAmonut(0);
     } else {
-      // Open the success modal and keep the withdraw modal open
       setShowSuccessModal(true);
     }
   };
@@ -29,7 +32,7 @@ const AddFundModal = ({ showFundModal, setShowFundModal, onclick }) => {
     try {
       const res = await axios.post(
         `${BASE_URL}/stripe/add-funds-to-wallet`,
-        { amount },
+        { amount: Number(amount) },
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
@@ -37,7 +40,7 @@ const AddFundModal = ({ showFundModal, setShowFundModal, onclick }) => {
           },
         }
       );
-      console.log("Add fund res >>>>>", res);
+      // console.log("Add fund res >>>>>", res);
       if (res.status == 201) {
         handleToggleSuccessModal();
         fetchUserProfile();
@@ -69,14 +72,18 @@ const AddFundModal = ({ showFundModal, setShowFundModal, onclick }) => {
               alt="mastercard icon"
               className="w-[24.79px] h-[15.33px]"
             />
-            <span className="text-sm text-[#5C5C5C]">**** **** **** 8941</span>
+            <span className="text-sm text-[#5C5C5C]">
+              **** **** **** {userProfile?.stripeCustomer?.paymentMethod?.last4}
+            </span>
           </div>
 
           <div className="w-full flex items-center justify-between">
             <span className="text-sm font-medium">
               Available Wallet balance
             </span>
-            <span className="font-bold text-[15px]">$240.00</span>
+            <span className="font-bold text-[15px]">
+              ${currentBalance?.toFixed(2)}
+            </span>
           </div>
 
           <div className="w-full flex flex-col items-start gap-1">

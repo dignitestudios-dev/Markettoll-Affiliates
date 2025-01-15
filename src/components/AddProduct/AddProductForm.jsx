@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { City, Country, State } from "country-state-city";
+import AddPickupAddress from "./AddPickupAddress";
 
 const AddProductForm = () => {
   const { user, userProfile } = useContext(AuthContext);
@@ -43,6 +44,12 @@ const AddProductForm = () => {
     selfPickup: product ? product?.fulfillmentMethod?.selfPickup : false,
     delivery: product ? product?.fulfillmentMethod?.delivery : false,
   });
+  const [selfPickup, setSelfPickup] = useState(
+    product?.fulfillmentMethod?.selfPickup || false
+  );
+  const [delivery, setDelivery] = useState(
+    product?.fulfillmentMethod?.delivery || false
+  );
   const [pickupAddress, setPickupAddress] = useState("");
   const [isPickupAddressSameAsProfile, setIsPickupAddressSameAsProfile] =
     useState(false);
@@ -114,27 +121,16 @@ const AddProductForm = () => {
 
   const productPickupAddress = userProfile?.pickupAddress;
 
-  const { setProductData } = useContext(ProductDataReview);
-
   const selectedCategory = productCategories.find(
     (category) => category.name === productCategory
   );
   const subcategories = selectedCategory ? selectedCategory?.subCategories : [];
+  const handleSelfPickupChange = (e) => {
+    setSelfPickup(e.target.checked);
+  };
 
-  const handleFulfillmentMethodChange = (e) => {
-    const { name, checked } = e.target;
-
-    if (name === "selfPickup") {
-      setFulfillmentMethod({
-        selfPickup: checked,
-        delivery: !checked,
-      });
-    } else if (name === "delivery") {
-      setFulfillmentMethod({
-        selfPickup: !checked,
-        delivery: checked,
-      });
-    }
+  const handleDeliveryChange = (e) => {
+    setDelivery(e.target.checked);
   };
 
   const handleCategoryChange = (e) => {
@@ -161,6 +157,7 @@ const AddProductForm = () => {
       setCoverImageIndex(null);
     }
   };
+
   const handleCoverPhotoChange = (index) => {
     console.log("cover image index >>>>", index);
     setCoverImageIndex(index);
@@ -221,7 +218,7 @@ const AddProductForm = () => {
       toast.error("Quantity can not be 0");
       return;
     }
-    if (!fulfillmentMethod?.selfPickup && !fulfillmentMethod?.delivery) {
+    if (!selfPickup && !delivery) {
       toast.error("Please choose a fulfillment method.");
       return;
     }
@@ -235,7 +232,7 @@ const AddProductForm = () => {
           productSubCategory,
           selectedState: fullStateName,
           selectedCity,
-          fulfillmentMethod,
+          fulfillmentMethod: { selfPickup, delivery },
           pickupAddress: isPickupAddressSameAsProfile
             ? productPickupAddress
             : pickupAddress,
@@ -413,7 +410,7 @@ const AddProductForm = () => {
                 Price
               </label>
               <input
-                type="text" 
+                type="text"
                 placeholder="$199.00"
                 value={price}
                 onChange={(e) => {
@@ -505,6 +502,7 @@ const AddProductForm = () => {
               >
                 Fulfillment Method
               </label>
+
               {/* Self Pickup Checkbox */}
               <div className="flex items-center gap-2">
                 <input
@@ -512,13 +510,14 @@ const AddProductForm = () => {
                   name="selfPickup"
                   id="selfPickup"
                   className="w-[16px] h-[16px]"
-                  checked={fulfillmentMethod.selfPickup}
-                  onChange={handleFulfillmentMethodChange}
+                  checked={selfPickup}
+                  onChange={handleSelfPickupChange}
                 />
                 <label htmlFor="selfPickup" className="text-sm font-medium">
                   Self Pickup
                 </label>
               </div>
+
               {/* Delivery Checkbox */}
               <div className="flex items-center gap-2">
                 <input
@@ -526,8 +525,8 @@ const AddProductForm = () => {
                   name="delivery"
                   id="delivery"
                   className="w-[16px] h-[16px]"
-                  checked={fulfillmentMethod.delivery}
-                  onChange={handleFulfillmentMethodChange}
+                  checked={delivery}
+                  onChange={handleDeliveryChange}
                 />
                 <label htmlFor="delivery" className="text-sm font-medium">
                   Delivery
@@ -535,8 +534,14 @@ const AddProductForm = () => {
               </div>
             </div>
 
-            {fulfillmentMethod?.selfPickup && (
+            {selfPickup && !userProfile?.pickupAddress?._id && (
               <>
+                <AddPickupAddress />
+              </>
+            )}
+
+            {selfPickup && userProfile.pickupAddress._id !== "" ? (
+              <div className="">
                 <div className="w-full">
                   <label
                     htmlFor="pickupAddress"
@@ -546,29 +551,16 @@ const AddProductForm = () => {
                   </label>
                   <input
                     type="text"
-                    id="pickupAddress"
+                    placeholder="Suite 104 Lane 04 Alabama Abbeville United States"
                     value={pickupAddress}
                     onChange={(e) => setPickupAddress(e.target.value)}
-                    name="pickupAddress"
-                    placeholder="16 Maple Avenue, Los Angeles, United States"
                     className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
                   />
                 </div>
-                {/* <AddPickupAddressForm
-                  pickupAddressCity={pickupAddressCity}
-                  setPickupAddresCity={setPickupAddresCity}
-                  pickupAddressState={pickupAddressState}
-                  setPickupAddressState={setPickupAddressState}
-                  pickupAddressZipCode={pickupAddressZipCode}
-                  setPickupAddressZipCode={setPickupAddressZipCode}
-                  pickupApartment={pickupApartment}
-                  setPickupApartment={setPickupApartment}
-                  pickupStreetAddress={pickupStreetAddress}
-                  setPickupStreetAddress={setPickupStreetAddress}
-                /> */}
+
                 {userProfile?.pickupAddress?.state !== "" && (
                   <div>
-                    <label className="inline-flex items-center cursor-pointer">
+                    <label className="inline-flex mt-3 items-center cursor-pointer">
                       <input
                         type="checkbox"
                         value={isPickupAddressSameAsProfile}
@@ -584,9 +576,8 @@ const AddProductForm = () => {
                     </label>
                   </div>
                 )}
-              </>
-            )}
-
+              </div>
+            ) : null}
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
               <button
                 type="button"

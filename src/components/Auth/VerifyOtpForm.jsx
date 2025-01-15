@@ -10,12 +10,13 @@ import ButtonLoader from "../Global/ButtonLoader";
 const VerifyOtpForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  console.log("location >>>", location?.state);
   const previousPage = location.state?.from || "/";
   const verificationType = location.state?.type;
   const { setVerificationStatus } = useContext(AuthContext);
   const data = JSON.parse(localStorage.getItem("user")) || null;
   const { user } = useContext(AuthContext);
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
 
@@ -29,23 +30,23 @@ const VerifyOtpForm = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleOtpKeyDown = (e, index) => {
-    if (e.key === "Backspace" && otp[index] === "" && index > 0) {
-      document.getElementById(`otp-${index - 1}`).focus();
-    }
-  };
+  // const handleOtpKeyDown = (e, index) => {
+  //   if (e.key === "Backspace" && otp[index] === "" && index > 0) {
+  //     document.getElementById(`otp-${index - 1}`).focus();
+  //   }
+  // };
 
-  const handleOtpChange = (value, index) => {
-    if (/^\d?$/.test(value)) {
-      const updatedOtp = [...otp];
-      updatedOtp[index] = value;
-      setOtp(updatedOtp);
+  // const handleOtpChange = (value, index) => {
+  //   if (/^\d?$/.test(value)) {
+  //     const updatedOtp = [...otp];
+  //     updatedOtp[index] = value;
+  //     setOtp(updatedOtp);
 
-      if (value && index < otp.length - 1) {
-        document.getElementById(`otp-${index + 1}`).focus();
-      }
-    }
-  };
+  //     if (value && index < otp.length - 1) {
+  //       document.getElementById(`otp-${index + 1}`).focus();
+  //     }
+  //   }
+  // };
 
   const handleOtpPaste = (e) => {
     const pastedData = e.clipboardData.getData("Text").slice(0, 4);
@@ -71,8 +72,11 @@ const VerifyOtpForm = () => {
 
   const validate = () => {
     const errors = {};
-    if (otp.some((digit) => digit === "")) {
-      errors.otp = "Please fill all digits.";
+    if (!otp) {
+      errors.otp = "Please enter the OTP";
+    }
+    if (otp.length < 4 || otp?.length > 4) {
+      errors.otp = "OTP must contain 4 digits.";
     }
     return errors;
   };
@@ -81,6 +85,10 @@ const VerifyOtpForm = () => {
     initialValues: {},
     validate,
     onSubmit: async (_, { resetForm }) => {
+      if (!location?.state?.from === "forgot-password" && !user) {
+        toast.error("Something went wrong.");
+        return;
+      }
       setLoading(true);
       const endpoint =
         verificationType === "email"
@@ -91,15 +99,17 @@ const VerifyOtpForm = () => {
       try {
         const res = await axios.post(
           endpoint,
-          { otp: otp.join(""), email: location?.state?.email },
-          {
-            headers: {
-              Authorization: `Bearer ${data?.token}`,
-              "Content-Type": "application/json",
-            },
-          }
+          { otp: otp, email: location?.state?.email },
+
+          location?.state?.from === "forgot-password"
+            ? {}
+            : {
+                headers: {
+                  Authorization: `Bearer ${data?.token}`,
+                  "Content-Type": "application/json",
+                },
+              }
         );
-        console.log("verify phone OTP response >> ", res.data);
         resetForm();
         setOtp(["", "", "", ""]);
         toast.success(res?.data?.message);
@@ -199,15 +209,26 @@ const VerifyOtpForm = () => {
         </button>
         <h2 className="blue-text text-[36px] font-bold">Verification</h2>
         <p className="text-base font-medium lg:w-[90%]">
-          Please enter the code that we sent to your {verificationType === "email"
-          ? `email`
-          : verificationType === "forgot-password"
-          ? `email`
-          : `phone number`}.
+          Please enter the code that we sent to your{" "}
+          {verificationType === "email"
+            ? `email`
+            : verificationType === "forgot-password"
+            ? `email`
+            : `phone number`}
+          .
         </p>
 
         <div className="w-full flex items-center justify-between mt-2">
-          {otp.map((digit, index) => (
+          <input
+            type="number"
+            name="otp"
+            id="otp"
+            maxLength="4"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="bg-[#fff] outline-none w-full h-[60.5px] p-4 rounded-[20px] text-start blue-text text-[18px] font-bold"
+          />
+          {/* {otp.map((digit, index) => (
             <input
               key={index}
               id={`otp-${index}`}
@@ -218,7 +239,7 @@ const VerifyOtpForm = () => {
               onKeyDown={(e) => handleOtpKeyDown(e, index)}
               className="bg-[#fff] outline-none w-[60.5px] h-[60.5px] p-4 rounded-[20px] text-center blue-text text-[36px] font-bold"
             />
-          ))}
+          ))} */}
         </div>
         {formik.errors.otp && (
           <div className="text-xs text-red-500">{formik.errors.otp}</div>
@@ -241,7 +262,7 @@ const VerifyOtpForm = () => {
         <button
           type="submit"
           className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full cursor-pointer relative h-[50px]"
-          disabled={otp.some((digit) => digit === "")}
+          // disabled={otp.length < 4 || otp.length > 4}
         >
           {loading ? <ButtonLoader /> : "Verify"}
         </button>

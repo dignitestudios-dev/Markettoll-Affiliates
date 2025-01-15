@@ -32,19 +32,17 @@ const SellerProfile = () => {
       return navigate("/login");
     }
     try {
-      const res = await axios.get(
-        `${BASE_URL}/users/profile-details/${sellerId}`,
-        {
-          headers: headers,
-        }
-      );
-      // console.log("user profile >>", res?.data?.data);
+      const res = await axios.get(`${BASE_URL}/users/profile/${sellerId}`, {
+        headers: headers,
+      });
+      // console.log("seller profile >>", res?.data?.data);
       setMyProfile(res?.data?.data);
     } catch (error) {
       console.log(
         "err while fetching user profile >>>>",
         error?.response?.data
       );
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +61,8 @@ const SellerProfile = () => {
       // console.log("seller reviews >>>", res?.data);
       setSellerReviwes(res?.data?.data);
     } catch (error) {
-      console.log("error while fetch seller reviews >>>>", error);
+      // console.log("error while fetch seller reviews >>>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     }
   };
 
@@ -71,6 +70,29 @@ const SellerProfile = () => {
     fetchUserReviews();
     fetchUserPrfile();
   }, []);
+
+  const totalReviews =
+    myProfile?.avgProductRating?.oneStar +
+    myProfile?.avgProductRating?.twoStar +
+    myProfile?.avgProductRating?.threeStar +
+    myProfile?.avgProductRating?.fourStar +
+    myProfile?.avgProductRating?.fiveStar;
+
+  const averageRating =
+    totalReviews > 0
+      ? (
+          (1 * myProfile?.avgProductRating?.oneStar +
+            2 * myProfile?.avgProductRating?.twoStar +
+            3 * myProfile?.avgProductRating?.threeStar +
+            4 * myProfile?.avgProductRating?.fourStar +
+            5 * myProfile?.avgProductRating?.fiveStar) /
+          totalReviews
+        ).toFixed(1)
+      : 0;
+
+  const filledStars = Math.floor(averageRating);
+  const halfStar = averageRating % 1 >= 0.5 ? 1 : 0;
+  const emptyStars = 5 - filledStars - halfStar;
 
   if (loading) {
     return <Loader />;
@@ -103,21 +125,28 @@ const SellerProfile = () => {
                 {myProfile && myProfile?.name}
               </span>
               <div className="flex items-center gap-1">
-                {sellerReviews && sellerReviews?.length > 0 && (
-                  <>
-                    <IoIosStar className="text-xl text-yellow-400" />
-                    <IoIosStar className="text-xl text-yellow-400" />
-                    <IoIosStar className="text-xl text-yellow-400" />
-                    <IoIosStar className="text-xl text-yellow-400" />
-                    <IoIosStar className="text-xl text-gray-300" />
-                    <span className="text-sm">
-                      {sellerReviews && sellerReviews?.length}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {sellerReviews && sellerReviews?.length}
-                    </span>
-                  </>
+                {Array.from({ length: filledStars }).map((_, index) => (
+                  <IoIosStar
+                    key={`filled-${index}`}
+                    className="text-xl text-yellow-400"
+                  />
+                ))}
+
+                {halfStar > 0 && (
+                  <IoIosStar
+                    key="half"
+                    className="text-xl text-yellow-400 opacity-50"
+                  />
                 )}
+
+                {Array.from({ length: emptyStars }).map((_, index) => (
+                  <IoIosStar
+                    key={`empty-${index}`}
+                    className="text-xl text-gray-300"
+                  />
+                ))}
+
+                <span className="text-sm ml-2">{totalReviews} reviews</span>
               </div>
             </div>
           </div>

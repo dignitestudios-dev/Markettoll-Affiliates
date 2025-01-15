@@ -1,42 +1,23 @@
-import { IoIosStar, IoIosStarOutline, IoIosStarHalf } from "react-icons/io";
+import { IoIosStar } from "react-icons/io";
 
 const ProductRating = ({ productAvgRating }) => {
-  const fullStars = Math.floor(productAvgRating);
-  const halfStars = productAvgRating % 1 >= 0.5 ? 1 : 0;
-  const emptyStars = 5 - fullStars - halfStars;
-
-  const renderStars = () => {
-    const stars = [];
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <IoIosStar key={`full-${i}`} className="text-yellow-400 text-lg" />
-      );
-    }
-
-    for (let i = 0; i < halfStars; i++) {
-      stars.push(
-        <IoIosStarHalf key={`half-${i}`} className="text-yellow-400 text-lg" />
-      );
-    }
-
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(
-        <IoIosStarOutline
-          key={`empty-${i}`}
-          className="text-yellow-400 text-lg"
-        />
-      );
-    }
-
-    return stars;
-  };
+  const fillPercentage = (productAvgRating / 5) * 100;
 
   return (
-    <div className="flex items-center gap-1 w-full">
-      {renderStars()}
+    <div className="flex items-center gap-2 justify-start">
+      <div className="relative w-6 h-6">
+        <IoIosStar
+          className="absolute text-gray-300 w-full h-full"
+          style={{
+            background: `linear-gradient(90deg, #FBBF24 ${fillPercentage}%, #E5E7EB ${fillPercentage}%)`,
+            WebkitBackgroundClip: "text",
+            color: "transparent",
+          }}
+        />
+        <IoIosStar className="absolute text-gray-300 w-full h-full" />
+      </div>
       <span className="text-base text-[#606060] font-medium">
-        {productAvgRating?.toFixed(1)}{" "}
+        {productAvgRating?.toFixed(1)}
       </span>
     </div>
   );

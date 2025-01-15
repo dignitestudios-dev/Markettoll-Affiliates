@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 
 const SettingsSidebar = () => {
   const location = useLocation();
-  console.log(location?.pathname);
   return (
     <div className="w-full flex flex-col items-start border-r pr-5">
       <h2 className="text-[28px] font-bold blue-text mb-5">Settings</h2>

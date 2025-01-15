@@ -11,6 +11,7 @@ import Loader from "../../components/Global/Loader";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { CartProductContext } from "../../context/cartProductContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const stripePromise = loadStripe(
   "pk_test_51OsZBgRuyqVfnlHK0Z5w3pTL7ncHPcC75EwkxqQX9BAlmcXeKappekueIzmpWzWYK9L9HEGH3Y2Py2hC7KyVY0Al00przQczPf"
@@ -20,12 +21,13 @@ const CartPage = () => {
   const [count, setCount] = useState(0);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [cartProducts, setCartProducts] = useState([]);
-  const { data,setCartCount} = useContext(CartProductContext);
+  const { data, setCartCount } = useContext(CartProductContext);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [isAnyProductToDeliver, setIsAnyProductToDeliver] = useState(null);
+  const [removingProducts, setRemovingProducts] = useState(false);
+  const navigate = useNavigate();
 
-  // const [cartQTYUpdate,setcartQTYUpdate]=useState(null)
   const fetchCartProducts = async () => {
     setLoading(true);
     try {
@@ -36,7 +38,7 @@ const CartPage = () => {
       });
       // console.log("cartProducts >>>", res?.data?.data);
       setCartProducts(res?.data?.data);
-      setCartCount(res?.data?.data?.length)
+      setCartCount(res?.data?.data?.length);
     } catch (error) {
       console.log("cartProducts err >>>", error);
     } finally {
@@ -60,6 +62,8 @@ const CartPage = () => {
       if (data?.deliveryAddress) {
         setCount(count + 1);
       }
+    } else if (count === 2 && !data?.paymentMethod) {
+      setCount(count);
     } else {
       setCount(count + 1);
     }
@@ -79,8 +83,42 @@ const CartPage = () => {
     }, 0);
   }, [cartProducts]);
 
+  const removeCartProducts = async () => {
+    setRemovingProducts(true);
+    try {
+      const res = await axios.delete(`${BASE_URL}/users/cart-clear`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      console.log("remove cart prods res >>>", res);
+      if (res?.status === 200) {
+        toast.success(res?.data?.message);
+        navigate("/");
+      }
+    } catch (error) {
+      console.log("err while removing cart products >>>", error);
+    } finally {
+      setRemovingProducts(false);
+    }
+  };
+
   if (loading) {
     return <Loader />;
+  }
+
+  if (cartProducts?.length === 0) {
+    return (
+      <div className="w-full padding-x py-6 min-h-[80vh] flex flex-col items-center justify-center gap-5">
+        <p className="text-[#5C5C5C]">There are no items in this cart</p>
+        <Link
+          to="/"
+          className="blue-bg text-white px-5 py-3 rounded-2xl text-sm font-semibold"
+        >
+          Continue Shopping
+        </Link>
+      </div>
+    );
   }
   return (
     <div className="padding-x py-6 w-full">
@@ -90,18 +128,20 @@ const CartPage = () => {
             <CartProductList
               cartProducts={cartProducts}
               fetchCartProducts={fetchCartProducts}
+              loading={removingProducts}
+              removeCartProducts={removeCartProducts}
             />
           ) : count === 1 ? (
             isAnyProductToDeliver ? (
               <DeliveryAddress onclick={handleDecrementCount} />
-            ) : (
-              <Elements stripe={stripePromise}>
-                <SelectPaymentMethod onclick={handleDecrementCount} />
-              </Elements>
-            )
+            ) : null
           ) : count === 2 ? (
             <Elements stripe={stripePromise}>
-              <SelectPaymentMethod onclick={handleDecrementCount} />
+              <SelectPaymentMethod
+                onclick={handleDecrementCount}
+                count={count}
+                setCount={setCount}
+              />
             </Elements>
           ) : count === 3 ? (
             <OrderReview

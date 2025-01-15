@@ -11,14 +11,20 @@ import { AuthContext } from "../../context/authContext";
 
 const SettingsAddressEditPage = () => {
   const { id } = useParams();
-  console.log(id);
   const location = useLocation();
-  console.log(location?.state);
-  const [streetAddress, setStreetAddress] = useState("");
-  const [apartmentSuite, setApartmentSuite] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
+  const [streetAddress, setStreetAddress] = useState(
+    location?.state?.data?.streetAddress || ""
+  );
+  const [apartmentSuite, setApartmentSuite] = useState(
+    location?.state?.data?.apartment_suite || ""
+  );
+  const [zipCode, setZipCode] = useState(location?.state?.data?.zipCode || "");
+  const [selectedState, setSelectedState] = useState(
+    location?.state?.data?.state || ""
+  );
+  const [selectedCity, setSelectedCity] = useState(
+    location?.state?.data?.city || ""
+  );
   const navigate = useNavigate();
   const [addressAdded, setAddressAdded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -78,6 +84,14 @@ const SettingsAddressEditPage = () => {
     }
     if (!selectedCity) {
       toast.error("Please choose a city");
+      return;
+    }
+    if (!zipCode) {
+      toast.error("Please enter your zip code.");
+      return;
+    }
+    if (zipCode.length < 5 || zipCode.length > 5) {
+      toast.error("Zip code must contain 5 digits.");
       return;
     }
     if (location?.state?.type == "pickupAddress") {

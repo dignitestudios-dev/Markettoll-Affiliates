@@ -12,6 +12,7 @@ const MyProductsAndServices = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [state, setState] = useState(false);
   const [postType, setPostType] = useState("post");
+  console.log("postType >>>", postType);
 
   const handleShowPopup = () => {
     setShowPopup(!showPopup);
@@ -63,9 +64,7 @@ const MyProductsAndServices = () => {
             onChange={(e) => setPostType(e.target.value)}
             className="bg-gray-50 border border-gray-300 !appearance-auto text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none"
           >
-            <option selected defaultValue="post">
-              Post
-            </option>
+            <option defaultValue="post">Post</option>
             <option value="boosted">Boosted</option>
           </select>
         </div>

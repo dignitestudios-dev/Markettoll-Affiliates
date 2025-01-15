@@ -48,6 +48,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
     const chatId = userId;
     const sellerRef = collection(db, "chats", chatId, "myUsers");
 
+
     try {
       const messagesQuery = query(sellerRef);
       const querySnapshot = await getDocs(messagesQuery);
@@ -65,6 +66,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
       console.error("Error fetching users: ", error);
     }
   };
+
 
   useEffect(() => {
     fetchUsers();

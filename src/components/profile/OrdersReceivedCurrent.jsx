@@ -3,6 +3,7 @@ import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
 import axios from "axios";
 import Loader from "../Global/Loader";
+import { toast } from "react-toastify";
 
 const OrdersReceivedCurrent = () => {
   const [orders, setOrders] = useState([]);
@@ -21,17 +22,17 @@ const OrdersReceivedCurrent = () => {
           },
         }
       );
-      //   console.log("orders received current >>>>>", res?.data?.data);
+      // console.log("orders received current >>>>>", res?.data?.data);
       setOrders(res?.data?.data);
     } catch (error) {
       console.log("orders received current err >>>>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log("orders received current");
     fetchPastPurchasedProducts();
   }, []);
 
@@ -45,7 +46,11 @@ const OrdersReceivedCurrent = () => {
     );
   }
 
-  return <div>OrdersReceivedCurrent</div>;
+  return (
+    <div className="w-full">
+      <div className=""></div>
+    </div>
+  );
 };
 
 export default OrdersReceivedCurrent;

@@ -4,13 +4,16 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { useParams } from "react-router-dom";
+import Loader from "../Global/Loader";
 
 const SellerProducts = () => {
   const [myProducts, setMyProducts] = useState([]);
   const { user } = useContext(AuthContext);
   const { sellerId } = useParams();
+  const [loading, setLoading] = useState(false);
 
   const fetchMyProducts = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(
         `${BASE_URL}/users/seller-products/${sellerId}?page=1`,
@@ -20,19 +23,24 @@ const SellerProducts = () => {
           },
         }
       );
-      // console.log("my products >>>", res?.data?.data);
       setMyProducts(res?.data?.data);
     } catch (error) {
       console.log(
         "error while fetching products >>>",
         error?.response?.data?.message
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchMyProducts();
   }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <div className="w-full mt-8">
       {myProducts && myProducts?.length > 0 ? (

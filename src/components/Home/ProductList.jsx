@@ -20,6 +20,7 @@ const ProductList = () => {
   const { searchResults } = useContext(SearchedProductContext);
   const [categories, setCategories] = useState([]);
   const [productCategory, setProductCategory] = useState("All");
+  // console.log(user);
 
   const fetchProducts = async () => {
     const options = user?.token
@@ -115,10 +116,6 @@ const ProductList = () => {
     }
   };
 
-  const handleNavigate = () => {
-    navigate("/categories/consoles", { state: { from: "/" } });
-  };
-
   const filterProducts = (categoryName) => {
     if (categoryName === "All") {
       setProductCategory("All");
@@ -152,7 +149,23 @@ const ProductList = () => {
             >
               All
             </button>
-            <button
+            {products?.map((p, index) => {
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => filterProducts(p?.category)}
+                  className={`${
+                    productCategory === p?.category
+                      ? "blue-bg text-white"
+                      : "bg-[#F7F7F7] text-black"
+                  } text-[13px] font-medium rounded-lg px-3 py-2`}
+                >
+                  {p?.category}
+                </button>
+              );
+            })}
+            {/* <button
               type="button"
               onClick={() => filterProducts("Electronics")}
               className={`${
@@ -206,7 +219,7 @@ const ProductList = () => {
               } text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               Clothing
-            </button>
+            </button> */}
             <Link
               to={`/home/categories/${categories[0]?.name}`}
               className={`bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2`}

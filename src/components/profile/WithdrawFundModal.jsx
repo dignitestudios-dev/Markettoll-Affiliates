@@ -26,7 +26,7 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
           },
         }
       );
-      console.log("Withdraw amount res >>>>>>", res);
+      // console.log("Withdraw amount res >>>>>>", res);
       handleToggleSuccessModal();
     } catch (error) {
       console.log("withdraw amount error >>>>>>", error);

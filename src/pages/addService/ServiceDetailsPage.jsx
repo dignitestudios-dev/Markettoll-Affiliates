@@ -8,6 +8,11 @@ import ProductRating from "../../components/Global/ProductRating";
 import { GoArrowLeft } from "react-icons/go";
 import { FaHeart } from "react-icons/fa6";
 import { FiHeart } from "react-icons/fi";
+import { toast } from "react-toastify";
+import ServiceSellerAndRatings from "./ServiceSellerAndRatings";
+import Loader from "../../components/Global/Loader";
+import { HiOutlineDotsVertical } from "react-icons/hi";
+import DeleteServiceModal from "./DeleteServiceModal";
 
 const ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
@@ -16,8 +21,16 @@ const ServiceDetailsPage = () => {
   const { user } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
   const { userProfile } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const [openDeleteMoal, setOpenDeleteModal] = useState(false);
+
+  const toggleDropdown = () => {
+    setOpenDropdown(!openDropdown);
+  };
 
   const handleFetchService = async () => {
+    setLoading(true);
     const headers = user?.token
       ? { Authorization: `Bearer ${user?.token}` }
       : {};
@@ -25,11 +38,20 @@ const ServiceDetailsPage = () => {
       const res = await axios.get(`${BASE_URL}/users/service/${serviceId}`, {
         headers: headers,
       });
-      console.log("service details >>>>", res?.data?.data);
+      // console.log("service details >>>>", res?.data?.data);
       setService(res?.data?.data);
     } catch (error) {
-      console.log("service details err >>>", error);
+      // console.log("service details err >>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const navigateToBoostPost = () => {
+    navigate("/choose-package-to-boost-service", {
+      state: { id: serviceId, type: "edit-service" },
+    });
   };
 
   useEffect(() => {
@@ -47,10 +69,6 @@ const ServiceDetailsPage = () => {
 
   const handleThumbnailClick = (image) => {
     setDisplayImage(image);
-  };
-
-  const handleAddService = () => {
-    navigate("/boost-service");
   };
 
   const userDetail = {
@@ -75,8 +93,87 @@ const ServiceDetailsPage = () => {
       service?.avgRating?.fiveStar);
   const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
 
+  const addServiceToWishlist = async () => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/wishlist-service/${serviceId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("service add to wishlist res >>>>", res);
+      if (res?.status === 201) {
+        toast.success(res?.data?.message || "Service added to wishlist");
+        handleFetchService();
+      }
+    } catch (error) {
+      // console.log("err while adding servie to wishlist >>>", error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  const handleRemoveFromFavorite = async () => {
+    try {
+      const res = await axios.delete(
+        `${BASE_URL}/users/wishlist-service/${serviceId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("service removed from wishlist res >>>>", res);
+      if (res?.status === 200) {
+        toast.success(res?.data?.message || "Service removed from wishlist");
+        handleFetchService();
+      }
+    } catch (error) {
+      // console.log("err while removing servie from wishlist >>>", error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  const toggleDeleteModal = () => {
+    setOpenDeleteModal(!openDeleteMoal);
+    if (openDropdown) {
+      toggleDropdown();
+    }
+  };
+
+  const deleteService = async () => {
+    try {
+      const res = await axios.delete(`${BASE_URL}/users/service/${serviceId}`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      // console.log("delete service res >>>>", res);
+      if (res?.status === 200) {
+        toggleDeleteModal();
+        toast.success("Service deleted succesfully.");
+        navigate("/");
+      }
+    } catch (error) {
+      // console.log("err while deleting service >>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
+    }
+  };
+
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <div className="padding-x py-6 w-full">
+      <DeleteServiceModal
+        ondelete={deleteService}
+        onclose={toggleDeleteModal}
+        state={openDeleteMoal}
+      />
       <div className="w-full bg-[#F7F7F7] p-5 rounded-[30px]">
         <div className="w-full bg-white px-4 md:px-4 lg:px-6 py-6 rounded-[30px]">
           <Link to="/" className="flex items-center gap-1 mb-5 w-20">
@@ -89,11 +186,11 @@ const ServiceDetailsPage = () => {
                 <button
                   type="button"
                   className="absolute z-10 top-5 right-5"
-                  // onClick={() =>
-                  //   product?.isWishListed
-                  //     ? handleRemoveFromFavorite()
-                  //     : handleAddToFavorite()
-                  // }
+                  onClick={() =>
+                    service?.isWishListed
+                      ? handleRemoveFromFavorite()
+                      : addServiceToWishlist()
+                  }
                 >
                   {service?.isWishListed ? (
                     <FaHeart className="text-gray-300 text-2xl" />
@@ -129,8 +226,43 @@ const ServiceDetailsPage = () => {
                 <h2 className="text-[20px] blue-text font-bold">
                   {service?.name}
                 </h2>
-                <h3 className="text-[24px] font-bold">${service?.price}.00</h3>
+                <div className="flex items-center justify-end gap-4 relative">
+                  <h3 className="text-[24px] font-bold">
+                    ${service?.price}.00
+                  </h3>
+                  {service?.seller === user?._id && (
+                    <button type="button" onClick={toggleDropdown}>
+                      <HiOutlineDotsVertical className="text-xl text-gray-700" />
+                    </button>
+                  )}
+                  {openDropdown && (
+                    <div className="bg-white shadow py-3.5 rounded-xl w-auto h-auto absolute top-8 right-3 z-10 flex flex-col items-start gap-1">
+                      <Link
+                        to={`/services/edit-service/${serviceId}`}
+                        className="w-full px-4 text-start text-sm font-medium"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => toggleDeleteModal()}
+                        className="w-full px-4 text-start text-sm font-medium"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        type="button"
+                        onClick={navigateToBoostPost}
+                        className="w-full px-4 text-start text-sm font-medium"
+                      >
+                        Boost Post
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              <div className="border w-full" />
 
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-8">
                 <div className="grid grid-cols-2 gap-y-3">
@@ -144,6 +276,7 @@ const ServiceDetailsPage = () => {
                   <p className="text-[13px] font-medium">{service?.state}</p>
                 </div>
               </div>
+              <div className="border w-full" />
 
               <div className="w-full">
                 <p className="text-[16px] text-[#003DAC] font-bold mb-3">
@@ -174,7 +307,7 @@ const ServiceDetailsPage = () => {
                           <p className="text-[16px] font-medium min-w-20">
                             {service?.sellerDetails?.name}{" "}
                           </p>
-                          <ProductRating productAvgRating={safeAvgRating} />
+                          <ServiceSellerAndRatings serviceData={service} />
                         </div>
                         <Link
                           to={`/seller-profile/${service?.sellerDetails?._id}`}
