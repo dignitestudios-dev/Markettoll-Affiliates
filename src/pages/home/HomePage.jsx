@@ -12,7 +12,7 @@ import { CartProductContext } from "../../context/cartProductContext";
 
 const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
-  const { user, userProfile, setUserProfile } = useContext(AuthContext);
+  const { userProfile, setUserProfile } = useContext(AuthContext);
   const userCookie = localStorage.getItem("user");
   const user2 = userCookie ? JSON.parse(userCookie) : null;
   const { setData } = useContext(CartProductContext);
