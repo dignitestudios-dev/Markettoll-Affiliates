@@ -11,7 +11,7 @@ import {
 } from "../../firebase/firebase";
 import { BASE_URL } from "../../api/api";
 
-const ChatList = ({ selectedUser,messagReal }) => {
+const ChatList = ({ selectedUser, messagReal }) => {
   const [userList, setUserList] = useState([]);
   const [LastMessages, setLastMessages] = useState([]);
   const { user } = useContext(AuthContext);
@@ -19,14 +19,14 @@ const ChatList = ({ selectedUser,messagReal }) => {
   const userId = user?._id;
 
   const fetchUsers = async () => {
-    const chatId = userId; 
+    const chatId = userId;
     const sellerRef = collection(db, "chats", chatId, "myUsers");
-  
+
     try {
       const messagesQuery = query(sellerRef);
       const querySnapshot = await getDocs(messagesQuery);
-  
-      const userIds = querySnapshot.docs.map((doc) => doc.id); 
+
+      const userIds = querySnapshot.docs.map((doc) => doc.id);
 
       const promises = userIds.map((item) => {
         return fetch(`${BASE_URL}/users/profile-details/${item}`, {
@@ -37,7 +37,7 @@ const ChatList = ({ selectedUser,messagReal }) => {
           .then((res) => res.json())
           .then((data) => data?.data);
       });
-  
+
       // Resolving all promises and updating user data
       Promise.all(promises)
         .then((allData) => {
@@ -47,34 +47,33 @@ const ChatList = ({ selectedUser,messagReal }) => {
               id: userIds[index], // Include the ID for each user
             };
           });
-  
+
           setUserList(updatedUserList);
-          setOriginalUserList(updatedUserList); 
+          setOriginalUserList(updatedUserList);
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
         });
-  
+
       // Setting up real-time snapshot listener
       onSnapshot(sellerRef, (snapshot) => {
         // Capture updates from the Firestore collection in real-time
         const updatedUserList = snapshot.docs.map((doc) => {
           return { id: doc.id, ...doc.data() }; // Include the document ID with the data
         });
-  
+
         // Optionally, update UI with real-time changes
         setLastMessages(updatedUserList);
       });
-  
     } catch (error) {
       console.error("Error fetching users: ", error);
     }
   };
-  
+
   useEffect(() => {
     fetchUsers();
   }, [userId, messagReal]);
-  
+
   const filterUser = (e) => {
     const filterValue = e.target.value;
     if (filterValue === "") {

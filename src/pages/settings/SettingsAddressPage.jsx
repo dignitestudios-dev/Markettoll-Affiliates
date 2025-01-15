@@ -7,7 +7,6 @@ const SettingsAddressPage = () => {
   const [showModal, setShowModal] = useState(false);
   const { userProfile } = useContext(AuthContext);
   const [addressId, setAddressId] = useState(null);
-  console.log("userProfile >>>", userProfile);
   const navigate = useNavigate();
 
   const handleShowDeleteModal = async (id) => {
@@ -15,9 +14,9 @@ const SettingsAddressPage = () => {
     setAddressId(id);
   };
 
-  const handleNavigateToEdit = (id, type) => {
+  const handleNavigateToEdit = (id, type, data) => {
     navigate(`/settings/addresses/edit-addresses/${id}`, {
-      state: { from: window.location.href, type: type },
+      state: { from: window.location.href, type: type, data },
     });
   };
 
@@ -51,7 +50,9 @@ const SettingsAddressPage = () => {
           </div>
           <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
             {userProfile?.address?.city}, {userProfile?.address?.state},{" "}
-            {userProfile?.address?.country} {userProfile?.address?.zipCode}
+            {userProfile?.address?.country}{" "}
+            {userProfile?.address?.zipCode &&
+              `- ${userProfile?.address?.zipCode}`}
           </div>
         </div>
 
@@ -70,7 +71,8 @@ const SettingsAddressPage = () => {
               onClick={() =>
                 handleNavigateToEdit(
                   userProfile?.pickupAddress?._id,
-                  "pickupAddress"
+                  "pickupAddress",
+                  userProfile?.pickupAddress
                 )
               }
               // to={`/settings/addresses/edit-addresses/${userProfile?.pickupAddress?._id}`}
@@ -85,7 +87,8 @@ const SettingsAddressPage = () => {
               {userProfile?.pickupAddress?.streetAddress},{" "}
               {userProfile?.pickupAddress?.state},{" "}
               {userProfile?.pickupAddress?.country}{" "}
-              {userProfile?.pickupAddress?.zipCode}
+              {userProfile?.pickupAddress?.zipCode &&
+                `- ${userProfile?.pickupAddress?.zipCode}`}
             </div>
           ) : (
             <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
@@ -129,7 +132,11 @@ const SettingsAddressPage = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          handleNavigateToEdit(address?._id, "deliveryAddress")
+                          handleNavigateToEdit(
+                            address?._id,
+                            "deliveryAddress",
+                            address
+                          )
                         }
                         // to={`/settings/addresses/edit-addresses/${address?._id}`}
                         className="text-sm font-medium"
@@ -147,7 +154,8 @@ const SettingsAddressPage = () => {
                     <div className="w-full flex items-center gap-1" key={index}>
                       <div className="w-full bg-[#F5F5F5] text-sm px-5 py-3 rounded-2xl">
                         {address?.apartment_suite} {address?.streetAddress},{" "}
-                        {address?.state}, {address?.country} {address?.zipCode}
+                        {address?.state}, {address?.country}{" "}
+                        {address?.zipCode && `- ${address?.zipCode}`}
                       </div>
                     </div>
                   </div>

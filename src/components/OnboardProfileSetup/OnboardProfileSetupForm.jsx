@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import ProfilePicture from "./ProfilePicture";
-import AddLocation from "./AddLocation";
+// import AddLocation from "./AddLocationForm";
 import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../api/api";
@@ -15,7 +15,6 @@ const OnboardProfileSetupForm = () => {
   const [selectedState, setSelectedState] = useState("");
   const [stateFullName, setStateFullName] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
-  console.log(count);
   const navigate = useNavigate();
   const { user, fetchUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
@@ -36,17 +35,21 @@ const OnboardProfileSetupForm = () => {
             },
           }
         );
-        console.log("Profile Image Updated Successfully:", response.data);
+        // console.log("Profile Image Updated Successfully:", response.data);
         if (response?.data?.success) {
           fetchUserProfile();
-          setCount(2);
+          // setCount(2);
+          navigate("/review-profile-image", {
+            state: { userData: response?.data?.data },
+          });
           return response.data;
         }
       } catch (error) {
-        console.error(
-          "Error Updating Profile Image:",
-          error.response ? error.response.data : error.message
-        );
+        // console.error(
+        //   "Error Updating Profile Image:",
+        //   error.response ? error.response.data : error.message
+        // );
+        toast.error("Something went wrong");
         throw error;
       } finally {
         setLoading(false);
@@ -116,22 +119,9 @@ const OnboardProfileSetupForm = () => {
         onSubmit={handleSubmit}
         className="flex flex-col items-center gap-3"
       >
-        <h2 className="text-[36px] font-bold blue-text">
-          {count === 1 ? "Add Profile Picture" : "Add Location"}
-        </h2>
+        <h2 className="text-[36px] font-bold blue-text">Add Profile Picture</h2>
 
-        {count === 1 ? (
-          <ProfilePicture image={image} setImage={setImage} />
-        ) : (
-          <AddLocation
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
-            selectedState={selectedState}
-            setSelectedState={setSelectedState}
-            stateFullName={stateFullName}
-            setStateFullName={setStateFullName}
-          />
-        )}
+        <ProfilePicture image={image} setImage={setImage} />
 
         <div className="mt-3 w-full lg:w-[635px]">
           <button

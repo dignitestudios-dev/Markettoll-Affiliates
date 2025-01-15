@@ -8,6 +8,9 @@ import ProductRating from "../../components/Global/ProductRating";
 import { GoArrowLeft } from "react-icons/go";
 import { FaHeart } from "react-icons/fa6";
 import { FiHeart } from "react-icons/fi";
+import { toast } from "react-toastify";
+import ServiceSellerAndRatings from "./ServiceSellerAndRatings";
+import Loader from "../../components/Global/Loader";
 
 const ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
@@ -16,8 +19,10 @@ const ServiceDetailsPage = () => {
   const { user } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
   const { userProfile } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
   const handleFetchService = async () => {
+    setLoading(true);
     const headers = user?.token
       ? { Authorization: `Bearer ${user?.token}` }
       : {};
@@ -29,6 +34,8 @@ const ServiceDetailsPage = () => {
       setService(res?.data?.data);
     } catch (error) {
       console.log("service details err >>>", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,14 +56,10 @@ const ServiceDetailsPage = () => {
     setDisplayImage(image);
   };
 
-  const handleAddService = () => {
-    navigate("/boost-service");
-  };
-
   const userDetail = {
-      profileImage: service?.sellerDetails?.profileImage,
-      name: service?.sellerDetails?.name,
-      id: service?.sellerDetails?._id,
+    profileImage: service?.sellerDetails?.profileImage,
+    name: service?.sellerDetails?.name,
+    id: service?.sellerDetails?._id,
   };
 
   const productAvgRating =
@@ -72,6 +75,54 @@ const ServiceDetailsPage = () => {
       service?.avgRating?.fiveStar);
   const safeAvgRating = isNaN(productAvgRating) ? 0 : productAvgRating;
 
+  const addServiceToWishlist = async () => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/wishlist-service/${serviceId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("service add to wishlist res >>>>", res);
+      if (res?.status === 201) {
+        toast.success(res?.data?.message || "Service added to wishlist");
+        handleFetchService();
+      }
+    } catch (error) {
+      // console.log("err while adding servie to wishlist >>>", error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  const handleRemoveFromFavorite = async () => {
+    try {
+      const res = await axios.delete(
+        `${BASE_URL}/users/wishlist-service/${serviceId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("service removed from wishlist res >>>>", res);
+      if (res?.status === 200) {
+        toast.success(res?.data?.message || "Service removed from wishlist");
+        handleFetchService();
+      }
+    } catch (error) {
+      // console.log("err while removing servie from wishlist >>>", error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <div className="padding-x py-6 w-full">
       <div className="w-full bg-[#F7F7F7] p-5 rounded-[30px]">
@@ -86,11 +137,11 @@ const ServiceDetailsPage = () => {
                 <button
                   type="button"
                   className="absolute z-10 top-5 right-5"
-                  // onClick={() =>
-                  //   product?.isWishListed
-                  //     ? handleRemoveFromFavorite()
-                  //     : handleAddToFavorite()
-                  // }
+                  onClick={() =>
+                    service?.isWishListed
+                      ? handleRemoveFromFavorite()
+                      : addServiceToWishlist()
+                  }
                 >
                   {service?.isWishListed ? (
                     <FaHeart className="text-gray-300 text-2xl" />
@@ -171,7 +222,7 @@ const ServiceDetailsPage = () => {
                           <p className="text-[16px] font-medium min-w-20">
                             {service?.sellerDetails?.name}{" "}
                           </p>
-                          <ProductRating productAvgRating={safeAvgRating} />
+                          <ServiceSellerAndRatings serviceData={service} />
                         </div>
                         <Link
                           to={`/seller-profile/${service?.sellerDetails?._id}`}

@@ -94,7 +94,7 @@ const LoginForm = () => {
           Welcome To Markettoll!
         </h2>
         <p className="text-base font-medium capitalize">
-        Where every need finds its perfect match
+          Where every need finds its perfect match
         </p>
         {error !== "" && (
           <p className="text-base font-medium text-center mx-auto text-red-500">
@@ -153,7 +153,7 @@ const LoginForm = () => {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {!showPassword ? (
+              {showPassword ? (
                 <LuEye className="text-[#606060]" />
               ) : (
                 <LuEyeOff className="text-[#606060]" />

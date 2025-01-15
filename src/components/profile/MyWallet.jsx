@@ -33,6 +33,7 @@ const MyWallet = () => {
     try {
       if (!stripe || !elements) {
         console.log("Stripe.js has not loaded yet.");
+        toast.error("Something went wrong.");
         return;
       }
 
@@ -40,6 +41,7 @@ const MyWallet = () => {
 
       if (!cardElement) {
         console.error("CardElement is not rendered.");
+        toast.error("Something went wrong.");
         return;
       }
 
@@ -70,7 +72,7 @@ const MyWallet = () => {
             }
           );
 
-          console.log("paymentMethodId added >>>", response);
+          // console.log("paymentMethodId added >>>", response);
           if (response?.data?.success) {
             fetchUserProfile();
             setAddCard(!addCard);
@@ -109,7 +111,7 @@ const MyWallet = () => {
 
   useEffect(() => {
     fetchTransactionhistory();
-  }, [showModal]);
+  }, [showModal, showFundModal]);
 
   const handleToggleAddFundModal = () => {
     setShowFundModal(!showFundModal);
@@ -316,6 +318,7 @@ const MyWallet = () => {
         showFundModal={showFundModal}
         setShowFundModal={setShowFundModal}
         onclick={handleToggleAddFundModal}
+        currentBalance={userProfile?.walletBalance}
       />
     </div>
   );

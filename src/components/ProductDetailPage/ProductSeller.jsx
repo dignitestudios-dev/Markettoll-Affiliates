@@ -1,14 +1,34 @@
 import React from "react";
 import { IoIosStar } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
+import { FaRegStar } from "react-icons/fa6";
 
 const ProductSeller = ({ productData }) => {
   const navigate = useNavigate();
+  console.log(productData?.avgRating);
   const handleNavigateToSellerProfile = () => {
     navigate(`/seller-profile/${productData?.seller}`, {
       state: { from: window.location.href },
     });
   };
+
+  const totalRatings =
+    productData?.avgRating?.oneStar +
+    productData?.avgRating?.twoStar * 2 +
+    productData?.avgRating?.threeStar * 3 +
+    productData?.avgRating?.fourStar * 4 +
+    productData?.avgRating?.fiveStar * 5;
+  const totalVotes =
+    productData?.avgRating?.oneStar +
+    productData?.avgRating?.twoStar +
+    productData?.avgRating?.threeStar +
+    productData?.avgRating?.fourStar +
+    productData?.avgRating?.fiveStar;
+
+  const avgRating = totalVotes > 0 ? totalRatings / totalVotes : 0;
+
+  const fillPercentage = (avgRating / 5) * 100;
+
   return (
     <div className="w-full">
       <p className="blue-text text-sm font-bold mb-3">Seller</p>
@@ -26,13 +46,24 @@ const ProductSeller = ({ productData }) => {
           <span className="text-[#676767] text-[13px] font-normal">
             Posted By
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-[18px] font-medium">
               {productData?.sellerDetails?.name}
             </span>
-            {/* <span className="flex items-center gap-1">
-              <IoIosStar className="text-yellow-400" /> 4.8
-            </span> */}
+            <span className="flex items-center gap-1 relative">
+              {avgRating === 0 ? (
+                <FaRegStar className="text-black text-sm" />
+              ) : (
+                <IoIosStar
+                  className="text-yellow-400 text-xl absolute inset-0"
+                  style={{
+                    clipPath: `polygon(0 0, ${fillPercentage}% 0, ${fillPercentage}% 100%, 0% 100%)`,
+                  }}
+                />
+              )}
+
+              <span className="text-sm">{avgRating.toFixed(1)}</span>
+            </span>
           </div>
           <button
             type="button"

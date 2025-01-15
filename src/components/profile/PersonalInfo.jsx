@@ -13,7 +13,6 @@ const PersonalInfo = () => {
   const [openNameModal, setOpenNameModal] = useState(false);
   const { user, userProfile } = useContext(AuthContext);
   const [openProfileImageModal, setOpenProfileImageModal] = useState(false);
-  // console.log("userProfile >>", userProfile);
   const [username, setUsername] = useState(userProfile?.name || "");
   const [phoneNumber, setPhoneNumber] = useState(
     userProfile?.phoneNumber?.value
@@ -237,9 +236,9 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
       );
       console.log("update phone res >>>>>", res?.data);
       if (res?.data?.success) {
-        onclick();
+        handleOtpModal();
+        // onclick();
         localStorage.setItem("phone", phone);
-        setOtpModal(true);
         // toast.success(res?.data?.message);
       }
     } catch (error) {
@@ -289,7 +288,11 @@ const UpdatePhoneNumberModal = ({ openPhoneModal, onclick }) => {
             </button>
           </div>
         </div>
-        <VerifyOtpModal otpModal={otpModal} onclick={handleOtpModal} />
+        <VerifyOtpModal
+          otpModal={otpModal}
+          onclick={handleOtpModal}
+          onclick2={onclick}
+        />
       </div>
     )
   );
@@ -388,7 +391,7 @@ const UpdateProfileImage = ({ openProfileImageModal, onclick }) => {
   );
 };
 
-const VerifyOtpModal = ({ otpModal, onclick }) => {
+const VerifyOtpModal = ({ otpModal, onclick, onclick2 }) => {
   const [showLoader, setShowLoader] = useState(false);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -441,19 +444,16 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
           },
         }
       );
-      console.log("Phone OTP verified >>>", res);
+      // console.log("Phone OTP verified >>>", res);
       if (res?.status == 200) {
+        onclick2();
+        onclick();
         toast.success("Phone number verified successfully");
         fetchUserProfile();
-        // navigate("/identity-verified");
       }
-      // setShowLoader(false);
-      // Close modal after verification
-      onclick();
     } catch (error) {
       console.log("Error while phone OTP verification >>>", error);
       toast.error("Somthing went wrong");
-      // setShowLoader(false);
     } finally {
       setShowLoader(false);
     }
@@ -462,8 +462,8 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
   // Handle Resend OTP
   const handleResendOtp = async () => {
     try {
-      setOtp(["", "", "", ""]); // Reset OTP
-      setTimeLeft(60); // Reset timer
+      setOtp(["", "", "", ""]);
+      setTimeLeft(60);
       const res = await axios.post(
         `${BASE_URL}/users/resend-otp`,
         { phoneNumber: { code: 1, value: phone } },
@@ -473,9 +473,11 @@ const VerifyOtpModal = ({ otpModal, onclick }) => {
           },
         }
       );
-      console.log("OTP resent >>>", res);
+      // console.log("OTP resent >>>", res);
+      toast.success("OTP sent");
     } catch (error) {
       console.log("Error while resending OTP >>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
 

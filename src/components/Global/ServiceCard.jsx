@@ -44,7 +44,7 @@ const ServiceCard = ({ service }) => {
       </div>
       <div className="w-full">
         <h4 className="mt-2.5 font-medium text-base">{service?.name}</h4>
-        <div className="w-full flex items-center justify-center mt-1">
+        <div className="w-full flex items-center justify-between mt-1">
           <ProductRating productAvgRating={safeAvgRating} />
           <p className="text-[18px] font-bold blue-text">
             ${service?.price}.00

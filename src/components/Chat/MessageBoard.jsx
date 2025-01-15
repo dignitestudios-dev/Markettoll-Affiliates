@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoSend } from "react-icons/io5";
 import {
@@ -9,6 +9,10 @@ import {
   serverTimestamp,
   setDoc,
 } from "../../firebase/firebase";
+import BlockAndDeleteModal from "./BlockAndDeleteModal";
+import BlockUserModal from "./BlockUserModal";
+import ReportChatUserModal from "./ReportChatUserModal";
+import { AuthContext } from "../../context/authContext";
 
 const MessageBoard = ({
   messages,
@@ -18,6 +22,29 @@ const MessageBoard = ({
   userInfo,
 }) => {
   const [message, setMessage] = useState("");
+  const [dropdown, setDropdown] = useState(false);
+  const [openDeleteChatModal, setOpenDeleteChatModal] = useState(false);
+  const [openBlockUserModal, setOpenBlockUserModal] = useState(false);
+  const [openReportModal, setOpenReportModal] = useState(false);
+
+  const toggleDropdown = () => {
+    setDropdown(!dropdown);
+  };
+
+  const toggleDeleteChatModal = () => {
+    setOpenDeleteChatModal(!openDeleteChatModal);
+    setDropdown(false);
+  };
+  const toggleBlockUserModal = () => {
+    setOpenBlockUserModal(!openBlockUserModal);
+    setDropdown(false);
+  };
+
+  const toggleReportModal = () => {
+    setOpenReportModal(!openReportModal);
+    setDropdown(false);
+  };
+
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
     const chatId = userId;
@@ -88,10 +115,24 @@ const MessageBoard = ({
     return `${month}/${day}/${year}`; // Format as 1/12/2025
   };
 
-
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
+      <BlockAndDeleteModal
+        state={openDeleteChatModal}
+        onclose={toggleDeleteChatModal}
+        sellerId={seller?.lastMessage?.receiverId}
+      />
+      <BlockUserModal
+        state={openBlockUserModal}
+        onclose={toggleBlockUserModal}
+        sellerId={seller?.lastMessage?.receiverId}
+      />
+      <ReportChatUserModal
+        state={openReportModal}
+        onclose={toggleReportModal}
+        sellerId={seller?.lastMessage?.receiverId}
+      />
       <div className="chat-header w-full h-[8%] border-b flex items-center justify-between px-5">
         <div className="flex items-center gap-2">
           <img
@@ -101,9 +142,36 @@ const MessageBoard = ({
           />
           <span className="text-sm font-semibold">{seller?.name}</span>
         </div>
-        <button type="button">
-          <TbDotsVertical className="text-lg" />
-        </button>
+        <div className="relative">
+          <button type="button" onClick={toggleDropdown} className="relative">
+            <TbDotsVertical className="text-lg" />
+          </button>
+          {dropdown && (
+            <div className="min-w-32 min-h-24 bg-white py-2 rounded-xl shadow z-10 absolute right-3 text-start">
+              <button
+                type="button"
+                onClick={() => toggleDeleteChatModal()}
+                className="text-base font-medium w-full px-5 py-1 text-start"
+              >
+                Delete Chat
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleBlockUserModal()}
+                className="text-base font-medium w-full px-5 py-1 text-start"
+              >
+                Block
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleReportModal()}
+                className="text-base font-medium w-full px-5 py-1 text-start"
+              >
+                Report
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       {/* Messages Box */}
       {/* <div className="w-full h-[68vh] overflow-y-auto chat-list"> */}

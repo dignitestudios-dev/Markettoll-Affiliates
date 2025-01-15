@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
@@ -9,6 +9,7 @@ const CurrentOrderList = () => {
   const [currentOrders, setCurrentOrders] = useState([]);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchCurrentPurchasedProducts = async () => {
     setLoading(true);
@@ -21,6 +22,7 @@ const CurrentOrderList = () => {
           },
         }
       );
+      console.log("current orders placed >>>>", res?.data?.data);
       setCurrentOrders(res?.data?.data);
     } catch (error) {
       console.log("current orders data err >>>>>", error?.response?.data);
@@ -37,6 +39,10 @@ const CurrentOrderList = () => {
     return <Loader />;
   }
 
+  const handleNavigate = (id, data) => {
+    navigate(`/order-history/order-details/${id}`, { state: { data } });
+  };
+
   return (
     <div className="w-full">
       {currentOrders.length > 0 ? (
@@ -48,12 +54,16 @@ const CurrentOrderList = () => {
                   <p className="font-bold text-base">
                     Order ID # {currentOrder?._id?.slice(0, 4)?.toUpperCase()}
                   </p>
-                  <Link
-                    to={`/order-history/order-details/${currentOrder?._id}`}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleNavigate(currentOrder?._id, currentOrder)
+                    }
+                    // to={`/order-history/order-details/${currentOrder?._id}`}
                     className="font-bold text-xs md:text-sm"
                   >
                     View Order Summary
-                  </Link>
+                  </button>
                 </div>
 
                 <div className="w-full">
@@ -73,7 +83,7 @@ const CurrentOrderList = () => {
                                       >
                                         <div className="flex items-center justify-start gap-2">
                                           <img
-                                            src="/product-img-1.png"
+                                            src={pro?.product?.images[0]?.url}
                                             alt="product-img"
                                             className="w-[80px] h-[80px] rounded-xl"
                                           />

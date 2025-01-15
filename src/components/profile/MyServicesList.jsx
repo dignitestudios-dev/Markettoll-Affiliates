@@ -66,7 +66,8 @@ const MyServicesList = ({ postType }) => {
       // console.log(res?.data);
       setMyServices(res?.data?.data);
     } catch (error) {
-      console.log("my services err >>>>", error);
+      // console.log("my services err >>>>", error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -173,10 +174,10 @@ const MyServicesList = ({ postType }) => {
                   </h4>
                   <div className="w-full flex items-center justify-center mt-1">
                     <div className="flex items-center gap-1 w-full">
-                      <IoIosStar className="text-yellow-400 text-lg" />
+                      {/* <IoIosStar className="text-yellow-400 text-lg" />
                       <span className="text-base text-[#606060] font-medium">
                         4.3
-                      </span>
+                      </span> */}
                     </div>
                     <p className="text-[18px] font-bold blue-text">
                       ${service?.price}.00
@@ -231,10 +232,10 @@ const DeleteServiceModal = ({
         onclose();
       }
     } catch (error) {
-      console.log(
-        "error while deleting service >>>",
-        error?.response?.data?.message
-      );
+      // console.log(
+      //   "error while deleting service >>>",
+      //   error?.response?.data?.message
+      // );
       toast.error(error?.response?.data?.message);
     }
   };

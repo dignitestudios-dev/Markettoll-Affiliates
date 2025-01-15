@@ -10,14 +10,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 
-const SelectPaymentMethod = ({ onclick }) => {
+const SelectPaymentMethod = ({ onclick, count }) => {
   const [state, setState] = useState(false);
   const [openFundModal, setOpenFundMOdal] = useState(false);
   const { data, setData } = useContext(CartProductContext);
   const [paymentMethod, setPaymentMethod] = useState(null);
   const { userProfile } = useContext(AuthContext);
-  // console.log("paymentMethod >>>", paymentMethod);
-  // console.log("data >>>", data);
 
   const handleToggleState = () => {
     setState(!state);
@@ -52,14 +50,14 @@ const SelectPaymentMethod = ({ onclick }) => {
         <div className="flex items-center gap-2 w-full">
           <input
             type="radio"
-            name="address1"
-            id="address1"
+            name="cardPayment"
+            id="cardPayment"
             value={"Card"}
             onChange={() => handlePaymentMethodSelect("Card")}
             className="w-5 h-5"
           />
           <label
-            htmlFor="address1"
+            htmlFor="cardPayment"
             className="bg-white border cursor-pointer rounded-[20px] px-3 py-3 text-sm w-full flex items-center justify-between"
           >
             <div className=" flex items-center gap-3">
@@ -80,14 +78,14 @@ const SelectPaymentMethod = ({ onclick }) => {
         <div className="flex items-center gap-2 w-full">
           <input
             type="radio"
-            name="address1"
-            id="address1"
+            name="walletPayment"
+            id="walletPayment"
             value={"Pay via wallet"}
             onChange={() => handlePaymentMethodSelect("Pay via wallet")}
             className="w-5 h-5"
           />
           <label
-            htmlFor="address1"
+            htmlFor="walletPayment"
             className="bg-white cursor-pointer border rounded-[20px] px-3 py-3 text-sm w-full flex items-center justify-between"
           >
             <div className=" flex items-center gap-3">

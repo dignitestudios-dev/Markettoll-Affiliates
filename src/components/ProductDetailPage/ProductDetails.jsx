@@ -21,7 +21,6 @@ import { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-// import required modules
 import { Thumbs } from "swiper/modules";
 import { CartProductContext } from "../../context/cartProductContext";
 
@@ -30,7 +29,7 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [showPopup, setShowPopup] = useState(false);
   const [addToCart, setAddToCart] = useState(false);
-  const {fetchCartProducts} = useContext(CartProductContext);
+  const { fetchCartProducts } = useContext(CartProductContext);
   const { productId } = useParams();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const [displayImage, setDisplayImage] = useState(null);
@@ -40,6 +39,7 @@ const ProductDetails = () => {
   });
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
   const handleToggleDropdown = () => {
     setOpenDropdown(!openDropdown);
@@ -52,9 +52,6 @@ const ProductDetails = () => {
     }
     setShowPopup(!showPopup);
   };
-
-
-
 
   const handleAddToCart = async (method) => {
     if (!user) {
@@ -92,13 +89,22 @@ const ProductDetails = () => {
       ? `${BASE_URL}/users/product/${productId}`
       : `${BASE_URL}/users/product/${productId}`;
     try {
-      const res = await axios.get(
-        `${BASE_URL}/users/product/${productId}`,
-        config
-      );
-      console.log("product data >>>", res?.data?.data);
-      setProduct(res?.data?.data);
+      if (user?.token) {
+        const res = await axios.get(`${BASE_URL}/users/product/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        });
+        setProduct(res?.data?.data);
+      } else {
+        const res = await axios.get(`${BASE_URL}/users/product/${productId}`);
+        setProduct(res?.data?.data);
+      }
     } catch (error) {
+      if (error?.status === 404) {
+        toast.error(error?.response?.data?.message);
+        setNotFound(true);
+      }
       console.log("product err >>>", error);
     }
   };
@@ -139,12 +145,12 @@ const ProductDetails = () => {
           },
         }
       );
-      console.log("increment by one res >>>>>>", res);
+      // console.log("increment by one res >>>>>>", res);
       if (res.status == 200) {
         setQuantity(res?.data?.data?.quantity);
       }
     } catch (error) {
-      console.log("decrement by one err >>>>>>", error);
+      // console.log("decrement by one err >>>>>>", error);
       toast.error(error?.response?.data?.message);
     }
   };
@@ -166,17 +172,17 @@ const ProductDetails = () => {
             },
           }
         );
-        console.log("product added favorite >>>>>", res);
+        // console.log("product added favorite >>>>>", res);
         if (res?.status == 201) {
           toast.success(res?.data?.message);
           fetchUserProfile();
           handleFetchProduct();
         }
       } catch (error) {
-        console.log("product added favorite err >>>>>", error);
-        if (error?.status === 409) {
-          toast.error(error?.response?.data?.message);
-        }
+        // console.log("product added favorite err >>>>>", error);
+        // if (error?.status === 409) {
+        toast.error(error?.response?.data?.message);
+        // }
       }
     } else {
       navigate("/login");
@@ -194,7 +200,7 @@ const ProductDetails = () => {
             },
           }
         );
-        console.log("product removed from favorite >>>>>", res);
+        // console.log("product removed from favorite >>>>>", res);
         if (res?.status == 200) {
           fetchUserProfile();
           toast.success(res?.data?.message);
@@ -209,6 +215,14 @@ const ProductDetails = () => {
       navigate("/login");
     }
   };
+
+  if (notFound) {
+    return (
+      <div className="w-full h-screen flex flex-1 items-center justify-center">
+        <h2>Oops! Something went wrong.</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full relative">

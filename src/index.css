@@ -116,14 +116,15 @@ input[type="number"]::-ms-clear {
   font-size: 28px;
   position: relative;
   display: inline-block;
-  width: 15px;
-  height: 15px;
+  width: 5px;
+  height: 5px;
   margin-top: 9px;
 }
 
 .button-spinner .spinner-blade {
   position: absolute;
   left: 0.4629em;
+  top: 5px;
   bottom: 0;
   width: 0.074em;
   height: 0.2777em;

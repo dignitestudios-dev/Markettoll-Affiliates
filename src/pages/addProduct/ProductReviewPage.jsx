@@ -18,19 +18,22 @@ const ProductReviewPage = () => {
   const handleNavigate = () => {
     navigate("/add-product", { state: { productData: state?.productData } });
   };
+  console.log(state);
 
+  // Set the default display image on component load
   useEffect(() => {
     if (state?.productData?.productImages?.length > 0) {
       const defaultDisplayImage =
-        state?.productData.productImages.find(
+        state?.productData?.productImages.find(
           (image) => image.displayImage === true
-        ) || state?.productData.productImages[0];
+        ) || state?.productData?.productImages[0];
       setDisplayImage(defaultDisplayImage);
     }
-  }, [location]);
+  }, [state]);
 
+  // Handle thumbnail click to update display image
   const handleThumbnailClick = (image) => {
-    console.log(image,"imagespathss")
+    console.log(image, "imagespathss");
     setDisplayImage(image);
   };
 
@@ -72,7 +75,7 @@ const ProductReviewPage = () => {
       });
 
       // Handle success
-      console.log("Product uploaded successfully:", response.data);
+      // console.log("Product uploaded successfully:", response.data);
       toast.success(response.data.message);
       navigate("/would-you-boost-your-product", {
         state: {
@@ -84,7 +87,10 @@ const ProductReviewPage = () => {
       localStorage.setItem("product", JSON.stringify(response.data));
       return response.data;
     } catch (error) {
-      console.error("Error uploading product:", error);
+      // console.error("Error uploading product:", error);
+      if (error) {
+        toast.error(error?.response?.data?.message || "Something went wrong");
+      }
       if (error.status == 409) {
         // navigate("/subscriptions");
         setOpenModal(true);
@@ -109,7 +115,7 @@ const ProductReviewPage = () => {
                   <img
                     src={
                       displayImage
-                        ? URL.createObjectURL(displayImage)  // If displayImage contains a valid image path, use it
+                        ? URL.createObjectURL(displayImage) // If displayImage contains a valid image path, use it
                         : state?.productData?.productImages[
                             state?.productData?.coverImageIndex
                           ]
@@ -131,9 +137,7 @@ const ProductReviewPage = () => {
                     src={URL.createObjectURL(image)}
                     alt={`Thumbnail ${index + 1}`}
                     className={`rounded-xl h-[97px] w-[97px] object-cover cursor-pointer ${
-                      image?.url === displayImage?.url
-                        ? "border-2 border-blue-500"
-                        : ""
+                      image === displayImage ? "border-2 border-blue-500" : ""
                     }`}
                     onClick={() => handleThumbnailClick(image)}
                   />
@@ -185,7 +189,12 @@ const ProductReviewPage = () => {
                   Pickup Address
                 </p>
                 <p className="text-[13px] font-medium">
-                  {state?.productData?.pickupAddress}
+                  {typeof state?.productData?.pickupAddress === "string"
+                    ? state.productData.pickupAddress
+                    : typeof state?.productData?.pickupAddress === "object" &&
+                      state?.productData?.pickupAddress !== null
+                    ? `${state.productData.pickupAddress?.apartment_suite}, ${state.productData.pickupAddress?.streetAddress}, ${state.productData.pickupAddress?.state}, ${state.productData.pickupAddress?.city}, ${state.productData.pickupAddress?.country} - ${state.productData.pickupAddress?.zipCode}`
+                    : "Invalid or No Address"}
                 </p>
               </div>
 

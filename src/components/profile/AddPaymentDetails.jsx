@@ -11,6 +11,7 @@ import { BASE_URL } from "../../api/api";
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
+import ButtonLoader from "../Global/ButtonLoader";
 // import PlanPurchaseSuccessModal from "./PlanPurchaseSuccessModal";
 // import PostBoostedSuccessModal from "./PostBoostedSuccessModal";
 
@@ -26,14 +27,11 @@ const AddPaymentDetails = () => {
   const stripe = useStripe();
   const { user, fetchUserProfile } = useContext(AuthContext);
   const [paymentMethodId, setPaymentMethodId] = useState("");
+  const [addingCard, setAddingCard] = useState(false);
 
   const handleBuyPlan = () => {
     setShowSuccessModal(true);
     setShowInfoModal(true);
-
-    //     setTimeout(() => {
-    //     //   setShowSuccessModal(false);
-    // }, 800);
   };
 
   const handleCloseInfoModal = () => {
@@ -47,23 +45,24 @@ const AddPaymentDetails = () => {
 
   const handleAddCardFalse = async (e) => {
     e.preventDefault();
-    // setAddCard(!addCard);
-    // setShowCard(!showCard);
+    setAddingCard(true);
+
     try {
       if (!stripe || !elements) {
         console.log("Stripe.js has not loaded yet.");
+        setAddingCard(false);
         return;
       }
 
-      // Get the CardElement from the elements context
       const cardElement = elements.getElement(CardElement);
 
       if (!cardElement) {
         console.error("CardElement is not rendered.");
+        toast.error("Something went wrong.");
+        setAddingCard(false);
         return;
       }
 
-      // Create a payment method with the card details
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: "card",
         card: cardElement,
@@ -72,6 +71,7 @@ const AddPaymentDetails = () => {
       if (error) {
         console.error(error);
         setIsProcessing(false);
+        setAddingCard(false);
         alert("Error processing payment method: " + error.message);
         return;
       }
@@ -80,7 +80,6 @@ const AddPaymentDetails = () => {
       setPaymentMethodId(paymentMethod?.id);
       if (paymentMethod?.id) {
         if (paymentMethodId) {
-          // setAddCard(!addCard);
           try {
             const response = await axios.post(
               `${BASE_URL}/stripe/customer-card`,
@@ -96,21 +95,25 @@ const AddPaymentDetails = () => {
 
             console.log("subscription purchased >>>", response);
             if (response?.data?.success) {
+              setAddCard(true);
               handleAddCardTrue();
-              // setShowSuccessModal(true);
-              // setAddCard(!addCard);
+              fetchUserProfile();
             }
-            // setShowCard(!showCard);
           } catch (error) {
             console.log("error while adding payment method id >>", error);
             toast.error(error?.response?.data?.message);
           }
         }
+      } else {
+        console.log("paymentMethodId not found >>>>");
+        toast.error("Something wrong while adding card.");
       }
     } catch (error) {
       console.log("err while adding card >>>", error?.response?.data);
       toast.error(error?.response?.data?.message);
       handleAddCardTrue();
+    } finally {
+      setAddingCard(false);
     }
   };
 
@@ -131,8 +134,13 @@ const AddPaymentDetails = () => {
         }
       );
       console.log("subscribed successfully >>>", res);
+      if (res?.status === 201) {
+        setShowInfoModal(true);
+        fetchUserProfile();
+      }
     } catch (error) {
       console.log("error while subscribing >>>", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     }
   };
 
@@ -190,10 +198,9 @@ const AddPaymentDetails = () => {
           <div className="w-full lg:w-[635px] mt-2">
             <button
               type="submit"
-              // onClick={handleAddCardFalse}
               className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
             >
-              Save
+              {addingCard ? <ButtonLoader /> : "Save"}
             </button>
           </div>
         </form>

@@ -6,6 +6,7 @@ import { BASE_URL } from "../../api/api";
 import FavoriteProductCard from "../Global/FavoriteProductCard";
 import Loader from "../Global/Loader";
 import { toast } from "react-toastify";
+import FavoriteServiceCard from "./FavouriteServiceCard";
 
 const FavouriteItemsList = () => {
   const [showServices, setShowServices] = useState(false);
@@ -50,7 +51,7 @@ const FavouriteItemsList = () => {
         `${BASE_URL}/users/wishlist-services?page=${page}`,
         options
       );
-      console.log("wishlist-services >>>", res?.data);
+      // console.log("wishlist-services >>>", res?.data);
       setServices(res?.data?.data);
     } catch (error) {
       console.log("home screen products err >>>>", error);
@@ -91,6 +92,33 @@ const FavouriteItemsList = () => {
       navigate("/login");
     }
   };
+  const handleRemoveServiceFromFavorite = async (id) => {
+    if (user?.token) {
+      try {
+        const res = await axios.delete(
+          `${BASE_URL}/users/wishlist-service/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        console.log("product removed from favorite >>>>>", res);
+        if (res?.status == 200) {
+          fetchUserProfile();
+          fetchServices();
+          // toast.success(res?.data?.message);
+        }
+      } catch (error) {
+        console.log("product removed from favorite err >>>>>", error);
+        if (error?.status === 409) {
+          toast.error(error?.response?.data?.message);
+        }
+      }
+    } else {
+      navigate("/login");
+    }
+  };
 
   const handleShowServices = (category) => {
     if (category == "services") {
@@ -104,7 +132,7 @@ const FavouriteItemsList = () => {
     return <Loader />;
   }
   return (
-    <div className="w-full min-h-96">
+    <div className="w-full min-h-screen">
       <div className="w-full flex items-center justify-between">
         <h2 className="text-[28px] font-bold blue-text">
           {showServices ? "Favorite Services" : "Favorite Products"}
@@ -133,26 +161,20 @@ const FavouriteItemsList = () => {
       {showServices ? (
         // services
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-10">
-          {products?.length > 0 ? (
+          {services?.length > 0 ? (
             <>
-              {services?.length > 0 ? (
-                <>
-                  {services?.map((product, index) => {
-                    return (
-                      <FavoriteProductCard
-                        product={product}
-                        key={index}
-                        handleRemoveFromFavorite={handleRemoveFromFavorite}
-                      />
-                    );
-                  })}
-                </>
-              ) : (
-                <h3 className="blue-text font-bold">No Services Added Yet.</h3>
-              )}
+              {services?.map((service, index) => {
+                return (
+                  <FavoriteServiceCard
+                    service={service}
+                    key={index}
+                    handleRemoveFromFavorite={handleRemoveServiceFromFavorite}
+                  />
+                );
+              })}
             </>
           ) : (
-            <></>
+            <h3 className="blue-text font-bold">No Services Added Yet.</h3>
           )}
         </div>
       ) : (
