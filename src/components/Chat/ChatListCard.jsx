@@ -1,15 +1,28 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AuthContext } from "../../context/authContext";
 
-const ChatListCard = ({ item, selectedUser, lastMessage, onlineStatus,toggleChatList }) => {
-  console.log(lastMessage, "lastMessages", item, onlineStatus);
-
+const ChatListCard = ({
+  item,
+  selectedUser,
+  lastMessage,
+  onlineStatus,
+  toggleChatList,
+}) => {
+  const { user } = useContext(AuthContext);
+  // console.log("lastMessage >>>", lastMessage?.id);
+  // console.log("onlineStatus >>", onlineStatus?.userId === lastMessage?.id);
+  // console.log("onlineStatus?.userId >>", onlineStatus?.userId);
   return (
     <div
       onClick={() => {
         if (toggleChatList) {
-          toggleChatList();          
+          toggleChatList();
         }
-        selectedUser(lastMessage?.id, lastMessage,onlineStatus);
+        selectedUser(
+          lastMessage?.id,
+          lastMessage,
+          lastMessage?.isOnline?.isOnline
+        );
       }}
       className="py-3 px-5 flex items-start justify-between border-b hover:bg-gray-50 transition-all duration-300 cursor-pointer"
     >
@@ -26,7 +39,7 @@ const ChatListCard = ({ item, selectedUser, lastMessage, onlineStatus,toggleChat
           />
           <span
             className={`flex absolute -right-[10px] w-3 h-3 me-3 ${
-              onlineStatus?.isOnline ? "bg-green-300" : "bg-yellow-300"
+              lastMessage?.isOnline?.isOnline ? "bg-green-300" : "bg-yellow-300"
             } rounded-full`}
           ></span>
         </div>
@@ -43,7 +56,7 @@ const ChatListCard = ({ item, selectedUser, lastMessage, onlineStatus,toggleChat
           </span>
         </div>
       </div>
-      <div className="w-[20%]">
+      <div className="w-[15%] text-end">
         <span className="text-xs font-medium">
           {new Date(
             lastMessage?.lastMessage?.timestamp?.toDate()
@@ -51,12 +64,12 @@ const ChatListCard = ({ item, selectedUser, lastMessage, onlineStatus,toggleChat
             hour: "2-digit",
             minute: "2-digit",
           })}
-          {new Date(
+          {/* {new Date(
             lastMessage?.lastMessage?.timestamp?.toDate()
           ).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
-          })}
+          })} */}
         </span>
       </div>
     </div>

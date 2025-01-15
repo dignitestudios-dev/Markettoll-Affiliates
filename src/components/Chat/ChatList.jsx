@@ -48,14 +48,16 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
     const chatId = userId;
     const sellerRef = collection(db, "chats", chatId, "myUsers");
 
-
     try {
       const messagesQuery = query(sellerRef);
       const querySnapshot = await getDocs(messagesQuery);
       const userIds = querySnapshot.docs.map((doc) => doc.id);
       getStatusDataForUserIds(userIds);
       onSnapshot(sellerRef, (snapshot) => {
-        const updatedUserList = snapshot.docs.map((doc) => ({
+        const updatedUserList = snapshot.docs.map((doc, i) => ({
+          isOnline: doc.id.includes(onlineStatus[i]?.userId)
+            ? onlineStatus[i]
+            : false,
           id: doc.id,
           ...doc.data(),
         }));
@@ -66,11 +68,10 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
       console.error("Error fetching users: ", error);
     }
   };
-
-
   useEffect(() => {
     fetchUsers();
   }, [userId]);
+  console.log(LastMessages, "statusUser");
 
   const filterUser = (e) => {
     const filterValue = e.target.value;
@@ -86,12 +87,6 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
       setLastMessages(dataFilter);
     }
   };
-
-  console.log(
-    LastMessages,
-
-    "lastMessagegestt"
-  );
 
   return (
     <div className="w-full h-full border-r  overflow-hidden  pr-5">
@@ -121,9 +116,9 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
 
           // Convert Firebase timestamp to milliseconds
           const aMillis =
-            aTimestamp.seconds * 1000 + aTimestamp.nanoseconds / 1000000;
+            aTimestamp?.seconds * 1000 + aTimestamp?.nanoseconds / 1000000;
           const bMillis =
-            bTimestamp.seconds * 1000 + bTimestamp.nanoseconds / 1000000;
+            bTimestamp?.seconds * 1000 + bTimestamp?.nanoseconds / 1000000;
 
           return bMillis - aMillis; // Sorting in descending order (latest first)
         })?.map((item, i) => (

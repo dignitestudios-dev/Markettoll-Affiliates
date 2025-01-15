@@ -153,7 +153,7 @@ const MessageBoard = ({
             />
             <span
               className={`flex absolute -right-[10px] w-3 h-3 me-3 ${
-                singleOnline?.isOnline ? "bg-green-300" : "bg-yellow-300"
+                singleOnline ? "bg-green-300" : "bg-yellow-300"
               } rounded-full`}
             ></span>
           </div>
@@ -245,7 +245,7 @@ const MessageBoard = ({
       {/* Input Box */}
       {EmogiPick && (
         <div className="absolute bottom-0">
-          <EmojiPicker onEmojiClick={(e) => handleEmojiClick(e)}  />
+          <EmojiPicker onEmojiClick={(e) => handleEmojiClick(e)} />
         </div>
       )}
       <div className="w-full  px-5 flex relative items-center justify-center bg-white">
