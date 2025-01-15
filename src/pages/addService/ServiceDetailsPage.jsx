@@ -54,10 +54,13 @@ const ServiceDetailsPage = () => {
   };
 
   const userDetail = {
-      profileImage: service?.sellerDetails?.profileImage,
-      name: service?.sellerDetails?.name,
-      id: service?.sellerDetails?._id,
+    id: service?.sellerDetails?._id,lastMessage:{
+    profileImage: service?.sellerDetails?.profileImage,
+    profileName: service?.sellerDetails?.name,
+    id: service?.sellerDetails?._id,
+  }
   };
+  
 
   const productAvgRating =
     (service?.avgRating?.oneStar * 1 +

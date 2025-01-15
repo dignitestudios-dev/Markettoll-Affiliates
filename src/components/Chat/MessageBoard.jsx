@@ -9,6 +9,8 @@ import {
   serverTimestamp,
   setDoc,
 } from "../../firebase/firebase";
+import EmojiPicker from "emoji-picker-react";
+import { SlEmotsmile } from "react-icons/sl";
 
 const MessageBoard = ({
   messages,
@@ -16,7 +18,9 @@ const MessageBoard = ({
   seller,
   fetchMessages,
   userInfo,
+  singleOnline,
 }) => {
+  const [EmogiPick, SetEmogiPick] = useState(false);
   const [message, setMessage] = useState("");
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
@@ -27,8 +31,8 @@ const MessageBoard = ({
       content: message,
       contentType: "text",
       isRead: false,
-      profileImage: seller?.profileImage,
-      profileName: seller?.name,
+      profileImage: seller?.lastMessage?.profileImage,
+      profileName: seller?.lastMessage?.profileName,
       timestamp: serverTimestamp(),
     };
 
@@ -87,19 +91,34 @@ const MessageBoard = ({
 
     return `${month}/${day}/${year}`; // Format as 1/12/2025
   };
-
+  const handleEmojiClick = (e) => {
+    setMessage((prevMessage) => prevMessage + e.emoji); // Append emoji to the message string
+  };
 
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
       <div className="chat-header w-full h-[8%] border-b flex items-center justify-between px-5">
         <div className="flex items-center gap-2">
-          <img
-            src={seller?.profileImage ? seller?.profileImage : "/chat-img.png"}
-            alt="user profile"
-            className="w-[42px] rounded-full h-[42px]"
-          />
-          <span className="text-sm font-semibold">{seller?.name}</span>
+          <div className="relative flex">
+            <img
+              src={
+                seller?.lastMessage?.profileImage
+                  ? seller?.lastMessage?.profileImage
+                  : "/chat-img.png"
+              }
+              alt="user profile"
+              className="w-[42px] rounded-full h-[42px]"
+            />
+            <span
+              className={`flex absolute -right-[10px] w-3 h-3 me-3 ${
+                singleOnline?.isOnline ? "bg-green-300" : "bg-yellow-300"
+              } rounded-full`}
+            ></span>
+          </div>
+          <span className="text-sm font-semibold">
+            {seller?.lastMessage?.profileName}
+          </span>
         </div>
         <button type="button">
           <TbDotsVertical className="text-lg" />
@@ -131,7 +150,7 @@ const MessageBoard = ({
                   }`}
                 >
                   <div
-                    className={`w-[80%] lg:w-[307px] ${
+                    className={`min-w-auto max-w-[50%] ${
                       item.senderId !== userId
                         ? "bg-[#F7F7F7] text-[#000000]"
                         : "blue-bg text-white"
@@ -156,8 +175,18 @@ const MessageBoard = ({
       {/* </div> */}
 
       {/* Input Box */}
-      <div className="w-full  px-5 flex items-center justify-center bg-white">
+      {EmogiPick && (
+        <div className="absolute bottom-0">
+          <EmojiPicker onEmojiClick={(e) => handleEmojiClick(e)}  />
+        </div>
+      )}
+      <div className="w-full  px-5 flex relative items-center justify-center bg-white">
         <div className="border rounded-[20px] w-full flex items-center gap-2 px-4 py-2">
+          <SlEmotsmile
+            onClick={() => SetEmogiPick(!EmogiPick)}
+            size={25}
+            className="cursor-pointer text-[#0098EA]"
+          />
           <input
             type="text"
             value={message}

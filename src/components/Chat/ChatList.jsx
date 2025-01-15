@@ -5,80 +5,75 @@ import { AuthContext } from "../../context/authContext";
 import {
   collection,
   db,
+  doc,
+  getDoc,
   getDocs,
   onSnapshot,
+  orderBy,
   query,
 } from "../../firebase/firebase";
 import { BASE_URL } from "../../api/api";
 
-const ChatList = ({ selectedUser,messagReal }) => {
+const ChatList = ({ selectedUser, toggleChatList }) => {
   const [userList, setUserList] = useState([]);
   const [LastMessages, setLastMessages] = useState([]);
   const { user } = useContext(AuthContext);
   const [originalUserList, setOriginalUserList] = useState([]);
   const userId = user?._id;
+  const [onlineStatus, setOnlineStatus] = useState([]);
+
+  const getStatusDataForUserIds = (userIds) => {
+    userIds.forEach((userId) => {
+      const userRef = doc(db, "status", userId);
+      onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const statusData = docSnap.data();
+          setOnlineStatus((prevStatus) => {
+            const existingStatusIndex = prevStatus.findIndex(
+              (status) => status.userId === userId
+            );
+            if (existingStatusIndex !== -1) {
+              prevStatus[existingStatusIndex] = { ...statusData, userId };
+            } else {
+              prevStatus.push({ ...statusData, userId });
+            }
+            return [...prevStatus]; // Return a new array to trigger re-render
+          });
+        }
+      });
+    });
+  };
 
   const fetchUsers = async () => {
-    const chatId = userId; 
+    const chatId = userId;
     const sellerRef = collection(db, "chats", chatId, "myUsers");
-  
+
     try {
       const messagesQuery = query(sellerRef);
       const querySnapshot = await getDocs(messagesQuery);
-  
-      const userIds = querySnapshot.docs.map((doc) => doc.id); 
-
-      const promises = userIds.map((item) => {
-        return fetch(`${BASE_URL}/users/profile-details/${item}`, {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => data?.data);
-      });
-  
-      // Resolving all promises and updating user data
-      Promise.all(promises)
-        .then((allData) => {
-          const updatedUserList = allData.map((userData, index) => {
-            return {
-              ...userData,
-              id: userIds[index], // Include the ID for each user
-            };
-          });
-  
-          setUserList(updatedUserList);
-          setOriginalUserList(updatedUserList); 
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
-  
-      // Setting up real-time snapshot listener
+      const userIds = querySnapshot.docs.map((doc) => doc.id);
+      getStatusDataForUserIds(userIds);
       onSnapshot(sellerRef, (snapshot) => {
-        // Capture updates from the Firestore collection in real-time
-        const updatedUserList = snapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() }; // Include the document ID with the data
-        });
-  
-        // Optionally, update UI with real-time changes
+        const updatedUserList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setLastMessages(updatedUserList);
+        setOriginalUserList(updatedUserList);
       });
-  
     } catch (error) {
       console.error("Error fetching users: ", error);
     }
   };
-  
+
   useEffect(() => {
     fetchUsers();
-  }, [userId, messagReal]);
-  
+  }, [userId]);
+
   const filterUser = (e) => {
     const filterValue = e.target.value;
     if (filterValue === "") {
-      setUserList(originalUserList);
+      setLastMessages(originalUserList);
     } else {
       const dataFilter = originalUserList.filter((item) =>
         item.lastMessage.profileName
@@ -86,9 +81,15 @@ const ChatList = ({ selectedUser,messagReal }) => {
           .includes(filterValue.toLowerCase())
       );
       console.log(dataFilter, filterValue, originalUserList, "filteration");
-      setUserList(dataFilter);
+      setLastMessages(dataFilter);
     }
   };
+
+  console.log(
+    LastMessages,
+
+    "lastMessagegestt"
+  );
 
   return (
     <div className="w-full h-full border-r  overflow-hidden  pr-5">
@@ -107,15 +108,31 @@ const ChatList = ({ selectedUser,messagReal }) => {
           <CiSearch className="light-blue-text text-xl" />
         </div>
       </div>
-      <div className="w-full max-h-[80%] py-2 mt-14 overflow-y-scroll chat-list">
-        {userList?.map((item, i) => (
-          <>
-            <ChatListCard
-              item={item}
-              lastMessage={LastMessages[i]}
-              selectedUser={selectedUser}
-            />
-          </>
+      <div
+        className={`w-full ${
+          toggleChatList ? "mt-20" : "mt-10"
+        }  max-h-[80%] py-2  overflow-y-scroll chat-list`}
+      >
+        {LastMessages?.sort((a, b) => {
+          const aTimestamp = a?.lastMessage?.timestamp;
+          const bTimestamp = b?.lastMessage?.timestamp;
+
+          // Convert Firebase timestamp to milliseconds
+          const aMillis =
+            aTimestamp.seconds * 1000 + aTimestamp.nanoseconds / 1000000;
+          const bMillis =
+            bTimestamp.seconds * 1000 + bTimestamp.nanoseconds / 1000000;
+
+          return bMillis - aMillis; // Sorting in descending order (latest first)
+        })?.map((item, i) => (
+          <ChatListCard
+            key={i} // Always use a unique "key" for mapped elements.
+            item={item}
+            toggleChatList={toggleChatList}
+            onlineStatus={onlineStatus[i]}
+            lastMessage={LastMessages[i]}
+            selectedUser={selectedUser}
+          />
         ))}
       </div>
     </div>
