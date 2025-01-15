@@ -9,6 +9,7 @@ import { BASE_URL } from "../../api/api";
 import SuccessModal from "../Global/SuccessModal";
 import { toast } from "react-toastify";
 import ButtonLoader from "../Global/ButtonLoader";
+import { db, doc, setDoc } from "../../firebase/firebase";
 
 const validate = (values) => {
   const errors = {};
@@ -90,6 +91,11 @@ const SignUpForm = () => {
         );
         console.log("Sign up res >>", res);
         Cookies.set("user", JSON.stringify(res?.data?.data));
+        const newDocRef = doc(db, "status",res?.data?.data?._id);
+        setDoc(newDocRef, {
+          isOnline: true,
+          lastSeen: new Date(), 
+        });
         localStorage.setItem("user", JSON.stringify(res?.data?.data));
         if (res.status == 201) {
           setShowModal(true);

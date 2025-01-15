@@ -46,7 +46,7 @@ const { setData } = useContext(CartProductContext);
       <div className="w-full flex items-center justify-between z-0">
         <h2 className="text-2xl lg:text-[36px] font-bold">
           <span className="blue-text">
-            Welcome  {userProfile?.name ? `${userProfile?.name},` : ""}
+            Welcome {userProfile?.name ? `${userProfile?.name},` : ""}
           </span>{" "}
           <span>Let’s Shop!</span>
         </h2>

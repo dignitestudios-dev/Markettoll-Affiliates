@@ -63,6 +63,7 @@ input[type="number"]::-ms-clear {
 
 .chat-list::-webkit-scrollbar {
   width: 6px;
+  background-color: #0098EA;
 }
 
 /* Track */
@@ -73,6 +74,7 @@ input[type="number"]::-ms-clear {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   @apply bg-[#0098EA];
+  border-radius: 20px !important;
 }
 
 /* Handle on hover */

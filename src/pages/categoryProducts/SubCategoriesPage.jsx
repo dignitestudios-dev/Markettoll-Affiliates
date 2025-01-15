@@ -11,12 +11,15 @@ const SubCategoriesPage = () => {
   const { user } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const location = useLocation();
-  // console.log(category);
+  console.log(category);
+  console.log(category);
 
   const subCategoryProducts = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/home-screen-searched-products?name=o&category=${category}&subCategory=${subCategory}&page=1`,
+        `${BASE_URL}/users/home-screen-searched-products?name=o&category=${encodeURIComponent(
+          category
+        )}&subCategory=${encodeURIComponent(subCategory)}&page=1`,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,

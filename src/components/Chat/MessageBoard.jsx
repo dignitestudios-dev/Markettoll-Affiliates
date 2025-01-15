@@ -17,27 +17,23 @@ const MessageBoard = ({
   fetchMessages,
   userInfo,
 }) => {
-  console.log(userInfo, "seller");
-
   const [message, setMessage] = useState("");
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
-    const chatId = seller?.lastMessage?.senderId;
-
-    // Prepare the new message objects for both the sender and receiver
+    const chatId = userId;
     const lastMessage = {
       senderId: userId,
-      receiverId: seller?.lastMessage?.receiverId,
+      receiverId: seller?.id,
       content: message,
       contentType: "text",
       isRead: false,
-      profileImage: seller?.lastMessage?.profileImage,
-      profileName: seller?.lastMessage?.profileName,
+      profileImage: seller?.profileImage,
+      profileName: seller?.name,
       timestamp: serverTimestamp(),
     };
 
     const RecReflastMessage = {
-      senderId: seller?.lastMessage?.receiverId,
+      senderId: seller?.id,
       receiverId: userId,
       content: message,
       contentType: "text",
@@ -49,59 +45,61 @@ const MessageBoard = ({
 
     const messageData = {
       senderId: userId,
-      receiverId: seller?.lastMessage?.receiverId,
+      receiverId: seller?.id,
       content: message,
       contentType: "text",
       timestamp: serverTimestamp(),
     };
 
     try {
-      const messagesRef = collection(
-        db,
-        "chats",
-        chatId,
-        seller?.lastMessage?.receiverId
-      );
+      const messagesRef = collection(db, "chats", chatId, seller?.id);
       await addDoc(messagesRef, messageData);
-      await setDoc(
-        doc(db, "chats", chatId, "myUsers", seller?.lastMessage?.receiverId),
-        {
-          lastMessage: lastMessage,
-        }
-      );
-      const recRef = collection(
-        db,
-        "chats",
-        seller?.lastMessage?.receiverId,
-        chatId
-      );
+      await setDoc(doc(db, "chats", chatId, "myUsers", seller?.id), {
+        lastMessage: lastMessage,
+      });
+      const recRef = collection(db, "chats", seller?.id, chatId);
       await addDoc(recRef, messageData);
-      await setDoc(
-        doc(db, "chats", seller?.lastMessage?.receiverId, "myUsers", chatId),
-        {
-          lastMessage: RecReflastMessage,
-        }
-      );
-      fetchMessages(seller);
+      await setDoc(doc(db, "chats", seller?.id, "myUsers", chatId), {
+        lastMessage: RecReflastMessage,
+      });
+      fetchMessages(seller?.id, seller);
       setMessage("");
     } catch (error) {
       console.error("Error sending message: ", error);
     }
   };
-console.log(seller?.lastMessage,"sellerImages")
+
+  const formatDate = (timestamp) => {
+    const today = new Date();
+    const messageDate = new Date(timestamp?.toDate());
+
+    // Check if the message was sent today
+    if (
+      today.getDate() === messageDate.getDate() &&
+      today.getMonth() === messageDate.getMonth() &&
+      today.getFullYear() === messageDate.getFullYear()
+    ) {
+      return "Today"; // If the message is from today
+    }
+    const month = messageDate.getMonth() + 1; // Months are zero-indexed
+    const day = messageDate.getDate();
+    const year = messageDate.getFullYear();
+
+    return `${month}/${day}/${year}`; // Format as 1/12/2025
+  };
+
+
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
       <div className="chat-header w-full h-[8%] border-b flex items-center justify-between px-5">
         <div className="flex items-center gap-2">
           <img
-            src={seller?.lastMessage?.profileImage?seller?.lastMessage?.profileImage:"/chat-img.png"}
+            src={seller?.profileImage ? seller?.profileImage : "/chat-img.png"}
             alt="user profile"
             className="w-[42px] rounded-full h-[42px]"
           />
-          <span className="text-sm font-semibold">
-            {seller?.lastMessage?.profileName}
-          </span>
+          <span className="text-sm font-semibold">{seller?.name}</span>
         </div>
         <button type="button">
           <TbDotsVertical className="text-lg" />
@@ -110,34 +108,50 @@ console.log(seller?.lastMessage,"sellerImages")
       {/* Messages Box */}
       {/* <div className="w-full h-[68vh] overflow-y-auto chat-list"> */}
       <div className="w-full h-[68vh] overflow-y-auto chat-list overflow-x-hidden">
-        <p className="text-sm text-[#5c5c5c] text-center font-medium mb-2">
-          Today
-        </p>
+        {/* Display dynamic date or "Today" */}
         {messages
           .sort((a, b) => a?.timestamp?.toDate() - b?.timestamp?.toDate())
-          ?.map((item) => (
-            <div
-              className={`w-full px-2 flex flex-col ${
-                item.senderId !== userId ? "items-start" : "items-end"
-              }`}
-            >
-              <div
-                className={`w-[80%] lg:w-[307px] ${
-                  item.senderId !== userId
-                    ? "bg-[#F7F7F7] text-[#000000]"
-                    : "blue-bg text-white"
-                } p-3 rounded-xl text-wrap break-words text-xs lg:text-sm`}
-              >
-                {item.content}
+          ?.map((item, index, arr) => {
+            const currentMessageDate = formatDate(item.timestamp);
+            const prevMessageDate =
+              index > 0 ? formatDate(arr[index - 1].timestamp) : "";
+            return (
+              <div key={item.id}>
+                {currentMessageDate !== prevMessageDate &&
+                  currentMessageDate && (
+                    <p className="text-sm text-[#5c5c5c] mt-2 text-center font-medium mb-2">
+                      {currentMessageDate.includes("NaN/")
+                        ? ""
+                        : currentMessageDate}
+                    </p>
+                  )}
+                <div
+                  className={`w-full px-2 flex flex-col ${
+                    item.senderId !== userId ? "items-start" : "items-end"
+                  }`}
+                >
+                  <div
+                    className={`w-[80%] lg:w-[307px] ${
+                      item.senderId !== userId
+                        ? "bg-[#F7F7F7] text-[#000000]"
+                        : "blue-bg text-white"
+                    } p-3 rounded-xl text-wrap break-words text-xs lg:text-sm`}
+                  >
+                    {item.content}
+                  </div>
+                  <span className="text-[10px] text-[#5c5c5c]">
+                    {new Date(item?.timestamp?.toDate()).toLocaleTimeString(
+                      [],
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )}
+                  </span>
+                </div>
               </div>
-              <span className="text-[10px] text-[#5c5c5c]">
-                {new Date(item?.timestamp?.toDate()).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-          ))}
+            );
+          })}
       </div>
       {/* </div> */}
 

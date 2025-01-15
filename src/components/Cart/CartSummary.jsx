@@ -50,8 +50,7 @@ const CartSummary = ({
               },
             }
           );
-          console.log("order placed >>>", response);
-          // fetchCartProducts();
+          // console.log("order placed >>>", response);
           setOrderId(response?.data?.data?._id);
           setOrderData(response?.data?.data);
           if (response?.status == 201) {

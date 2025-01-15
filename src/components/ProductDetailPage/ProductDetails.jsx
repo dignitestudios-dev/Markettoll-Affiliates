@@ -122,7 +122,7 @@ const ProductDetails = () => {
 
   const handleIncrementQuantity = async (type) => {
     if (!user) {
-      toast.error("Login first to add product in cart");
+      toast.error("You must be logged in");
       return;
     }
     const endpoint =
@@ -220,44 +220,10 @@ const ProductDetails = () => {
           </Link>
           <div className="w-full flex flex-col lg:flex-row justify-start gap-x-8 gap-y-6">
             <div className="w-full relative lg:max-w-1/2">
-              {product?.seller === userProfile?._id ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleToggleDropdown}
-                    className="absolute z-10 top-4 right-4 bg-white w-[34px] h-[34px] rounded-lg flex items-center justify-center"
-                  >
-                    <HiOutlineDotsVertical className="text-xl" />
-                  </button>
-                  {openDropdown && (
-                    <div className="w-[151px] h-[122px] bg-white border absolute top-14 rounded-xl right-4 flex flex-col items-start justify-center p-5 gap-1">
-                      <Link
-                        to={`/edit-product/${product?._id}`}
-                        className="font-medium"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        type="button"
-                        className="font-medium"
-                        onClick={() => handletoggleDeleteModal(product._id)}
-                      >
-                        Delete
-                      </button>
-                      <button
-                        type="button"
-                        className="font-medium"
-                        onClick={() => handleBoostProduct()}
-                      >
-                        Boost Post
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
+              {product?.seller !== userProfile?._id && (
                 <button
                   type="button"
-                  className="absolute z-10 top-4 right-4"
+                  className="absolute z-10 top-5 right-5"
                   onClick={() =>
                     product?.isWishListed
                       ? handleRemoveFromFavorite()
@@ -304,7 +270,46 @@ const ProductDetails = () => {
                 <h2 className="text-[20px] blue-text font-bold">
                   {product?.name}
                 </h2>
-                <h3 className="text-[24px] font-bold">${product?.price}.00</h3>
+                <div className="flex items-center justify-end gap-4">
+                  <h3 className="text-[24px] font-bold">
+                    ${product?.price}.00
+                  </h3>
+                  {product?.seller === userProfile?._id && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleToggleDropdown}
+                        className=" z-10 bg-white w-[34px] h-[34px] rounded-lg flex items-center justify-center"
+                      >
+                        <HiOutlineDotsVertical className="text-xl" />
+                      </button>
+                      {openDropdown && (
+                        <div className="w-[151px] h-[122px] bg-white border absolute top-32 rounded-xl right-14 flex flex-col items-start justify-center p-5 gap-1">
+                          <Link
+                            to={`/edit-product/${product?._id}`}
+                            className="font-medium"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            type="button"
+                            className="font-medium"
+                            onClick={() => handletoggleDeleteModal(product._id)}
+                          >
+                            Delete
+                          </button>
+                          <button
+                            type="button"
+                            className="font-medium"
+                            onClick={() => handleBoostProduct()}
+                          >
+                            Boost Post
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="w-full border" />

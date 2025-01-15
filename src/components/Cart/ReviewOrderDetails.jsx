@@ -46,9 +46,6 @@ const ReviewOrderDetails = () => {
     }
   };
 
-
-
-
   const generateRandomNumber = () => {
     const randomNum = Math.floor(10000 + Math.random() * 90000); // Generates a 5-digit number
     setRandomNumber(randomNum);
@@ -58,7 +55,6 @@ const ReviewOrderDetails = () => {
     fetchSellerPrfile();
     generateRandomNumber();
   }, []);
-
 
   useEffect(() => {
     const currentDate = new Date();
