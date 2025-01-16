@@ -18,6 +18,7 @@ import {
   arrayRemove,
   deleteDoc
 } from "firebase/firestore";
+import { getMessaging, getToken } from "firebase/messaging";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -38,6 +39,7 @@ const db = getFirestore(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const appleProvider = new OAuthProvider("apple.com");
+const messaging = getMessaging(app);
 
 export {
   app,
@@ -55,5 +57,7 @@ export {
   orderBy,
   arrayUnion,
   arrayRemove,
-  deleteDoc
+  deleteDoc,
+  getToken,
+  messaging
 };

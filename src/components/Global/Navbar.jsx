@@ -33,6 +33,23 @@ const Navbar = () => {
       toast.info(msg);
     }
   };
+  const deleteFcmToken = async () => {
+    const fcmToken = JSON.parse(localStorage.getItem("fcmTokenMarkettoll"));
+    try {
+      const res = await axios.delete(
+        `${BASE_URL}/users/push-notification-token?platform=web&token=${fcmToken}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      // console.log("fcmToken deleted >>>", res?.data);
+      localStorage.removeItem("fcmTokenMarkettoll");
+    } catch (error) {
+      // console.log("err while deleting fcmToken >>>", error);
+    }
+  };
 
   const handleLogout = () => {
     navigate("/login");
@@ -41,6 +58,7 @@ const Navbar = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("market-signup");
     setShowProfileDropdown(!showProfileDropdown);
+    deleteFcmToken();
     fetchUserProfile();
   };
 
@@ -62,16 +80,17 @@ const Navbar = () => {
       // console.log("notifications >>>", res?.data?.data?.notifications);
       setNotifications(res?.data?.data?.notifications);
     } catch (error) {
-      // console.log(
-      //   "error while fetching notifications >>>",
-      //   error?.response?.data
-      // );
+      console.log(
+        "error while fetching notifications >>>",
+        error?.response?.data
+      );
     }
   };
 
   useEffect(() => {
     fetchNotifications();
     fetchUserProfile();
+    deleteFcmToken();
   }, []);
 
   const handleSearchProduct = async (e) => {
@@ -110,98 +129,100 @@ const Navbar = () => {
         <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
       <div className="hidden lg:flex items-center justify-end gap-3">
-        <form
-          onSubmit={handleSearchProduct}
-          className="w-[357px] h-[42px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
-        >
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
-          />
-          <button type="submit">
-            <IoSearchOutline className="text-white text-2xl" />
-          </button>
-        </form>
-        <button
-          type="button"
-          onClick={() => handleNavigate("/chats", "Login to see chats")}
-          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
-        >
-          <img
-            src="/message-icon-blue.png"
-            alt="messages-icon"
-            className="w-[18px] h-[18px]"
-          />
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            handleNavigate("/favourites", "Login to see favourites")
-          }
-          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
-        >
-          <img
-            src="/heart-icon-blue.png"
-            alt="heart-icon"
-            className="w-[18px] h-[18px]"
-          />
-        </button>
-        <button
-          type="button"
-          onClick={handleOpenNotifications}
-          className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
-        >
-          <img
-            src="/notifications-icon-blue.png"
-            alt="notifications-icon"
-            className="w-[18px] h-[18px]"
-          />
-          <NotificationsDropdown
-            openNotifications={openNotifications}
-            notifications={notifications}
-            setOpenNotifications={setOpenNotifications}
-          />
-        </button>
-        <button
-          type="button"
-          onClick={() => handleNavigate("/cart", "Login to see cart")}
-          to="/cart"
-          className="w-[32px] h-[32px] rounded-[10px] bg-white relative inline-flex items-center text-center justify-center"
-        >
-          <img
-            src="/cart-icon-blue.png"
-            alt="cart-icon"
-            className="w-[18px] h-[18px]"
-          />
-          <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-3 -end-3 dark:border-gray-900">
-            {user ? cartCount : 0}
-          </div>
-        </button>
         {user ? (
-          <button
-            type="button"
-            onClick={handleShowProfileDropdown}
-            className="flex items-center gap-2"
-          >
-            <img
-              src={
-                userProfile?.profileImage
-                  ? userProfile?.profileImage
-                  : "/upload-profile-image-icon.png"
+          <div className="hidden lg:flex items-center justify-end gap-3">
+            <form
+              onSubmit={handleSearchProduct}
+              className="w-[357px] h-[42px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
+            >
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
+              />
+              <button type="submit">
+                <IoSearchOutline className="text-white text-2xl" />
+              </button>
+            </form>
+            <button
+              type="button"
+              onClick={() => handleNavigate("/chats", "Login to see chats")}
+              className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
+            >
+              <img
+                src="/message-icon-blue.png"
+                alt="messages-icon"
+                className="w-[18px] h-[18px]"
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                handleNavigate("/favourites", "Login to see favourites")
               }
-              alt="profile-image"
-              className="w-[32px] h-[32px] rounded-full object-cover"
-            />
-            <span className="text-base font-medium text-white">
-              {userProfile?.name !== "" || userProfile?.name !== null
-                ? userProfile?.name
-                : ""}
-            </span>
-            <IoIosArrowDown className="text-white" />
-          </button>
+              className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
+            >
+              <img
+                src="/heart-icon-blue.png"
+                alt="heart-icon"
+                className="w-[18px] h-[18px]"
+              />
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenNotifications}
+              className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
+            >
+              <img
+                src="/notifications-icon-blue.png"
+                alt="notifications-icon"
+                className="w-[18px] h-[18px]"
+              />
+              <NotificationsDropdown
+                openNotifications={openNotifications}
+                notifications={notifications}
+                setOpenNotifications={setOpenNotifications}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleNavigate("/cart", "Login to see cart")}
+              to="/cart"
+              className="w-[32px] h-[32px] rounded-[10px] bg-white relative inline-flex items-center text-center justify-center"
+            >
+              <img
+                src="/cart-icon-blue.png"
+                alt="cart-icon"
+                className="w-[18px] h-[18px]"
+              />
+              <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-3 -end-3 dark:border-gray-900">
+                {user ? cartCount : 0}
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={handleShowProfileDropdown}
+              className="flex items-center gap-2"
+            >
+              <img
+                src={
+                  userProfile?.profileImage
+                    ? userProfile?.profileImage
+                    : "/upload-profile-image-icon.png"
+                }
+                alt="profile-image"
+                className="w-[32px] h-[32px] rounded-full object-cover"
+              />
+              <span className="text-base font-medium text-white">
+                {userProfile?.name !== "" || userProfile?.name !== null
+                  ? userProfile?.name
+                  : ""}
+              </span>
+              <IoIosArrowDown className="text-white" />
+            </button>{" "}
+          </div>
         ) : (
           <Link
             to="/login"
