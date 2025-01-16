@@ -68,10 +68,12 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
       console.error("Error fetching users: ", error);
     }
   };
+
   useEffect(() => {
-    fetchUsers();
-  }, [userId]);
-  console.log(LastMessages, "statusUser");
+    setInterval(() => {
+      fetchUsers();
+    }, 30000);
+  }, [userId, onlineStatus]);
 
   const filterUser = (e) => {
     const filterValue = e.target.value;

@@ -29,7 +29,7 @@ const MessageBoard = ({
   const [openDeleteChatModal, setOpenDeleteChatModal] = useState(false);
   const [openBlockUserModal, setOpenBlockUserModal] = useState(false);
   const [openReportModal, setOpenReportModal] = useState(false);
-
+const {LastMessages } = useContext(AuthContext);
   const toggleDropdown = () => {
     setDropdown(!dropdown);
   };
@@ -120,7 +120,7 @@ const MessageBoard = ({
   const handleEmojiClick = (e) => {
     setMessage((prevMessage) => prevMessage + e.emoji); // Append emoji to the message string
   };
-
+console.log(seller?.lastMessage,LastMessages,"sellectedIds")
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
@@ -151,11 +151,11 @@ const MessageBoard = ({
               alt="user profile"
               className="w-[42px] rounded-full h-[42px]"
             />
-            <span
+            {/* <span
               className={`flex absolute -right-[10px] w-3 h-3 me-3 ${
-                singleOnline ? "bg-green-300" : "bg-yellow-300"
+                LastMessages.filter(e=>e.id.includes(seller?.lastMessage?.id)) ? "bg-green-300" : "bg-yellow-300"
               } rounded-full`}
-            ></span>
+            ></span> */}
           </div>
           <span className="text-sm font-semibold">
             {seller?.lastMessage?.profileName}
