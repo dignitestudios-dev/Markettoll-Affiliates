@@ -89,6 +89,17 @@ const ReviewOrderDetails = () => {
     return <Loader />;
   }
 
+  console.log(sellerProfile, "sellterProfile");
+
+  const userDetail = {
+    id: location?.state?.orderData?.products[0]?.seller?.id,
+    lastMessage: {
+      profileImage: sellerProfile?.profileImage,
+      profileName: sellerProfile?.name,
+      id: location?.state?.orderData?.products[0]?.seller?.id,
+    },
+  };
+
   return (
     <div className="w-full padding-x py-6">
       <div className="bg-[#F7F7F7] rounded-[30px] p-5">
@@ -159,6 +170,7 @@ const ReviewOrderDetails = () => {
                                   </p>
                                   <Link
                                     to={`/chats`}
+                                    state={{ data: userDetail }}
                                     className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
                                   >
                                     <img
@@ -230,6 +242,7 @@ const ReviewOrderDetails = () => {
                                   </p>
                                   <Link
                                     to={`/chats`}
+                                    state={{ data: userDetail }}
                                     className="text-[13px] text-[#676767] flex items-center gap-2 mt-0.5"
                                   >
                                     <img

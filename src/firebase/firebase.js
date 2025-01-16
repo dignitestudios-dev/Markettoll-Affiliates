@@ -13,7 +13,10 @@ import {
   getDoc,
   updateDoc,
   onSnapshot,
-  orderBy
+  orderBy,
+  arrayUnion,
+  arrayRemove,
+  deleteDoc
 } from "firebase/firestore";
 
 // Firebase configuration
@@ -49,5 +52,8 @@ export {
   getDoc,
   updateDoc,
   onSnapshot,
-  orderBy
+  orderBy,
+  arrayUnion,
+  arrayRemove,
+  deleteDoc
 };

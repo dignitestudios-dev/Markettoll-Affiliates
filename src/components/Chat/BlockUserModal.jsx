@@ -1,36 +1,57 @@
 import axios from "axios";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import SuccessModal from "./SuccessModal";
+import {
+  arrayUnion,
+  db,
+  doc,
+  arrayRemove,
+  updateDoc,
+  getDoc,
+} from "../../firebase/firebase";
 
-const BlockUserModal = ({ state, onclose, sellerId }) => {
-  const { user } = useContext(AuthContext);
+const BlockUserModal = ({ state, onclose, sellerId, blockedStatus }) => {
+  const { user, setIsBlockedByUser, setHasBlocked } = useContext(AuthContext);
   const [userBlocked, setUserBlocked] = useState(false);
+  const [BlockUpdate, setBlockUpdate] = useState(false);
 
   const handleBlockUser = async () => {
     try {
-      const res = await axios.post(
-        `${BASE_URL}/users/chat-block-user/${sellerId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
-
-      console.log("block user res >>>>", res);
-      if (res?.status === 201) {
-        // toast.success();
-        setUserBlocked(true);
-      }
+      const userRef = doc(db, "blockStatus", user?._id);
+      await updateDoc(userRef, {
+        blockedUsers: blockedStatus
+          ? arrayRemove(sellerId)
+          : arrayUnion(sellerId),
+      });
+      setBlockUpdate(!BlockUpdate);
+      onclose();
     } catch (error) {
       console.log("err while blocking user >>>>", error);
       toast.error(error?.response?.data?.message);
     }
   };
+  const checkBlockUser = async () => {
+    const userDoc = await getDoc(doc(db, "blockStatus", user?._id));
+    const sellerDoc = await getDoc(doc(db, "blockStatus", sellerId));
+
+    if (userDoc.exists() && sellerDoc.exists()) {
+      const userBlockedList = userDoc.data().blockedUsers || [];
+      const sellerBlockedList = sellerDoc.data().blockedUsers || [];
+      setHasBlocked(userBlockedList.includes(sellerId));
+      setIsBlockedByUser(sellerBlockedList.includes(user?._id));
+    } else {
+      setHasBlocked(false);
+      setIsBlockedByUser(false);
+    }
+  };
+  useEffect(() => {
+    //  Checking Blocked User
+    checkBlockUser();
+    //  Checking Blocked User
+  }, [BlockUpdate]);
 
   const closeSuccessModal = () => {
     setUserBlocked(false);

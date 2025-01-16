@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoSend } from "react-icons/io5";
 import {
@@ -6,6 +6,7 @@ import {
   collection,
   db,
   doc,
+  getDoc,
   serverTimestamp,
   setDoc,
 } from "../../firebase/firebase";
@@ -15,6 +16,9 @@ import ReportChatUserModal from "./ReportChatUserModal";
 import { AuthContext } from "../../context/authContext";
 import EmojiPicker from "emoji-picker-react";
 import { SlEmotsmile } from "react-icons/sl";
+import { BASE_URL } from "../../api/api";
+import { toast } from "react-toastify";
+import axios from "axios";
 const MessageBoard = ({
   messages,
   userId,
@@ -29,7 +33,8 @@ const MessageBoard = ({
   const [openDeleteChatModal, setOpenDeleteChatModal] = useState(false);
   const [openBlockUserModal, setOpenBlockUserModal] = useState(false);
   const [openReportModal, setOpenReportModal] = useState(false);
-const {LastMessages } = useContext(AuthContext);
+
+  const { isBlockedByUser, hasBlocked } = useContext(AuthContext);
   const toggleDropdown = () => {
     setDropdown(!dropdown);
   };
@@ -52,6 +57,7 @@ const {LastMessages } = useContext(AuthContext);
     if (message.trim() === "") return;
     const chatId = userId;
     const lastMessage = {
+      userSendId: userId,
       senderId: userId,
       receiverId: seller?.id,
       content: message,
@@ -63,6 +69,7 @@ const {LastMessages } = useContext(AuthContext);
     };
 
     const RecReflastMessage = {
+      userSendId: userId,
       senderId: seller?.id,
       receiverId: userId,
       content: message,
@@ -94,6 +101,25 @@ const {LastMessages } = useContext(AuthContext);
       });
       fetchMessages(seller?.id, seller);
       setMessage("");
+
+      try {
+        const res = await axios.post(
+          `${BASE_URL}/users/chat-message-notification/${seller?.id}`,
+          {
+            title: "This is a chat message notification.",
+            attachments: [],
+            body: RecReflastMessage?.content,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${userInfo?.token}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.log("error while boosting service 1 >>>>", error);
+        toast.error(error?.response?.data?.message);
+      }
     } catch (error) {
       console.error("Error sending message: ", error);
     }
@@ -118,21 +144,25 @@ const {LastMessages } = useContext(AuthContext);
     return `${month}/${day}/${year}`; // Format as 1/12/2025
   };
   const handleEmojiClick = (e) => {
-    setMessage((prevMessage) => prevMessage + e.emoji); // Append emoji to the message string
+    setMessage((prevMessage) => prevMessage + e.emoji);
   };
-console.log(seller?.lastMessage,LastMessages,"sellectedIds")
+
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
       <BlockAndDeleteModal
         state={openDeleteChatModal}
         onclose={toggleDeleteChatModal}
-        sellerId={seller?.lastMessage?.receiverId}
+        sellerId={seller?.id}
+        userId={userInfo?._id}
+        fetchMessages={fetchMessages}
+        seller={seller}
       />
       <BlockUserModal
         state={openBlockUserModal}
         onclose={toggleBlockUserModal}
-        sellerId={seller?.lastMessage?.receiverId}
+        sellerId={seller?.id}
+        blockedStatus={hasBlocked || (isBlockedByUser && hasBlocked)}
       />
       <ReportChatUserModal
         state={openReportModal}
@@ -179,7 +209,7 @@ console.log(seller?.lastMessage,LastMessages,"sellectedIds")
                 onClick={() => toggleBlockUserModal()}
                 className="text-base font-medium w-full px-5 py-1 text-start"
               >
-                Block
+               {hasBlocked ? "Unblock" : "blocked"}
               </button>
               <button
                 type="button"
@@ -249,27 +279,35 @@ console.log(seller?.lastMessage,LastMessages,"sellectedIds")
         </div>
       )}
       <div className="w-full  px-5 flex relative items-center justify-center bg-white">
-        <div className="border rounded-[20px] w-full flex items-center gap-2 px-4 py-2">
-          <SlEmotsmile
-            onClick={() => SetEmogiPick(!EmogiPick)}
-            size={25}
-            className="cursor-pointer text-[#0098EA]"
-          />
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="w-full text-sm outline-none border-none"
-            placeholder="Type here..."
-          />
-          <button
-            onClick={handleSendMessage}
-            type="button"
-            className="w-[40px] h-[40px] rounded-full bg-blue-500 p-2.5"
-          >
-            <IoSend className="text-white w-full h-full" />
-          </button>
-        </div>
+        {hasBlocked || isBlockedByUser ? (
+          <div className="flex items-center justify-center bg-gray-100 p-4 rounded-[20px] w-full text-center">
+            <span className="text-sm text-red-500">
+              {hasBlocked ? "You blocked this user" : "User blocked you"}
+            </span>
+          </div>
+        ) : (
+          <div className="border rounded-[20px] w-full flex items-center gap-2 px-4 py-2">
+            <SlEmotsmile
+              onClick={() => SetEmogiPick(!EmogiPick)}
+              size={25}
+              className="cursor-pointer text-[#0098EA]"
+            />
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full text-sm outline-none border-none"
+              placeholder="Type here..."
+            />
+            <button
+              onClick={handleSendMessage}
+              type="button"
+              className="w-[40px] h-[40px] rounded-full bg-blue-500 p-2.5"
+            >
+              <IoSend className="text-white w-full h-full" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

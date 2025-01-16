@@ -20,6 +20,7 @@ const ChatPage = () => {
 
   const [seller, setSeller] = useState(location?.state?.data);
   const [singleOnline, setSingleOnline] = useState([]);
+console.log(seller,"sellter");
 
   const fetchMessages = async (senderId, seller, onlineStatus) => {
     setSingleOnline(onlineStatus);
@@ -45,6 +46,10 @@ const ChatPage = () => {
       console.error("Error fetching messages: ", error);
     }
   };
+
+  useEffect(()=>{
+    fetchMessages(seller?.id,seller,[]);
+  },[])
 
   const [showChatList, setShowChatList] = useState(false);
 

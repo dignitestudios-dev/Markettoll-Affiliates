@@ -11,6 +11,7 @@ import ButtonLoader from "../Global/ButtonLoader";
 import VerifyOtpModal from "./VerifyOtpModal";
 import UpdatePhoneNumberModal from "./UpdatePhoneNumberModal";
 import PhoneNumberSuccessModal from "./PhoneNumberSuccessModal";
+import { collection, db, getDocs } from "../../firebase/firebase";
 
 const PersonalInfo = () => {
   const [openNameModal, setOpenNameModal] = useState(false);
@@ -166,6 +167,44 @@ const UpdateNameModal = ({ openNameModal, onclick }) => {
       setLoading(false);
     }
   };
+
+  const chatsRef = collection(db, "chats");
+  async function getMyUsersSubcollection(docRef) {
+    const myUsersCollectionRef = collection(docRef, "myUsers");
+    const myUsersSnapshot = await getDocs(myUsersCollectionRef);
+
+    const myUsers = [];
+    myUsersSnapshot.forEach((doc) => {
+      myUsers.push(doc.data()); // Push the data of each document in "myUsers"
+    });
+
+    return myUsers;
+  }
+
+  // Fetch "myUsers" subcollection for each document in "chats"
+  async function fetchAllChats() {
+    const querySnapshot = await getDocs(chatsRef);
+  console.log(querySnapshot)
+    // Loop through each document in the "chats" collection
+    for (const docSnapshot of querySnapshot.docs) {
+      console.log(
+        `Fetching "myUsers" subcollection for document: ${docSnapshot.id}`
+      );
+
+      // Get a reference to the document
+      const docRef = doc(db, "chats", docSnapshot.id);
+
+      // Fetch "myUsers" subcollection for this document
+      const myUsers = await getMyUsersSubcollection(docRef);
+
+      // Log the "myUsers" subcollection data for the current document
+      console.log(`"myUsers" for ${docSnapshot.id}:`, myUsers);
+    }
+  }
+  useEffect(() => {
+    fetchAllChats();
+  }, []);
+
   return (
     openNameModal && (
       <div className="w-full h-screen fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center px-4">

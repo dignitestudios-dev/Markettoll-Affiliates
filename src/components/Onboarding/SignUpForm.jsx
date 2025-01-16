@@ -96,6 +96,8 @@ const SignUpForm = () => {
           isOnline: true,
           lastSeen: new Date(), 
         });
+        const BlockUserRef = doc(db, "blockStatus",res?.data?.data?._id);
+        setDoc(BlockUserRef,{blockedUsers:[]});
         localStorage.setItem("user", JSON.stringify(res?.data?.data));
         if (res.status == 201) {
           setShowModal(true);

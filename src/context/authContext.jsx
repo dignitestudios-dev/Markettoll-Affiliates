@@ -8,6 +8,8 @@ export const AuthContext = createContext();
 
 const AuthContextProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
+  const [hasBlocked, setHasBlocked] = useState(false);
+  const [isBlockedByUser, setIsBlockedByUser] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState({
     email: false,
     phone: false,
@@ -33,43 +35,45 @@ const AuthContextProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if(user){      
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        console.log("oof")
-        // The tab is inactive, set the user as offline and record last seen time
-        const userRef = doc(db, "status", user?._id);
-        updateDoc(userRef, {
-          isOnline: false,
-          lastSeen: new Date(), // Set the last seen timestamp
-        });
-      } else {
-        console.log("on")
-        // The tab is active, set the user as online
+    if (user) {
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          console.log("oof");
+          // The tab is inactive, set the user as offline and record last seen time
+          const userRef = doc(db, "status", user?._id);
+          updateDoc(userRef, {
+            isOnline: false,
+            lastSeen: new Date(), // Set the last seen timestamp
+          });
+        } else {
+          console.log("on");
+          // The tab is active, set the user as online
+          const userRef = doc(db, "status", user?._id);
+          updateDoc(userRef, {
+            isOnline: true,
+          });
+        }
+      };
+
+      // Event listener for tab visibility change
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      // Initial check on page load if the tab is visible
+      if (!document.hidden) {
         const userRef = doc(db, "status", user?._id);
         updateDoc(userRef, {
           isOnline: true,
         });
       }
-    };
 
-    // Event listener for tab visibility change
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    // Initial check on page load if the tab is visible
-    if (!document.hidden) {
-      const userRef = doc(db, "status", user?._id);
-      updateDoc(userRef, {
-        isOnline: true,
-      });
+      // Cleanup the event listener when the component unmounts
+      return () => {
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
+      };
     }
-
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-    
-  }
   }, [user?._id]);
 
   return (
@@ -81,6 +85,10 @@ const AuthContextProvider = ({ children }) => {
         userProfile,
         setUserProfile,
         fetchUserProfile,
+        hasBlocked,
+        setIsBlockedByUser,
+        isBlockedByUser,
+        setHasBlocked,
       }}
     >
       {children}

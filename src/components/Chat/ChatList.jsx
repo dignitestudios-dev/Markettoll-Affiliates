@@ -70,10 +70,14 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
   };
 
   useEffect(() => {
-    setInterval(() => {
+    fetchUsers();
+
+    const intervalId = setInterval(() => {
       fetchUsers();
     }, 30000);
-  }, [userId, onlineStatus]);
+    return () => clearInterval(intervalId);
+
+  }, []);
 
   const filterUser = (e) => {
     const filterValue = e.target.value;

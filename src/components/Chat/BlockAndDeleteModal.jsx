@@ -1,6 +1,36 @@
 import React from "react";
+import { collection, db, deleteDoc, doc, getDocs } from "../../firebase/firebase";
+import { toast } from "react-toastify";
 
-const BlockAndDeleteModal = ({ state, onclose }) => {
+const BlockAndDeleteModal = ({ state, onclose,userId,sellerId,seller,fetchMessages }) => {
+  const deleteChat = async () => {
+    try {
+      const chatId = userId;
+      const receiverId = sellerId;
+      const senderMessagesRef = collection(db, "chats", chatId, receiverId);
+      const receiverMessagesRef = collection(db, "chats", receiverId, chatId);
+      const senderMessagesSnapshot = await getDocs(senderMessagesRef);
+      senderMessagesSnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+
+      const receiverMessagesSnapshot = await getDocs(receiverMessagesRef);
+      receiverMessagesSnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+
+      await deleteDoc(doc(db, "chats", chatId, "myUsers", receiverId));
+      await deleteDoc(doc(db, "chats", receiverId, "myUsers", chatId));
+
+      fetchMessages(receiverId, seller);
+
+      onclose();
+    } catch (error) {
+      console.error("Error deleting chat: ", error);
+      toast.error("Error deleting the chat. Please try again.");
+    }
+  };
+
   return (
     state && (
       <div
@@ -12,7 +42,7 @@ const BlockAndDeleteModal = ({ state, onclose }) => {
           <div className="w-full flex items-center justify-end gap-3 mt-4">
             <button
               type="button"
-              //   onClick={onclose}
+              onClick={deleteChat}
               className="text-[13px] font-semibold text-[#FF3B30]"
             >
               Yes

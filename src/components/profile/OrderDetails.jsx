@@ -124,6 +124,15 @@ const OrderDetails = () => {
           <p className="text-sm">Will be delivered to your address</p>
         </div>
         {extractedProducts?.delivery?.map((product) => {
+          console.log(product?.product?.seller, "shelter");
+          const userDetail = {
+            id: product?.product?.seller?._id,
+            lastMessage: {
+              profileImage: product?.product?.seller?.profileImage,
+              profileName: product?.product?.seller?.name,
+              id: product?.product?.seller?._id,
+            },
+          };
           return (
             <div
               key={product?._id}
@@ -143,7 +152,8 @@ const OrderDetails = () => {
                     Delivery
                   </span>
                   <Link
-                    to={`/chats/${product?.product?.seller?._id}`}
+                    to={`/chats`}
+                    state={{ data: userDetail }}
                     className="font-normal text-[13px] text-[#9D9D9DDD] flex items-center gap-2"
                   >
                     <img
