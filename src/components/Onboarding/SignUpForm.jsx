@@ -91,10 +91,10 @@ const SignUpForm = () => {
         );
         console.log("Sign up res >>", res);
         Cookies.set("user", JSON.stringify(res?.data?.data));
-        const newDocRef = doc(db, "status",res?.data?.data?._id);
+        const newDocRef = doc(db, "status", res?.data?.data?._id);
         setDoc(newDocRef, {
           isOnline: true,
-          lastSeen: new Date(), 
+          lastSeen: new Date(),
         });
         const BlockUserRef = doc(db, "blockStatus",res?.data?.data?._id);
         setDoc(BlockUserRef,{blockedUsers:[]});
