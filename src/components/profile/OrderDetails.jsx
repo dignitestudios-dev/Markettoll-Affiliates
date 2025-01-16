@@ -162,13 +162,15 @@ const OrderDetails = () => {
                 <span className="font-bold blue-text text-xs md:text-[18px]">
                   ${product?.product?.price?.toFixed(2)}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => handleToggleFeedbackModal(product?._id)}
-                  className="px-5 md:px-8 lg:px-10 py-2 blue-bg text-white font-medium text-xs rounded-2xl"
-                >
-                  Give Feedback
-                </button>
+                {location?.state?.type !== "current-orders" && (
+                  <button
+                    type="button"
+                    onClick={() => handleToggleFeedbackModal(product?._id)}
+                    className="px-5 md:px-8 lg:px-10 py-2 blue-bg text-white font-medium text-xs rounded-2xl"
+                  >
+                    Give Feedback
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -215,13 +217,15 @@ const OrderDetails = () => {
                   <span className="font-bold blue-text text-xs md:text-[18px]">
                     ${product?.product?.price?.toFixed(2)}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleToggleFeedbackModal(product?._id)}
-                    className="px-5 md:px-8 lg:px-10 py-2 blue-bg text-white font-medium text-xs rounded-2xl"
-                  >
-                    Give Feedback
-                  </button>
+                  {location?.state?.type !== "current-orders" && (
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFeedbackModal(product?._id)}
+                      className="px-5 md:px-8 lg:px-10 py-2 blue-bg text-white font-medium text-xs rounded-2xl"
+                    >
+                      Give Feedback
+                    </button>
+                  )}
                 </div>
               </div>
               {/* Address and phone number */}

@@ -8,7 +8,7 @@ export const CartProductContext = createContext();
 
 const CartProductContextProvider = ({ children }) => {
   const [data, setData] = useState({});
-  const [cartCount,setCartCount]=useState(0);
+  const [cartCount, setCartCount] = useState(0);
   const { user } = useContext(AuthContext);
   const updateData = (address) => {
     setData((prevData) => ({
@@ -22,16 +22,24 @@ const CartProductContextProvider = ({ children }) => {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
-      });      
-      setCartCount(res?.data?.data?.length)
+      });
+      setCartCount(res?.data?.data?.length);
     } catch (error) {
       console.log("cartProducts err >>>", error);
-    } 
+    }
   };
-  
 
   return (
-    <CartProductContext.Provider value={{ data, setData, updateData,cartCount,setCartCount,fetchCartProducts }}>
+    <CartProductContext.Provider
+      value={{
+        data,
+        setData,
+        updateData,
+        cartCount,
+        setCartCount,
+        fetchCartProducts,
+      }}
+    >
       {children}
     </CartProductContext.Provider>
   );

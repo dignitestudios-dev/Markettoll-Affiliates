@@ -71,7 +71,6 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
   useEffect(() => {
     fetchUsers();
   }, [userId]);
-  console.log(LastMessages, "statusUser");
 
   const filterUser = (e) => {
     const filterValue = e.target.value;

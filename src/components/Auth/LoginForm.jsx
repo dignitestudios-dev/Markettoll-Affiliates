@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { LuEyeOff } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import SocialLogin from "./SocialLogin";
 import ButtonLoader from "../Global/ButtonLoader";
+import { getToken, messaging } from "../../firebase/firebase";
 
 const validate = (values) => {
   const errors = {};
@@ -35,6 +36,52 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [fcmToken, setFcmToken] = useState("");
+
+  // Request notification permission and retrieve FCM token
+  const requestNotificationPermission = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        const fcmToken = await getToken(messaging, {
+          vapidKey:
+            "BHduyiO2b203CE8_q-deJ6nzjawReezy16LF-1hi_CQKELLF-y4Jqnevt7wjhLZRPhnCiZ4SY1V8Co7GHfIfF-o",
+        });
+        console.log("fcmToken >>>", fcmToken);
+        setFcmToken(fcmToken);
+        localStorage.setItem("fcmTokenMarkettoll", JSON.stringify(fcmToken));
+        // return fcmToken;
+      } else {
+        throw new Error("Notification permission not granted");
+      }
+    } catch (err) {
+      console.error("Error getting FCM token", err);
+    }
+  };
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
+  const sendFcmToken = async (token) => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/push-notification-token`,
+        {
+          platform: "web",
+          token: fcmToken,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("fcmToken res >>>", res?.data);
+    } catch (error) {
+      console.log("err while posting fcmToken >>>", error);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -43,36 +90,42 @@ const LoginForm = () => {
     },
     validate,
     onSubmit: async (values, { resetForm }) => {
-      setLoading(true);
-      try {
-        const response = await axios.post(
-          `${BASE_URL}/users/email-password-login`,
-          values,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log("login response >>>>", response);
-        if (response.data.success) {
-          Cookies.set("user", JSON.stringify(response?.data?.data));
-          localStorage.setItem("user", JSON.stringify(response?.data?.data));
-          resetForm();
+      // const fcmToken = await requestPermissionAndGetToken();
+      if (fcmToken) {
+        setLoading(true);
+        try {
+          const response = await axios.post(
+            `${BASE_URL}/users/email-password-login`,
+            values,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          // console.log("login response >>>>", response);
+          if (response.data.success) {
+            await sendFcmToken(response?.data?.data?.token);
+            Cookies.set("user", JSON.stringify(response?.data?.data));
+            localStorage.setItem("user", JSON.stringify(response?.data?.data));
+            resetForm();
 
-          fetchUserProfile();
-          navigate("/");
-          return response.data;
-        } else {
-          console.error("Login failed:", response.data.message);
-          throw new Error(response.data.message);
+            fetchUserProfile();
+            navigate("/");
+            return response.data;
+          } else {
+            console.error("Login failed:", response.data.message);
+            throw new Error(response.data.message);
+          }
+        } catch (error) {
+          toast.error(error.response.data.message);
+          setError(error.response.data.message);
+          throw new Error(error.message);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        toast.error(error.response.data.message);
-        setError(error.response.data.message);
-        throw new Error(error.message);
-      } finally {
-        setLoading(false);
+      } else {
+        toast.error("Something went wrong.");
       }
     },
   });

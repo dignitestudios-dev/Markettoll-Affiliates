@@ -40,7 +40,9 @@ const CurrentOrderList = () => {
   }
 
   const handleNavigate = (id, data) => {
-    navigate(`/order-history/order-details/${id}`, { state: { data } });
+    navigate(`/order-history/order-details/${id}`, {
+      state: { data, type: "current-orders" },
+    });
   };
 
   return (

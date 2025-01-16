@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
@@ -9,6 +9,13 @@ const PastOrderList = () => {
   const [pastOrders, setPastOrders] = useState([]);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigate = (id, data) => {
+    navigate(`/order-history/order-details/${id}`, {
+      state: { data, type: "past-orders" },
+    });
+  };
 
   const fetchPastPurchasedProducts = async () => {
     setLoading(true);
