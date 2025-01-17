@@ -78,6 +78,9 @@ const ServiceReviewPage = () => {
       }
     } catch (error) {
       console.error("Error uploading service:", error);
+      if (error) {
+        toast.error(error?.response?.data?.message);
+      }
       if (error.status == 409) {
         // navigate("/subscriptions");
         setOpenModal(true);

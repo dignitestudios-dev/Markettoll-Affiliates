@@ -4,16 +4,23 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Loader from "../Global/Loader";
 
 const CartProductCard = ({ products, fetchCartProducts }) => {
   const [quantity, setQuantity] = useState(products?.quantity);
   const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
   const handleIncrementQuantity = async (type) => {
+    if (type === "increment" && products?.product?.quantity === quantity) {
+      toast.error("No more quantity available.");
+      return;
+    }
     const endpoint =
       type === "increment"
         ? `${BASE_URL}/users/cart-product-increment-by-one/${products?.product?._id}`
         : `${BASE_URL}/users/cart-product-decrement-by-one/${products?.product?._id}`;
+    // setLoading(true);
     try {
       const res = await axios.put(
         endpoint,
@@ -24,13 +31,13 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
           },
         }
       );
-      console.log("increment by one res >>>>>>", res);
+      // console.log("increment by one res >>>>>>", res);
       if (res.status == 200) {
         setQuantity(res?.data?.data?.quantity);
         fetchCartProducts();
       }
     } catch (error) {
-      console.log("decrement by one err >>>>>>", error);
+      // console.log("decrement by one err >>>>>>", error);
       toast.error(error?.response?.data?.message);
     }
   };
@@ -59,6 +66,10 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
     }
   };
 
+  // if (loading) {
+  //   return <Loader />;
+  // }
+
   return (
     <div className="border-t py-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -81,6 +92,7 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
             <div className="flex items-center justify-center">
               <button
                 type="button"
+                disabled={quantity === 1}
                 onClick={() => handleIncrementQuantity("decrement")}
                 className="py-1 px-2 rounded-l-[10px] text-center blue-bg"
               >
@@ -95,8 +107,9 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
               </button>
               <button
                 type="button"
+                disabled={quantity === products?.quantity}
                 onClick={() => handleIncrementQuantity("increment")}
-                className="py-1 px-2 rounded-r-[10px] text-center blue-bg"
+                className="py-1 px-2 rounded-r-[10px] text-center blue-bg disabled:cursor-not-allowed"
               >
                 <FaPlus className="text-sm text-white" />
               </button>

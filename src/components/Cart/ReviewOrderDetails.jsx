@@ -134,7 +134,7 @@ const ReviewOrderDetails = () => {
                     <div className="w-full">
                       {extractedProducts?.delivery?.map((prod, i) => {
                         return (
-                          <div className="w-full" key={i}>
+                          <div className="w-full mb-3" key={i}>
                             <div className="w-full flex items-center gap-2">
                               <img
                                 src={prod?.product?.seller?.profileImage}

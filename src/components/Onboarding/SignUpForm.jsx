@@ -34,11 +34,16 @@ const validate = (values) => {
 
   if (!values.password) {
     errors.password = "Required";
-  } else if (values.password < 8) {
-    errors.password = "Password must be 8 characters";
-  } else if (!/(?=.*[a-z])(?=.*[A-Z])/.test(values.password)) {
-    errors.password =
-      "Password must contain at least one uppercase letter and one lowercase letter";
+  } else if (values.password.length < 8) {
+    errors.password = "Password must be at least 8 characters";
+  } else if (!/(?=.*[a-z])/.test(values.password)) {
+    errors.password = "Password must contain at least one lowercase letter";
+  } else if (!/(?=.*[A-Z])/.test(values.password)) {
+    errors.password = "Password must contain at least one uppercase letter";
+  } else if (!/(?=.*[0-9])/.test(values.password)) {
+    errors.password = "Password must contain at least one number";
+  } else if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(values.password)) {
+    errors.password = "Password must contain at least one special character";
   }
 
   if (!values.confirmPassword) {
@@ -96,8 +101,8 @@ const SignUpForm = () => {
           isOnline: true,
           lastSeen: new Date(),
         });
-        const BlockUserRef = doc(db, "blockStatus",res?.data?.data?._id);
-        setDoc(BlockUserRef,{blockedUsers:[]});
+        const BlockUserRef = doc(db, "blockStatus", res?.data?.data?._id);
+        setDoc(BlockUserRef, { blockedUsers: [] });
         localStorage.setItem("user", JSON.stringify(res?.data?.data));
         if (res.status == 201) {
           setShowModal(true);

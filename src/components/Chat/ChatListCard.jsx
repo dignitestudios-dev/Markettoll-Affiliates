@@ -18,16 +18,15 @@ const ChatListCard = ({
   toggleChatList,
 }) => {
   const { user, setIsBlockedByUser, setHasBlocked } = useContext(AuthContext);
-  console.log("lastMessage >>>", lastMessage);
   return (
     <div
       onClick={async () => {
         if (toggleChatList) {
           toggleChatList();
         }
-        console.log("lastMessage >>>", lastMessage);
+        // console.log("lastMessage >>>", lastMessage);
         const chatId = user?._id;
-        console.log(chatId, "iduser");
+        // console.log(chatId, "iduser");
 
         const sellerRef = collection(db, "chats", chatId, "myUsers");
         try {

@@ -23,6 +23,8 @@ import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import { Thumbs } from "swiper/modules";
 import { CartProductContext } from "../../context/cartProductContext";
+import Loader from "../Global/Loader";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
@@ -40,6 +42,10 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [incrementingQty, setIncrementingQty] = useState(false);
+  const [decrementingQty, setDecrementingQty] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   const handleToggleDropdown = () => {
     setOpenDropdown(!openDropdown);
@@ -58,6 +64,7 @@ const ProductDetails = () => {
       toast.error("You must be logged in to add product in cart");
       return;
     }
+
     setFulfillmentMethod(method);
     try {
       const res = await axios.post(
@@ -89,6 +96,7 @@ const ProductDetails = () => {
       ? `${BASE_URL}/users/product/${productId}`
       : `${BASE_URL}/users/product/${productId}`;
     try {
+      setLoading(true);
       if (user?.token) {
         const res = await axios.get(`${BASE_URL}/users/product/${productId}`, {
           headers: {
@@ -106,6 +114,8 @@ const ProductDetails = () => {
         setNotFound(true);
       }
       console.log("product err >>>", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,10 +141,19 @@ const ProductDetails = () => {
       toast.error("You must be logged in");
       return;
     }
+    if (quantity === product?.quantity) {
+      toast.error("No more quantity available");
+      return;
+    }
     const endpoint =
       type === "increment"
         ? `${BASE_URL}/users/cart-product-increment-by-one/${productId}`
         : `${BASE_URL}/users/cart-product-decrement-by-one/${productId}`;
+    if (type === "increment") {
+      setIncrementingQty(true);
+    } else {
+      setDecrementingQty(true);
+    }
     try {
       const res = await axios.put(
         endpoint,
@@ -152,6 +171,12 @@ const ProductDetails = () => {
     } catch (error) {
       // console.log("decrement by one err >>>>>>", error);
       toast.error(error?.response?.data?.message);
+    } finally {
+      if (type === "increment") {
+        setIncrementingQty(false);
+      } else {
+        setDecrementingQty(false);
+      }
     }
   };
 
@@ -215,6 +240,13 @@ const ProductDetails = () => {
       navigate("/login");
     }
   };
+
+  if (loading) {
+    return <Loader />;
+  }
+  if (incrementingQty || decrementingQty) {
+    return <Loader />;
+  }
 
   if (notFound) {
     return (
@@ -368,6 +400,7 @@ const ProductDetails = () => {
 
               <div className="w-full border" />
 
+              {/* quantity buttons */}
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-center justify-center">
                   <button
@@ -389,11 +422,9 @@ const ProductDetails = () => {
                   </button>
                   <button
                     type="button"
-                    disabled={product?.quantity == 0}
+                    // disabled={quantity === product?.quantity}
                     onClick={() => handleIncrementQuantity("increment")}
-                    className={`py-3.5 px-6 rounded-r-[20px] text-center blue-bg ${
-                      product?.quantity == 0 && "cursor-not-allowed"
-                    }`}
+                    className={`py-3.5 px-6 rounded-r-[20px] text-center blue-bg`}
                   >
                     <FaPlus className="text-lg text-white" />
                   </button>

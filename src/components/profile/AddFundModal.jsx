@@ -21,7 +21,7 @@ const AddFundModal = ({
     if (showSuccessModal) {
       setShowSuccessModal(false);
       setShowFundModal(false);
-      setAmonut(0);
+      setAmonut("");
     } else {
       setShowSuccessModal(true);
     }

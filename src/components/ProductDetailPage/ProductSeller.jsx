@@ -5,7 +5,7 @@ import { FaRegStar } from "react-icons/fa6";
 
 const ProductSeller = ({ productData }) => {
   const navigate = useNavigate();
-  console.log(productData?.avgRating);
+  // console.log(productData?.avgRating);
   const handleNavigateToSellerProfile = () => {
     navigate(`/seller-profile/${productData?.seller}`, {
       state: { from: window.location.href },

@@ -83,7 +83,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
           .toLowerCase()
           .includes(filterValue.toLowerCase())
       );
-      console.log(dataFilter, filterValue, originalUserList, "filteration");
+      // console.log(dataFilter, filterValue, originalUserList, "filteration");
       setLastMessages(dataFilter);
     }
   };

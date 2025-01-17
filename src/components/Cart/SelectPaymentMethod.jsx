@@ -16,6 +16,7 @@ const SelectPaymentMethod = ({ onclick, count }) => {
   const { data, setData } = useContext(CartProductContext);
   const [paymentMethod, setPaymentMethod] = useState(null);
   const { userProfile } = useContext(AuthContext);
+  // console.log("userProfile >>>", userProfile);
 
   const handleToggleState = () => {
     setState(!state);
@@ -50,7 +51,7 @@ const SelectPaymentMethod = ({ onclick, count }) => {
         <div className="flex items-center gap-2 w-full">
           <input
             type="radio"
-            name="cardPayment"
+            name="paymentMethod"
             id="cardPayment"
             value={"Card"}
             onChange={() => handlePaymentMethodSelect("Card")}
@@ -78,7 +79,7 @@ const SelectPaymentMethod = ({ onclick, count }) => {
         <div className="flex items-center gap-2 w-full">
           <input
             type="radio"
-            name="walletPayment"
+            name="paymentMethod"
             id="walletPayment"
             value={"Pay via wallet"}
             onChange={() => handlePaymentMethodSelect("Pay via wallet")}
@@ -110,24 +111,25 @@ const SelectPaymentMethod = ({ onclick, count }) => {
             </div>
           </label>
         </div>
-
-        <button
-          type="button"
-          onClick={handleToggleState}
-          className="flex items-center gap-2 w-full lg:pl-[3%]"
-        >
-          <div className="bg-white border rounded-[20px] px-3 py-3 text-sm w-full flex items-center justify-between">
-            <div className=" flex items-center gap-3">
-              <img
-                src="/credit-card-icon.png"
-                alt="credit-card-icon"
-                className="w-[20px] h-[20px]"
-              />
-              <span className="text-[#5C5C5C]">Add Debit/ Credit Card</span>
+        {!userProfile?.stripeCustomer?.paymentMethod?.last4 && (
+          <button
+            type="button"
+            onClick={handleToggleState}
+            className="flex items-center gap-2 w-full lg:pl-[3%]"
+          >
+            <div className="bg-white border rounded-[20px] px-3 py-3 text-sm w-full flex items-center justify-between">
+              <div className=" flex items-center gap-3">
+                <img
+                  src="/credit-card-icon.png"
+                  alt="credit-card-icon"
+                  className="w-[20px] h-[20px]"
+                />
+                <span className="text-[#5C5C5C]">Add Debit/ Credit Card</span>
+              </div>
+              <MdOutlineKeyboardArrowRight className="text-2xl light-blue-text" />
             </div>
-            <MdOutlineKeyboardArrowRight className="text-2xl light-blue-text" />
-          </div>
-        </button>
+          </button>
+        )}
       </div>
 
       <AddPaymentMethod state={state} onclick={handleToggleState} />

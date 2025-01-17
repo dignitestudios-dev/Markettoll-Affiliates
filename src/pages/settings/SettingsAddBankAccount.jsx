@@ -263,10 +263,10 @@ const SettingsAddBankAccount = () => {
           <div className="flex items-center gap-2">
             <img src="/bank.png" alt="bank" className="w-5 h-5" />
             <span className="text-sm text-[#5C5C5C]">
-              **** **** ****{" "}
               {userProfile?.stripeConnectedAccount?.external_account?.id
-                ? userProfile?.stripeConnectedAccount?.external_account?.last4
-                : "7895"}
+                ? ` **** **** ****
+              ${userProfile?.stripeConnectedAccount?.external_account?.last4}`
+                : `Add Bank Account`}
             </span>
           </div>
           <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />

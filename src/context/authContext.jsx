@@ -48,7 +48,7 @@ const AuthContextProvider = ({ children }) => {
           });
         } else {
           setOnOF(!OnOF);
-          console.log("on");
+          // console.log("on");
           // The tab is active, set the user as online
           const userRef = doc(db, "status", user?._id);
           updateDoc(userRef, {

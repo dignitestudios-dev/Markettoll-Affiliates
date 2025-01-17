@@ -16,19 +16,31 @@ const validate = (values) => {
     errors.currentPassword = "Required";
   }
 
+  // if (!values.newPassword) {
+  //   errors.newPassword = "Required";
+  // } else if (values.newPassword < 8) {
+  //   errors.newPassword = "Password must be 8 characters";
+  // } else if (!/(?=.*[a-z])(?=.*[A-Z])/.test(values.newPassword)) {
+  //   errors.newPassword =
+  //     "Password must contain at least one uppercase letter and one lowercase letter";
+  // }
+
   if (!values.newPassword) {
     errors.newPassword = "Required";
-  } else if (values.newPassword < 8) {
-    errors.newPassword = "Password must be 8 characters";
-  } else if (!/(?=.*[a-z])(?=.*[A-Z])/.test(values.newPassword)) {
-    errors.newPassword =
-      "Password must contain at least one uppercase letter and one lowercase letter";
+  } else if (values.newPassword.length < 8) {
+    errors.newPassword = "Password must be at least 8 characters";
+  } else if (!/(?=.*[a-z])/.test(values.newPassword)) {
+    errors.newPassword = "Password must contain at least one lowercase letter";
+  } else if (!/(?=.*[A-Z])/.test(values.newPassword)) {
+    errors.newPassword = "Password must contain at least one uppercase letter";
+  } else if (!/(?=.*[0-9])/.test(values.newPassword)) {
+    errors.password = "Password must contain at least one number";
+  } else if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(values.newPassword)) {
+    errors.newPassword = "Password must contain at least one special character";
   }
 
   if (!values.confirmNewPassword) {
     errors.confirmNewPassword = "Required";
-  } else if (values.confirmNewPassword.length < 8) {
-    errors.confirmNewPassword = "Password must be at least 8 characters";
   } else if (values.confirmNewPassword !== values.newPassword) {
     errors.confirmNewPassword = "Passwords do not match";
   }

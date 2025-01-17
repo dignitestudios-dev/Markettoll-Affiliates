@@ -10,7 +10,6 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user, fetchUserProfile } = useContext(AuthContext);
-
   const [amount, setAmount] = useState("");
 
   const handleWithdrawFund = async () => {
@@ -27,9 +26,10 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
         }
       );
       // console.log("Withdraw amount res >>>>>>", res);
+      setAmount("");
       handleToggleSuccessModal();
     } catch (error) {
-      console.log("withdraw amount error >>>>>>", error);
+      // console.log("withdraw amount error >>>>>>", error);
       toast.error(error.response.data.message);
     } finally {
       setLoading(false);
@@ -128,7 +128,6 @@ const SuccessModal = ({ showSuccessModal, handleClose, amount }) => {
     day: "2-digit",
     month: "short",
   });
-  console.log(userProfile);
   return (
     showSuccessModal && (
       <div className="w-full h-screen fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center">
