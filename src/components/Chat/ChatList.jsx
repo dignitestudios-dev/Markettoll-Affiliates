@@ -17,7 +17,7 @@ import { BASE_URL } from "../../api/api";
 const ChatList = ({ selectedUser, toggleChatList }) => {
   const [userList, setUserList] = useState([]);
   const [LastMessages, setLastMessages] = useState([]);
-  const { user,OnOF } = useContext(AuthContext);
+  const { user, OnOF } = useContext(AuthContext);
   const [originalUserList, setOriginalUserList] = useState([]);
   const userId = user?._id;
   const [onlineStatus, setOnlineStatus] = useState([]);
@@ -70,8 +70,8 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
   };
 
   useEffect(() => {
-      fetchUsers();
-  }, [onlineStatus,userId,OnOF]);
+    fetchUsers();
+  }, [userId, OnOF]);
 
   const filterUser = (e) => {
     const filterValue = e.target.value;

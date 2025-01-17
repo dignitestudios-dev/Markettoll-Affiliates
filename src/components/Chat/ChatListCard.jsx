@@ -18,10 +18,7 @@ const ChatListCard = ({
   toggleChatList,
 }) => {
   const { user, setIsBlockedByUser, setHasBlocked } = useContext(AuthContext);
-  console.log(
-    "lastMessage >>>",
-    lastMessage
-  );
+  console.log("lastMessage >>>", lastMessage);
   return (
     <div
       onClick={async () => {

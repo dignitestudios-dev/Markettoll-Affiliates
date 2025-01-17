@@ -91,42 +91,42 @@ const LoginForm = () => {
     validate,
     onSubmit: async (values, { resetForm }) => {
       // const fcmToken = await requestPermissionAndGetToken();
-      if (fcmToken) {
-        setLoading(true);
-        try {
-          const response = await axios.post(
-            `${BASE_URL}/users/email-password-login`,
-            values,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          // console.log("login response >>>>", response);
-          if (response.data.success) {
-            await sendFcmToken(response?.data?.data?.token);
-            Cookies.set("user", JSON.stringify(response?.data?.data));
-            localStorage.setItem("user", JSON.stringify(response?.data?.data));
-            resetForm();
-
-            fetchUserProfile();
-            navigate("/");
-            return response.data;
-          } else {
-            console.error("Login failed:", response.data.message);
-            throw new Error(response.data.message);
+      // if (fcmToken) {
+      setLoading(true);
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/users/email-password-login`,
+          values,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
-        } catch (error) {
-          toast.error(error.response.data.message);
-          setError(error.response.data.message);
-          throw new Error(error.message);
-        } finally {
-          setLoading(false);
+        );
+        // console.log("login response >>>>", response);
+        if (response.data.success) {
+          await sendFcmToken(response?.data?.data?.token);
+          Cookies.set("user", JSON.stringify(response?.data?.data));
+          localStorage.setItem("user", JSON.stringify(response?.data?.data));
+          resetForm();
+
+          fetchUserProfile();
+          navigate("/");
+          return response.data;
+        } else {
+          console.error("Login failed:", response.data.message);
+          throw new Error(response.data.message);
         }
-      } else {
-        toast.error("Something went wrong.");
+      } catch (error) {
+        toast.error(error.response.data.message);
+        setError(error.response.data.message);
+        throw new Error(error.message);
+      } finally {
+        setLoading(false);
       }
+      // } else {
+      //   toast.error("Something went wrong.");
+      // }
     },
   });
   return (
