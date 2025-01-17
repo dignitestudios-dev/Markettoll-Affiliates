@@ -24,9 +24,9 @@ const Sidebar = ({ setOpenSidebar, handleLogout, openSidebar }) => {
           <li className="text-[15px] font-medium py-0.5">
             <Link to="/account/peronal-info">Personal Information</Link>
           </li>
-          <li className="text-[15px] font-medium py-0.5">
+          {/* <li className="text-[15px] font-medium py-0.5">
             <Link to="/account/peronal-info">Favorites</Link>
-          </li>
+          </li> */}
           <li className="text-[15px] font-medium py-0.5">
             <Link to="/account/my-listings">My Listings</Link>
           </li>
@@ -58,7 +58,7 @@ const Sidebar = ({ setOpenSidebar, handleLogout, openSidebar }) => {
                   Notifications
                 </Link>
                 <Link
-                  to="/settingspayment"
+                  to="/settings/payment"
                   className="text-[13px] font-medium py-0.5"
                 >
                   Payment

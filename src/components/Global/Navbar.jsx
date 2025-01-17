@@ -90,7 +90,6 @@ const Navbar = () => {
   useEffect(() => {
     fetchNotifications();
     fetchUserProfile();
-    deleteFcmToken();
   }, []);
 
   const handleSearchProduct = async (e) => {
@@ -303,42 +302,72 @@ const Navbar = () => {
       </div>
 
       <div className="lg:hidden flex items-center justify-end gap-3">
-        <Link
-          to="/chats"
-          className="w-[28px] h-[28px] rounded-[10px] blue-bg flex items-center justify-center"
-        >
-          <img
-            src="/messages-icon.png"
-            alt="messages-icon"
-            className="w-[15px] h-[15px]"
-          />
-        </Link>
-        <Link
-          to="/cart"
-          className="w-[28px] h-[28px] rounded-[10px] blue-bg flex items-center justify-center"
-        >
-          <img
-            src="/cart-icon.png"
-            alt="cart-icon"
-            className="w-[15px] h-[15px]"
-          />
-        </Link>
-        <button
-          type="button"
-          onClick={handleOpenNotifications}
-          className="w-[28px] h-[28px] rounded-[10px] blue-bg flex items-center justify-center"
-        >
-          <img
-            src="/notifications-icon.png"
-            alt="notifications-icon"
-            className="w-[15px] h-[15px]"
-          />
-          <NotificationsDropdown openNotifications={openNotifications} />
-        </button>
+        {user && (
+          <Link
+            to="/chats"
+            className="w-[28px] h-[28px] bg-white rounded-[10px] flex items-center justify-center"
+          >
+            <img
+              src="/message-icon-blue.png"
+              alt="messages-icon"
+              className="w-[15px] h-[15px]"
+            />
+          </Link>
+        )}
+        {user && (
+          <button
+            type="button"
+            onClick={() =>
+              handleNavigate("/favourites", "Login to see favourites")
+            }
+            className="w-[28px] h-[28px] rounded-[10px] bg-white flex items-center justify-center"
+          >
+            <img
+              src="/heart-icon-blue.png"
+              alt="heart-icon"
+              className="w-[18px] h-[18px]"
+            />
+          </button>
+        )}
+        {user && (
+          <Link
+            to="/cart"
+            className="w-[28px] h-[28px] rounded-[10px] bg-white flex items-center justify-center"
+          >
+            <img
+              src="/cart-icon-blue.png"
+              alt="cart-icon"
+              className="w-[15px] h-[15px]"
+            />
+          </Link>
+        )}
+        {user && (
+          <button
+            type="button"
+            onClick={handleOpenNotifications}
+            className="w-[28px] h-[28px] rounded-[10px] bg-white flex items-center justify-center"
+          >
+            <img
+              src="/notifications-icon-blue.png"
+              alt="notifications-icon"
+              className="w-[15px] h-[15px]"
+            />
+            <NotificationsDropdown openNotifications={openNotifications} />
+          </button>
+        )}
 
-        <button type="button" onClick={() => setOpenSidebar(!openSidebar)}>
-          <TbMenu2 className="text-2xl text-white" />
-        </button>
+        {user ? (
+          <button type="button" onClick={() => setOpenSidebar(!openSidebar)}>
+            <TbMenu2 className="text-2xl text-white" />
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className="bg-white blue-text px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            Login
+          </Link>
+        )}
       </div>
 
       <div

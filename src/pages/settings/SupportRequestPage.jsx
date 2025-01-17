@@ -4,7 +4,7 @@ import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
 const SupportRequestPage = () => {
   return (
-    <div className="w-full px-5">
+    <div className="w-full px-0 md:px-5">
       <h2 className="font-bold text-[28px] blue-text">Support Request</h2>
       <div className="w-full border mt-5 mb-4" />
 

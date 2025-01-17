@@ -68,6 +68,7 @@ import AddPhoneNumberFromSocialLogin from "../components/Auth/AddPhoneNumberFrom
 import ReviewOrderDetails from "../components/Cart/ReviewOrderDetails";
 import OnBoardingProfileReviewUpdate from "../components/OnboardProfileSetup/OnBoardingProfileReviewUpdate";
 import AddLocation from "../pages/onboardProfile/AddLocation";
+import ArbitrationAgreement from "../pages/Policies/ArbitrationAgreement";
 
 const AppRoutes = () => {
   return (
@@ -361,6 +362,10 @@ const AppRoutes = () => {
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/optin-flow" element={<OptinFlowPage />} />
+        <Route
+          path="/arbitration-agreement"
+          element={<ArbitrationAgreement />}
+        />
       </Routes>
     </Suspense>
   );

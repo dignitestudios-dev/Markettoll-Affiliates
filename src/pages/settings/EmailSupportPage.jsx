@@ -49,7 +49,7 @@ const EmailSupportPage = () => {
     navigate("/settings/support-request");
   };
   return (
-    <div className="w-full px-5">
+    <div className="w-full px-0 md:px-5">
       <div className="flex items-center gap-2">
         <Link to="/settings/support-request">
           <GoArrowLeft className="text-2xl" />
