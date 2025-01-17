@@ -38,7 +38,7 @@ const AuthContextProvider = ({ children }) => {
     if (user) {
       const handleVisibilityChange = () => {
         if (document.hidden) {
-          console.log("oof");
+          // console.log("oof")
           // The tab is inactive, set the user as offline and record last seen time
           const userRef = doc(db, "status", user?._id);
           updateDoc(userRef, {
@@ -46,7 +46,7 @@ const AuthContextProvider = ({ children }) => {
             lastSeen: new Date(), // Set the last seen timestamp
           });
         } else {
-          console.log("on");
+          // console.log("on")
           // The tab is active, set the user as online
           const userRef = doc(db, "status", user?._id);
           updateDoc(userRef, {

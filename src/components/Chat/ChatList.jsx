@@ -76,7 +76,6 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
       fetchUsers();
     }, 30000);
     return () => clearInterval(intervalId);
-
   }, []);
 
   const filterUser = (e) => {

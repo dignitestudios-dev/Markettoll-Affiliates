@@ -46,3 +46,7 @@
 .notification-dropdown::-webkit-scrollbar-thumb {
   background-color: #00aad5;
 }
+
+.category-buttons::-webkit-scrollbar {
+  display: none;
+}

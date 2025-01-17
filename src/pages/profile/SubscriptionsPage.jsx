@@ -26,7 +26,7 @@ const SubscriptionsPage = () => {
             <GoArrowLeft className="light-blue-text text-xl" />
             <span className="text-sm font-medium text-[#5c5c5c]">Back</span>
           </Link>
-          <h2 className="blue-text font-bold text-[28px] text-center">
+          <h2 className="blue-text font-bold text-[28px] text-start mt-3">
             Subscriptions
           </h2>
 
@@ -189,9 +189,9 @@ const PackageCard = ({
   };
 
   return (
-    <div className="border rounded-[30px] p-6 flex flex-col justify-between gap-1">
+    <div className="border rounded-[30px] px-3 p-6 flex flex-col justify-between gap-1">
       <div className="w-full flex items-center justify-between">
-        <span className="blue-bg px-6 py-2.5 rounded-full text-center text-white font-medium text-sm float-end">
+        <span className="blue-bg px-4 md:px-6 py-2.5 rounded-full text-center text-white font-medium text-sm float-end">
           {planType}
         </span>
         {userProfile?.subscriptionPlan?.name == planType ? (

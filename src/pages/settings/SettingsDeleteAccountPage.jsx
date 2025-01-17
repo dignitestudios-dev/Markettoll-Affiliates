@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Cookies from "js-cookie";
+import ButtonLoader from "../../components/Global/ButtonLoader";
 
 const SettingsDeleteAccountPage = () => {
   const [showPass, setShowPass] = useState(false);
@@ -17,7 +18,10 @@ const SettingsDeleteAccountPage = () => {
   const { userProfile, user, fetchUserProfile } = useContext(AuthContext);
   const [currentPass, setCurrentPass] = useState("");
   //  `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
+  const [loading, setLoading] = useState(false);
+
   const handleDeleteAccount = async () => {
+    setLoading(true);
     try {
       const unsubscribeResponse = await axios.post(
         `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
@@ -56,6 +60,8 @@ const SettingsDeleteAccountPage = () => {
     } catch (error) {
       console.log("error deleting account >>>", error?.response?.data);
       toast.error(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,7 +88,7 @@ const SettingsDeleteAccountPage = () => {
             />
           </div>
           <button type="button" onClick={() => setShowPass(!showPass)}>
-            {showPass ? (
+            {!showPass ? (
               <FiEye className="text-[#5c5c5c] text-base" />
             ) : (
               <FiEyeOff className="text-[#5c5c5c] text-base" />
@@ -109,9 +115,9 @@ const SettingsDeleteAccountPage = () => {
           type="button"
           disabled={!currentPass}
           onClick={handleDeleteAccount}
-          className="bg-[#FF3B30] text-white py-3 rounded-[20px] w-full text-base font-bold"
+          className="bg-[#FF3B30] text-white py-3 rounded-[20px] w-full text-base font-bold disabled:cursor-not-allowed"
         >
-          Delete Account
+          {loading ? <ButtonLoader /> : "Delete Account"}
         </button>
       </div>
 

@@ -47,7 +47,7 @@ const LoginForm = () => {
           vapidKey:
             "BHduyiO2b203CE8_q-deJ6nzjawReezy16LF-1hi_CQKELLF-y4Jqnevt7wjhLZRPhnCiZ4SY1V8Co7GHfIfF-o",
         });
-        console.log("fcmToken >>>", fcmToken);
+        // console.log("fcmToken >>>", fcmToken);
         setFcmToken(fcmToken);
         localStorage.setItem("fcmTokenMarkettoll", JSON.stringify(fcmToken));
         // return fcmToken;
@@ -77,7 +77,7 @@ const LoginForm = () => {
           },
         }
       );
-      console.log("fcmToken res >>>", res?.data);
+      // console.log("fcmToken res >>>", res?.data);
     } catch (error) {
       console.log("err while posting fcmToken >>>", error);
     }
@@ -206,7 +206,7 @@ const LoginForm = () => {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? (
+              {!showPassword ? (
                 <LuEye className="text-[#606060]" />
               ) : (
                 <LuEyeOff className="text-[#606060]" />
