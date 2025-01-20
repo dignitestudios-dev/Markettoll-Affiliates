@@ -10,12 +10,15 @@ import ButtonLoader from "../Global/ButtonLoader";
 const VerifyOtpForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log("location >>>", location?.state);
+  // console.log("location >>>", location?.state);
   const previousPage = location.state?.from || "/";
   const verificationType = location.state?.type;
   const { setVerificationStatus } = useContext(AuthContext);
   const data = JSON.parse(localStorage.getItem("user")) || null;
+  // console.log("user data >>", data);
   const { user } = useContext(AuthContext);
+  // console.log("user >>", user);
+
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
@@ -125,10 +128,10 @@ const VerifyOtpForm = () => {
           navigate("/review-profile");
         }
       } catch (error) {
-        console.error(
-          "verify phone OTP error >> ",
-          error?.response?.data?.message
-        );
+        // console.error(
+        //   "verify phone OTP error >> ",
+        //   error?.response?.data?.message
+        // );
         toast.error(error?.response?.data?.message);
       } finally {
         setLoading(false);
@@ -148,11 +151,11 @@ const VerifyOtpForm = () => {
             },
           }
         );
-        console.log("verify email resend otp res >> ", res);
+        // console.log("verify email resend otp res >> ", res);
         toast.success(res?.data?.message);
         setTimer(60);
       } catch (error) {
-        console.log("verify email resend otp err  >> ", error);
+        // console.log("verify email resend otp err  >> ", error);
         toast.error(error?.response?.data?.message);
       }
     } else {
@@ -171,11 +174,11 @@ const VerifyOtpForm = () => {
             },
           }
         );
-        console.log("verify email resend otp res >> ", res);
+        // console.log("verify email resend otp res >> ", res);
         toast.success(res?.data?.message);
         setTimer(60);
       } catch (error) {
-        console.log("verify email resend otp err  >> ", error);
+        // console.log("verify email resend otp err  >> ", error);
         toast.error(error?.response?.data?.message);
       }
     }

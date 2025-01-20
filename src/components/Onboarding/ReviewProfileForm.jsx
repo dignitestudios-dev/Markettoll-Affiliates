@@ -5,13 +5,13 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
+import { toast } from "react-toastify";
 
 const ReviewProfileForm = () => {
   const navigate = useNavigate();
   const data = JSON.parse(localStorage.getItem("user")) || null;
-  console.log("Cookies data >>>>>", data);
+  // console.log("Cookies data >>>>>", data?.token);
   const { verificationStatus } = useContext(AuthContext);
-  console.log("verificationStatus >>", verificationStatus);
 
   const handleVerifyEmail = async () => {
     try {
@@ -24,7 +24,7 @@ const ReviewProfileForm = () => {
           },
         }
       );
-      console.log("verify email otp res >> ", res);
+      // console.log("verify email otp res >> ", res);
       if (res.status == 200) {
         navigate("/verify-otp", {
           state: { from: "review-profile", type: "email" },
@@ -33,7 +33,8 @@ const ReviewProfileForm = () => {
         alert("Something went wrong.");
       }
     } catch (error) {
-      console.log("verify email otp err  >> ", error);
+      // console.log("verify email otp err  >> ", error);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     }
   };
 
@@ -48,16 +49,17 @@ const ReviewProfileForm = () => {
           },
         }
       );
-      console.log("verify phone otp res >> ", res);
+      // console.log("verify phone otp res >> ", res);
       if (res.status == 200) {
         navigate("/verify-otp", {
           state: { from: "review-profile", type: "phone" },
         });
       } else {
-        alert("Something went wrong.");
+        toast.error("Something went wrong.");
       }
     } catch (error) {
-      console.log("verify phone otp err  >> ", error);
+      // console.log("verify phone otp err  >> ", error);
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
 
