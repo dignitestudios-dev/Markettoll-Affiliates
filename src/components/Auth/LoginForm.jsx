@@ -77,7 +77,7 @@ const LoginForm = () => {
           },
         }
       );
-      // console.log("fcmToken res >>>", res?.data);
+      console.log("fcmToken res >>>", res?.data);
     } catch (error) {
       console.log("err while posting fcmToken >>>", error);
     }
