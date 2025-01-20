@@ -20,7 +20,8 @@ const ChatListCard = ({
   const { user, setIsBlockedByUser, setHasBlocked } = useContext(AuthContext);
   console.log(
     "lastMessage >>>",
-    lastMessage
+    lastMessage,
+    
   );
   return (
     <div
