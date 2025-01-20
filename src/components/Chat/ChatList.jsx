@@ -21,9 +21,14 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
   const [originalUserList, setOriginalUserList] = useState([]);
   const userId = user?._id;
   const [onlineStatus, setOnlineStatus] = useState([]);
+  const chatId = userId;
+  const sellerRef = collection(db, "chats", chatId, "myUsers");
 
-  // Get online status for a list of user IDs
-  const getStatusDataForUserIds = (userIds) => {
+  const getStatusDataForUserIds = async () => {
+    const messagesQuery = query(sellerRef);
+    const querySnapshot = await getDocs(messagesQuery);
+    const userIds = querySnapshot.docs.map((doc) => doc.id);
+
     userIds.forEach((userId) => {
       const userRef = doc(db, "status", userId);
       onSnapshot(userRef, (docSnap) => {
@@ -38,43 +43,35 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
             } else {
               prevStatus.push({ ...statusData, userId });
             }
-            return [...prevStatus]; // Return a new array to trigger re-render
+            return [...prevStatus];
           });
         }
       });
     });
   };
 
-  // Fetch users and their status
+  useEffect(() => {
+    const statusCollectionRef = collection(db, "status");
+    const unsubscribe = onSnapshot(statusCollectionRef, (snapshot) => {      
+      getStatusDataForUserIds();
+    });
+    return () => unsubscribe();
+  }, []);
+
   const fetchUsers = async () => {
-    const chatId = userId;
-    const sellerRef = collection(db, "chats", chatId, "myUsers");
-
-    try {
-      const messagesQuery = query(sellerRef);
-      const querySnapshot = await getDocs(messagesQuery);
-      const userIds = querySnapshot.docs.map((doc) => doc.id);
-
-      // Fetch online status for userIds
-      getStatusDataForUserIds(userIds);
-
-      // Listen for real-time updates on the "myUsers" collection
+    try {      
       onSnapshot(sellerRef, (snapshot) => {
-        const updatedUserList = snapshot.docs.map((doc, i) => {
-          // Find the online status for each user
-          const onlineUserStatus = onlineStatus.find(
-            (status) => status.userId === doc.id
-          );
-
+        const updatedUserList = snapshot.docs.map((doc, i) => {     
           return {
-            isOnline: onlineUserStatus || false, // If status is found, use it; otherwise, use false
+            isOnline: doc.id.includes(onlineStatus[i]?.userId)
+              ? onlineStatus[i]
+              : false,
             id: doc.id,
             ...doc.data(),
           };
         });
-
-        // Update user list and messages with real-time data
         setLastMessages(updatedUserList);
+        console.log(updatedUserList,"userssList,Updated-->")
         setOriginalUserList(updatedUserList);
       });
     } catch (error) {
@@ -82,10 +79,9 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
     }
   };
 
-  // Trigger fetchUsers when the component mounts or when userId changes
   useEffect(() => {
     fetchUsers();
-  }, [userId, onlineStatus]); // Re-run fetchUsers whenever onlineStatus or userId changes
+  }, [userId,onlineStatus]);
 
   const filterUser = (e) => {
     const filterValue = e.target.value;

@@ -104,7 +104,7 @@ const ChatListCard = ({
           />
           <span
             className={`flex absolute -right-[10px] w-3 h-3 me-3 ${
-              lastMessage?.isOnline
+              lastMessage?.isOnline?.isOnline
                 ? "bg-green-300"
                 : "bg-yellow-300"
             } rounded-full`}
