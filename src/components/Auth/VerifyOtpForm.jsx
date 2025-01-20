@@ -155,7 +155,7 @@ const VerifyOtpForm = () => {
         toast.success(res?.data?.message);
         setTimer(60);
       } catch (error) {
-        // console.log("verify email resend otp err  >> ", error);
+        console.log("verify email resend otp err  >> ", error);
         toast.error(error?.response?.data?.message);
       }
     } else {
