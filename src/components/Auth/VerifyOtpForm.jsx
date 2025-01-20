@@ -15,7 +15,10 @@ const VerifyOtpForm = () => {
   const verificationType = location.state?.type;
   const { setVerificationStatus } = useContext(AuthContext);
   const data = JSON.parse(localStorage.getItem("user")) || null;
+  console.log("user data >>", data);
   const { user } = useContext(AuthContext);
+  console.log("user >>", user);
+
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
@@ -105,7 +108,7 @@ const VerifyOtpForm = () => {
             ? {}
             : {
                 headers: {
-                  Authorization: `Bearer ${data?.token}`,
+                  Authorization: `Bearer ${user?.token}`,
                   "Content-Type": "application/json",
                 },
               }
