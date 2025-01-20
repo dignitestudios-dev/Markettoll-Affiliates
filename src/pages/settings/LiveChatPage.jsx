@@ -13,6 +13,9 @@ import {
   query,
   setDoc,
 } from "../../firebase/firebase";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { BASE_URL } from "../../api/api";
 
 const LiveChatPage = () => {
   const { user } = useContext(AuthContext);
@@ -20,6 +23,33 @@ const LiveChatPage = () => {
   const [messages, setMessages] = useState([]);
   const adminId = "6759530c2f12b98bc6a5c19b";
   const userId = user?._id;
+
+  const sendNotification = async () => {
+    const fcmTokenMarkettoll = JSON.parse(
+      localStorage.getItem("fcmTokenMarkettoll")
+    );
+    if (!fcmTokenMarkettoll) {
+      toast.error("FCM Token not found.");
+      return;
+    }
+    try {
+      await axios.post(
+        `${BASE_URL}/users/customer-support-chat-message-notification/${adminId}`,
+        {
+          title: "chat Support Notification.",
+          attachments: [{ url: "https://image.png", type: "png" }],
+          body: message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.log("chat support notifixation could not be sent.", error);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
@@ -44,7 +74,8 @@ const LiveChatPage = () => {
         lastMessage: message,
         timestamp: new Date().toISOString(),
       });
-      setMessage(""); // Clear message input
+      sendNotification();
+      setMessage("");
     } catch (error) {
       console.error("Error sending message: ", error);
     }
@@ -60,7 +91,7 @@ const LiveChatPage = () => {
     // Real-time listener for messages
     onSnapshot(messagesQuery, (querySnapshot) => {
       const messagesList = querySnapshot.docs.map((doc) => doc.data());
-      console.log(messagesList, "messageList");
+      // console.log(messagesList, "messageList");
       setMessages(messagesList); // Update state with new messages
     });
   };
@@ -114,7 +145,7 @@ const LiveChatPage = () => {
       </div>
 
       <div className="w-full bg-white border-t h-16 absolute bottom-0 flex items-center justify-between gap-2">
-        <div className="border rounded-2xl px-3 mr-8 h-[50px] py-1 w-full flex items-center justify-between">
+        <div className="border rounded-2xl px-2 mr-0 md:mr-5 h-[50px] py-1 w-full flex items-center justify-between">
           <img
             src="/emoji-icon.png"
             alt="emoji-icon"
