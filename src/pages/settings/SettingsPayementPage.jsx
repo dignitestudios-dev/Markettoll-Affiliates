@@ -117,7 +117,7 @@ const SettingsPayementPage = () => {
             },
           }
         );
-        console.log("bank account added >>>>", res);
+        // console.log("bank account added >>>>", res);
         if (res.status == 201) {
           toast.success("Bank account added succesfully");
           setIsBankAccountAdded(false);
@@ -130,7 +130,7 @@ const SettingsPayementPage = () => {
           }
         }
       } catch (error) {
-        console.log("error while adding bank account >>>>>>", error);
+        // console.log("error while adding bank account >>>>>>", error);
         toast.error(error.response.data.message);
       } finally {
         setLoading(false);

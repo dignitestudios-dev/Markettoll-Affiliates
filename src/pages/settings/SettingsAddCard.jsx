@@ -45,7 +45,7 @@ const SettingsAddCard = () => {
       });
 
       if (error) {
-        console.error(error);
+        // console.error(error);
         toast.error("Error processing payment method: " + error.message);
         return;
       }
@@ -135,7 +135,9 @@ const SettingsAddCard = () => {
               alt="mastercard-icon"
               className="w-[24.79px] h-[15.33px]"
             />
-            <span className="text-sm text-[#5C5C5C]">**** **** **** 8941</span>
+            <span className="text-sm text-[#5C5C5C]">
+              Add Credit/Debit Card
+            </span>
           </div>
           <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />
         </button>

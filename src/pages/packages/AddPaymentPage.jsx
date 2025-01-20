@@ -41,14 +41,16 @@ const AddPaymentPage = () => {
     setLoading(true);
     try {
       if (!stripe || !elements) {
-        console.log("Stripe.js has not loaded yet.");
+        // console.log("Stripe.js has not loaded yet.");
+        toast.error("Stripe has not loaded yet.");
         return;
       }
 
       const cardElement = elements.getElement(CardElement);
 
       if (!cardElement) {
-        console.error("CardElement is not rendered.");
+        // console.error("CardElement is not rendered.");
+        toast.error("Something went wrong.");
         return;
       }
 
@@ -60,7 +62,7 @@ const AddPaymentPage = () => {
       if (error) {
         console.error(error);
         setIsProcessing(false);
-        alert("Error processing payment method: " + error.message);
+        toast.error("Error processing payment method: " + error.message);
         return;
       }
 
@@ -81,7 +83,7 @@ const AddPaymentPage = () => {
             }
           );
 
-          console.log("subscription purchased >>>", response);
+          // console.log("subscription purchased >>>", response);
           if (response?.data?.success) {
             // setShowSuccessModal(true);
             setAddCard(!addCard);
@@ -90,10 +92,13 @@ const AddPaymentPage = () => {
           // setShowCard(!showCard);
         } catch (error) {
           console.log("error while purchasing plan >>", error?.response?.data);
+          toast.error(
+            error?.response?.data?.message || "Something went wrong."
+          );
         }
       }
     } catch (error) {
-      console.log("err while adding card >>>", error?.response?.data);
+      // console.log("err while adding card >>>", error?.response?.data);
       toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
