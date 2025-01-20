@@ -64,6 +64,7 @@ const Navbar = () => {
     setShowProfileDropdown(!showProfileDropdown);
     deleteFcmToken();
     fetchUserProfile();
+    setOpenSidebar(false);
   };
 
   const handleShowProfileDropdown = () => {
@@ -84,10 +85,10 @@ const Navbar = () => {
       // console.log("notifications >>>", res?.data?.data?.notifications);
       setNotifications(res?.data?.data?.notifications);
     } catch (error) {
-      console.log(
-        "error while fetching notifications >>>",
-        error?.response?.data
-      );
+      // console.log(
+      //   "error while fetching notifications >>>",
+      //   error?.response?.data
+      // );
     }
   };
 
@@ -121,7 +122,7 @@ const Navbar = () => {
       console.log("search history >>>", res?.data?.data);
       setSearchHistory(res?.data?.data?.keywords);
     } catch (error) {
-      console.log("err while fetching search history >>>", error);
+      // console.log("err while fetching search history >>>", error);
     }
   };
 
