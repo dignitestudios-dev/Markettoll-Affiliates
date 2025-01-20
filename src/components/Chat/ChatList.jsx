@@ -17,11 +17,12 @@ import { BASE_URL } from "../../api/api";
 const ChatList = ({ selectedUser, toggleChatList }) => {
   const [userList, setUserList] = useState([]);
   const [LastMessages, setLastMessages] = useState([]);
-  const { user,OnOF } = useContext(AuthContext);
+  const { user, OnOF } = useContext(AuthContext);
   const [originalUserList, setOriginalUserList] = useState([]);
   const userId = user?._id;
   const [onlineStatus, setOnlineStatus] = useState([]);
 
+  // Get online status for a list of user IDs
   const getStatusDataForUserIds = (userIds) => {
     userIds.forEach((userId) => {
       const userRef = doc(db, "status", userId);
@@ -44,6 +45,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
     });
   };
 
+  // Fetch users and their status
   const fetchUsers = async () => {
     const chatId = userId;
     const sellerRef = collection(db, "chats", chatId, "myUsers");
@@ -52,15 +54,26 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
       const messagesQuery = query(sellerRef);
       const querySnapshot = await getDocs(messagesQuery);
       const userIds = querySnapshot.docs.map((doc) => doc.id);
+
+      // Fetch online status for userIds
       getStatusDataForUserIds(userIds);
+
+      // Listen for real-time updates on the "myUsers" collection
       onSnapshot(sellerRef, (snapshot) => {
-        const updatedUserList = snapshot.docs.map((doc, i) => ({
-          isOnline: doc.id.includes(onlineStatus[i]?.userId)
-            ? onlineStatus[i]
-            : false,
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const updatedUserList = snapshot.docs.map((doc, i) => {
+          // Find the online status for each user
+          const onlineUserStatus = onlineStatus.find(
+            (status) => status.userId === doc.id
+          );
+
+          return {
+            isOnline: onlineUserStatus || false, // If status is found, use it; otherwise, use false
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+
+        // Update user list and messages with real-time data
         setLastMessages(updatedUserList);
         setOriginalUserList(updatedUserList);
       });
@@ -69,9 +82,10 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
     }
   };
 
+  // Trigger fetchUsers when the component mounts or when userId changes
   useEffect(() => {
-      fetchUsers();
-  }, [userId,OnOF]);
+    fetchUsers();
+  }, [userId, onlineStatus]); // Re-run fetchUsers whenever onlineStatus or userId changes
 
   const filterUser = (e) => {
     const filterValue = e.target.value;
@@ -83,7 +97,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
           .toLowerCase()
           .includes(filterValue.toLowerCase())
       );
-      console.log(dataFilter, filterValue, originalUserList, "filteration");
+      // console.log(dataFilter, filterValue, originalUserList, "filteration");
       setLastMessages(dataFilter);
     }
   };
@@ -126,7 +140,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
             key={i} // Always use a unique "key" for mapped elements.
             item={item}
             toggleChatList={toggleChatList}
-            onlineStatus={onlineStatus[i]}
+            onlineStatus={onlineStatus}
             lastMessage={LastMessages[i]}
             selectedUser={selectedUser}
           />

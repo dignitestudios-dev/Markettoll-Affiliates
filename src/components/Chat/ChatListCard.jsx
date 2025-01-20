@@ -18,20 +18,16 @@ const ChatListCard = ({
   toggleChatList,
 }) => {
   const { user, setIsBlockedByUser, setHasBlocked } = useContext(AuthContext);
-  console.log(
-    "lastMessage >>>",
-    lastMessage,
-    
-  );
+;
   return (
     <div
       onClick={async () => {
         if (toggleChatList) {
           toggleChatList();
         }
-        console.log("lastMessage >>>", lastMessage);
+        // console.log("lastMessage >>>", lastMessage);
         const chatId = user?._id;
-        console.log(chatId, "iduser");
+        // console.log(chatId, "iduser");
 
         const sellerRef = collection(db, "chats", chatId, "myUsers");
         try {
@@ -108,9 +104,11 @@ const ChatListCard = ({
           />
           <span
             className={`flex absolute -right-[10px] w-3 h-3 me-3 ${
-              lastMessage?.isOnline?.isOnline ? "bg-green-300" : "bg-yellow-300"
+              lastMessage?.isOnline
+                ? "bg-green-300"
+                : "bg-yellow-300"
             } rounded-full`}
-          ></span>
+          />
         </div>
 
         <div className="flex flex-col items-start">

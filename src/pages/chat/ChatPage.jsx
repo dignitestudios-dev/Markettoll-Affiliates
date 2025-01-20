@@ -20,7 +20,6 @@ const ChatPage = () => {
 
   const [seller, setSeller] = useState(location?.state?.data);
   const [singleOnline, setSingleOnline] = useState([]);
-console.log(seller,"sellter");
 
   const fetchMessages = async (senderId, seller, onlineStatus) => {
     setSingleOnline(onlineStatus);
@@ -47,9 +46,9 @@ console.log(seller,"sellter");
     }
   };
 
-  useEffect(()=>{
-    fetchMessages(seller?.id,seller,[]);
-  },[])
+  useEffect(() => {
+    fetchMessages(seller?.id, seller, []);
+  }, []);
 
   const [showChatList, setShowChatList] = useState(false);
 
@@ -72,7 +71,11 @@ console.log(seller,"sellter");
               showChatList ? "block" : "hidden"
             }`}
           >
-            <ChatList toggleChatList={toggleChatList} messagReal={messages}  selectedUser={fetchMessages} />
+            <ChatList
+              toggleChatList={toggleChatList}
+              messagReal={messages}
+              selectedUser={fetchMessages}
+            />
           </div>
           <div className="col-span-1 hidden lg:block h-full">
             <ChatList messagReal={messages} selectedUser={fetchMessages} />

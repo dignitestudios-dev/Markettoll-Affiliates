@@ -12,6 +12,7 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import Sidebar from "./Sidebar";
 import { CartProductContext } from "../../context/cartProductContext";
+import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
 const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -25,6 +26,9 @@ const Navbar = () => {
     useContext(SearchedProductContext);
   const [notifications, setNotifications] = useState([]);
   const dropdownRef = useRef(null);
+  const [searchHistory, setSearchHistory] = useState([]);
+
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const handleNavigate = (url, msg) => {
     if (user) {
@@ -60,6 +64,7 @@ const Navbar = () => {
     setShowProfileDropdown(!showProfileDropdown);
     deleteFcmToken();
     fetchUserProfile();
+    setOpenSidebar(false);
   };
 
   const handleShowProfileDropdown = () => {
@@ -80,17 +85,12 @@ const Navbar = () => {
       // console.log("notifications >>>", res?.data?.data?.notifications);
       setNotifications(res?.data?.data?.notifications);
     } catch (error) {
-      console.log(
-        "error while fetching notifications >>>",
-        error?.response?.data
-      );
+      // console.log(
+      //   "error while fetching notifications >>>",
+      //   error?.response?.data
+      // );
     }
   };
-
-  useEffect(() => {
-    fetchNotifications();
-    fetchUserProfile();
-  }, []);
 
   const handleSearchProduct = async (e) => {
     e.preventDefault();
@@ -109,7 +109,42 @@ const Navbar = () => {
     );
   };
 
+  const fetchSearchedProductsHistory = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/users/home-screen-searched-products-history`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      console.log("search history >>>", res?.data?.data);
+      setSearchHistory(res?.data?.data?.keywords);
+    } catch (error) {
+      // console.log("err while fetching search history >>>", error);
+    }
+  };
+
+  const handleSearchHistoryClick = (historyItem) => {
+    setSearchQuery(historyItem);
+    setIsDropdownVisible(false);
+    const queryParams = {
+      name: historyItem,
+      category: "",
+      subCategory: "",
+      page: 1,
+    };
+    navigate(
+      `/search-product?name=${historyItem}&category=${queryParams?.category}&subCategory=${queryParams?.subCategory}&page=1`
+    );
+  };
+
   useEffect(() => {
+    fetchNotifications();
+    fetchUserProfile();
+    fetchSearchedProductsHistory();
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowProfileDropdown(false);
@@ -129,22 +164,60 @@ const Navbar = () => {
       </Link>
       <div className="hidden lg:flex items-center justify-end gap-3">
         {user ? (
-          <div className="hidden lg:flex items-center justify-end gap-3">
+          <div className="hidden lg:flex items-center justify-end gap-3 relative">
             <form
               onSubmit={handleSearchProduct}
-              className="w-[357px] h-[42px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
+              className="h-[42px] w-[357px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
             >
               <input
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsDropdownVisible(true)}
+                onBlur={() =>
+                  setTimeout(() => setIsDropdownVisible(false), 200)
+                }
                 className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
               />
-              <button type="submit">
-                <IoSearchOutline className="text-white text-2xl" />
-              </button>
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    navigate("/");
+                  }}
+                >
+                  <IoClose className="text-white text-xl" />
+                </button>
+              ) : (
+                <button type="submit">
+                  <IoSearchOutline className="text-white text-2xl" />
+                </button>
+              )}
             </form>
+            {isDropdownVisible && searchHistory.length > 0 && (
+              <div className="absolute top-[45px] w-[357px] left-0 right-0 bg-white border rounded-xl shadow-lg mt-1 z-10">
+                <ul className="max-h-[200px] overflow-y-auto py-2 px-5">
+                  {searchHistory
+                    .filter((item) =>
+                      item.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((historyItem, index) => (
+                      <li
+                        key={index}
+                        className={`py-2 cursor-pointer flex items-center justify-between text-[16px] ${
+                          index !== 0 && "border-b-2"
+                        }`}
+                        onClick={() => handleSearchHistoryClick(historyItem)}
+                      >
+                        <span>{historyItem}</span>
+                        <MdOutlineKeyboardArrowRight className="blue-text text-xl" />
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => handleNavigate("/chats", "Login to see chats")}

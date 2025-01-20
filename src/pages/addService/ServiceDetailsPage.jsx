@@ -72,13 +72,13 @@ const ServiceDetailsPage = () => {
   };
 
   const userDetail = {
-    id: service?.sellerDetails?._id,lastMessage:{
-    profileImage: service?.sellerDetails?.profileImage,
-    profileName: service?.sellerDetails?.name,
     id: service?.sellerDetails?._id,
-  }
+    lastMessage: {
+      profileImage: service?.sellerDetails?.profileImage,
+      profileName: service?.sellerDetails?.name,
+      id: service?.sellerDetails?._id,
+    },
   };
-  
 
   const productAvgRating =
     (service?.avgRating?.oneStar * 1 +
@@ -160,6 +160,15 @@ const ServiceDetailsPage = () => {
     } catch (error) {
       // console.log("err while deleting service >>>", error);
       toast.error(error?.response?.data?.message || "Something went wrong.");
+    }
+  };
+
+  const handleNavigateToChat = () => {
+    if (user) {
+      navigate(`/chats`, { state: { data: userDetail } });
+    } else {
+      toast.error("Please login to chat with the seller");
+      navigate("/login");
     }
   };
 
@@ -319,9 +328,11 @@ const ServiceDetailsPage = () => {
                     </div>
                   </div>
                   <div>
-                    <Link
-                      to="/chats"
-                      state={{ data: userDetail }}
+                    <button
+                      type="button"
+                      onClick={handleNavigateToChat}
+                      // to="/chats"
+                      // state={{ data: userDetail }}
                       className="flex items-center justify-end gap-2 w-[127px]"
                     >
                       <img
@@ -332,7 +343,7 @@ const ServiceDetailsPage = () => {
                       <span className="text-[13px] text-[#676767] block">
                         Chat With Seller
                       </span>
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>

@@ -39,7 +39,7 @@ const AuthContextProvider = ({ children }) => {
     if (user) {
       const handleVisibilityChange = () => {
         if (document.hidden) {
-          setOnOF(!OnOF)
+          setOnOF(false);
           // The tab is inactive, set the user as offline and record last seen time
           const userRef = doc(db, "status", user?._id);
           updateDoc(userRef, {
@@ -47,8 +47,8 @@ const AuthContextProvider = ({ children }) => {
             lastSeen: new Date(), // Set the last seen timestamp
           });
         } else {
-          setOnOF(!OnOF)
-          console.log("on");
+          setOnOF(true);
+          // console.log("on");
           // The tab is active, set the user as online
           const userRef = doc(db, "status", user?._id);
           updateDoc(userRef, {
@@ -62,7 +62,7 @@ const AuthContextProvider = ({ children }) => {
 
       // Initial check on page load if the tab is visible
       if (!document.hidden) {
-        setOnOF(!OnOF)
+        setOnOF(false);
         const userRef = doc(db, "status", user?._id);
         updateDoc(userRef, {
           isOnline: true,
@@ -92,7 +92,7 @@ const AuthContextProvider = ({ children }) => {
         setIsBlockedByUser,
         isBlockedByUser,
         setHasBlocked,
-        OnOF
+        OnOF,
       }}
     >
       {children}

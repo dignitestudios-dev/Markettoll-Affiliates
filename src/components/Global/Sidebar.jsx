@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ setOpenSidebar, handleLogout, openSidebar }) => {
   const [openSidebarDropdown, setOpenSidebarDropdown] = useState(false);
+  const navigate = useNavigate();
+
   const handleToggleMenu = () => {
     setOpenSidebarDropdown(!openSidebarDropdown);
+  };
+
+  const toggleSidebarAndNavigate = (url) => {
+    navigate(url);
+    setOpenSidebar(!openSidebar);
   };
   return (
     <div className="w-2/3 bg-white h-full custom-shadow p-5 relative  overflow-y-scroll">
@@ -22,22 +29,49 @@ const Sidebar = ({ setOpenSidebar, handleLogout, openSidebar }) => {
       <div className="w-full mt-5 px-3">
         <ul className="flex flex-col items-start gap-3">
           <li className="text-[15px] font-medium py-0.5">
-            <Link to="/account/peronal-info">Personal Information</Link>
-          </li>
-          {/* <li className="text-[15px] font-medium py-0.5">
-            <Link to="/account/peronal-info">Favorites</Link>
-          </li> */}
-          <li className="text-[15px] font-medium py-0.5">
-            <Link to="/account/my-listings">My Listings</Link>
-          </li>
-          <li className="text-[15px] font-medium py-0.5">
-            <Link to="/account/my-wallet">My Wallet</Link>
+            <button
+              type="button"
+              onClick={() => toggleSidebarAndNavigate("/account/peronal-info")}
+              // to="/account/peronal-info"
+            >
+              Personal Information
+            </button>
           </li>
           <li className="text-[15px] font-medium py-0.5">
-            <Link to="/account/subscriptions">Subscriptions</Link>
+            <button
+              type="button"
+              onClick={() => toggleSidebarAndNavigate("/account/my-listings")}
+              // to="/account/my-listings"
+            >
+              My Listings
+            </button>
           </li>
           <li className="text-[15px] font-medium py-0.5">
-            <Link to="/order-history">Order History</Link>
+            <button
+              type="button"
+              onClick={() => toggleSidebarAndNavigate("/account/my-wallet")}
+              // to="/account/my-wallet"
+            >
+              My Wallet
+            </button>
+          </li>
+          <li className="text-[15px] font-medium py-0.5">
+            <button
+              type="button"
+              onClick={() => toggleSidebarAndNavigate("/account/subscriptions")}
+              // to="/account/subscriptions"
+            >
+              Subscriptions
+            </button>
+          </li>
+          <li className="text-[15px] font-medium py-0.5">
+            <button
+              type="button"
+              onClick={() => toggleSidebarAndNavigate("/order-history")}
+              // to="/order-history"
+            >
+              Order History
+            </button>
           </li>
           <li className="w-full">
             <button
@@ -54,57 +88,96 @@ const Sidebar = ({ setOpenSidebar, handleLogout, openSidebar }) => {
             </button>
             {openSidebarDropdown && (
               <div className="py-1 px-3 flex flex-col items-start gap-1">
-                <Link to="/settings" className="text-[13px] font-medium py-0.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings");
+                    handleToggleMenu();
+                  }}
+                  className="text-[13px] font-medium py-0.5"
+                >
                   Notifications
-                </Link>
-                <Link
-                  to="/settings/payment"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/payment");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Payment
-                </Link>
-                <Link
-                  to="/settings/addresses"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/addresses");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Address
-                </Link>
-                <Link
-                  to="/settings/change-password"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/change-password");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Change Password
-                </Link>
-                <Link
-                  to="/settings/deactivate-listing"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/deactivate-listing");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Deactivate Listing
-                </Link>
-                <Link
-                  to="/settings/terms-and-conditions"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/terms-and-conditions");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Terms & Conditions
-                </Link>
-                <Link
-                  to="/settings/privacy-policy"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/privacy-policy");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Privacy Policy
-                </Link>
-                <Link
-                  to="/settings/support-request"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/support-request");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Support Request
-                </Link>
-                <Link
-                  to="/settings/delete-account"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleSidebarAndNavigate("/settings/delete-account");
+                    handleToggleMenu();
+                  }}
                   className="text-[13px] font-medium py-0.5"
                 >
                   Delete Account
-                </Link>
+                </button>
               </div>
             )}
           </li>

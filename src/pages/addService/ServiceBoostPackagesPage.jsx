@@ -1,6 +1,6 @@
 import React from "react";
 import ServiceBoostPackageCard from "../../components/AddService/ServiceBoostPackageCard";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 
 const SUBSCRIPTION_PLANS = [
@@ -37,16 +37,19 @@ const SUBSCRIPTION_PLANS = [
 ];
 
 const ServiceBoostPackagesPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="padding-x w-full py-6">
       <div className="w-full bg-[#F7F7F7] rounded-[30px] px-4 lg:px-10 py-12 lg:py-16 relative flex flex-col items-center gap-4">
-        <Link
-          to={location?.state ? location?.state?.from : "/"}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          // to={location?.state ? location?.state?.from : "/"}
           className="flex items-center gap-1 absolute left-4 lg:left-10 top-6"
         >
           <GoArrowLeft className="text-xl light-blue-text" />
           <span className="text-sm font-medium text-[#5C5C5C]">Back</span>
-        </Link>
+        </button>
         <h2 className="text-2xl lg:text-[36px] font-bold blue-text">
           Boost Post
         </h2>

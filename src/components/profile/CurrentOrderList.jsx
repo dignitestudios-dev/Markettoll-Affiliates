@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
+import { toast } from "react-toastify";
 
 const CurrentOrderList = () => {
   const [currentOrders, setCurrentOrders] = useState([]);
@@ -22,10 +23,11 @@ const CurrentOrderList = () => {
           },
         }
       );
-      console.log("current orders placed >>>>", res?.data?.data);
+      // console.log("current orders placed >>>>", res?.data?.data);
       setCurrentOrders(res?.data?.data);
     } catch (error) {
-      console.log("current orders data err >>>>>", error?.response?.data);
+      // console.log("current orders data err >>>>>", error?.response?.data);
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }

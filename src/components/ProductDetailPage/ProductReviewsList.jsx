@@ -11,8 +11,14 @@ const ProductReviewsList = ({ avgRating }) => {
   const [productReviews, setProductReviews] = useState([]);
   const { user } = useContext(AuthContext);
   const [error, setError] = useState("");
-  const [productRating, setProductRating] = useState("");
-  console.log(productRating);
+  const [productRating, setProductRating] = useState(0);
+  const [starCounts, setStarCounts] = useState({
+    oneStar: 0,
+    twoStar: 0,
+    threeStar: 0,
+    fourStar: 0,
+    fiveStar: 0,
+  });
 
   const fetchProductReviews = async () => {
     try {
@@ -24,11 +30,11 @@ const ProductReviewsList = ({ avgRating }) => {
           },
         }
       );
-      console.log("product reviews >>>", res?.data?.data);
+      // console.log("product reviews >>>", res?.data?.data);
       setProductReviews(res?.data?.data);
     } catch (error) {
-      console.log("product reviews err >>>", error);
-      setError("Something went wrong");
+      // console.log("product reviews err >>>", error);
+      setError(error?.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -51,73 +57,102 @@ const ProductReviewsList = ({ avgRating }) => {
     }
   }, []);
 
+  const calculateStarRatings = (reviews) => {
+    const counts = {
+      oneStar: 0,
+      twoStar: 0,
+      threeStar: 0,
+      fourStar: 0,
+      fiveStar: 0,
+    };
+    let totalRating = 0;
+    let totalReviews = 0;
+
+    reviews?.forEach((review) => {
+      const rating = review.rating;
+      if (rating >= 1 && rating <= 5) {
+        counts[`${rating}Star`] += 1;
+        totalRating += rating;
+        totalReviews += 1;
+      }
+    });
+
+    const avgRating = totalReviews ? totalRating / totalReviews : 0;
+    const safeAvgRating = isNaN(avgRating) ? 0 : avgRating;
+
+    setProductRating(safeAvgRating);
+    setStarCounts(counts);
+  };
+
+  // console.log("calculateStarRatings >>>", calculateStarRatings());
+
   return (
     <div>
       <div className="flex items-center gap-2">
         <h3 className="font-bold blue-text text-[18px]">Reviews</h3>
         {productRating > 0 ? (
-          <span className="text-[13px] font-normal text-[#5C5C5C]">{`(${productRating})`}</span>
+          <span className="text-[13px] font-normal text-[#5C5C5C]">
+            {`(${productReviews?.length})`}
+          </span>
         ) : (
           <span className="text-[13px] font-normal text-[#5C5C5C]">(0)</span>
         )}
       </div>
-      {productRating !== null && productRating > 0 ? (
+      {productRating > 0 && productReviews.length > 0 ? (
         <>
           <div className="flex items-center gap-1 my-2">
-            <IoIosStar className="text-yellow-400 text-xl" />
-            <IoIosStar className="text-yellow-400 text-xl" />
-            <IoIosStar className="text-yellow-400 text-xl" />
-            <IoIosStar className="text-yellow-400 text-xl" />
-            <IoIosStar className="text-gray-300 text-xl" />
-            <span className="text-sm">(4)</span>
-            <span className="text-sm text-gray-500">24</span>
-          </div>
-          <div className="flex flex-col items-start gap-2 mt-5">
-            <div className="flex items-center justify-between gap-1 w-full">
-              <div className="text-xs w-[15%] md:w-[10%]">5 stars</div>
-              <div class="w-[70%] md:w-full bg-gray-200 rounded-full h-[8px] dark:bg-gray-700">
-                <div class="bg-yellow-400 h-[8px] rounded-full w-[80%]"></div>
-              </div>
-              <div className="text-xs w-[10%] text-center">18</div>
-            </div>
-            <div className="flex items-center justify-between gap-1 w-full">
-              <div className="text-xs w-[15%] md:w-[10%]">4 stars</div>
-              <div class="w-[70%] md:w-full bg-gray-200 rounded-full h-[8px] dark:bg-gray-700">
-                <div class="bg-yellow-400 h-[8px] rounded-full w-[80%]"></div>
-              </div>
-              <div className="text-xs w-[10%] text-center">8</div>
-            </div>
-            <div className="flex items-center justify-between gap-1 w-full">
-              <div className="text-xs w-[15%] md:w-[10%]">3 stars</div>
-              <div class="w-[70%] md:w-full bg-gray-200 rounded-full h-[8px] dark:bg-gray-700">
-                <div class="bg-yellow-400 h-[8px] rounded-full w-[80%]"></div>
-              </div>
-              <div className="text-xs w-[10%] text-center">9</div>
-            </div>
-            <div className="flex items-center justify-between gap-1 w-full">
-              <div className="text-xs w-[15%] md:w-[10%]">2 stars</div>
-              <div class="w-[70%] md:w-full bg-gray-200 rounded-full h-[8px] dark:bg-gray-700">
-                <div class="bg-yellow-400 h-[8px] rounded-full w-[80%]"></div>
-              </div>
-              <div className="text-xs w-[10%] text-center">6</div>
-            </div>
-            <div className="flex items-center justify-between gap-1 w-full">
-              <div className="text-xs w-[15%] md:w-[10%]">1 stars</div>
-              <div class="w-[70%] md:w-full bg-gray-200 rounded-full h-[8px] dark:bg-gray-700">
-                <div class="bg-yellow-400 h-[8px] rounded-full w-[80%]"></div>
-              </div>
-              <div className="text-xs w-[10%] text-center">2</div>
-            </div>
+            {/* Render the stars based on the calculated average rating */}
+            {[...Array(5)].map((_, index) => (
+              <IoIosStar
+                key={index}
+                className={`text-xl ${
+                  productRating >= index + 1
+                    ? "text-yellow-400"
+                    : "text-gray-300"
+                }`}
+              />
+            ))}
+            <span className="text-sm">({productReviews.length})</span>
+            <span className="text-sm text-gray-500">
+              {productReviews.length} reviews
+            </span>
           </div>
 
-          <div className="w-full mt-4" />
-          <ProductReviewCard />
-          <ProductReviewCard />
-          <ProductReviewCard />
-          <ProductReviewCard />
+          {/* Rating progress bars */}
+          <div className="flex flex-col items-start gap-2 mt-5">
+            {Object.keys(starCounts).map((starType, index) => {
+              const count = starCounts[starType];
+              const percentage = (count / productReviews.length) * 100;
+
+              return (
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-1 w-full"
+                >
+                  <div className="text-xs w-[15%] md:w-[10%]">
+                    {5 - index} stars
+                  </div>
+                  <div className="w-[70%] md:w-full bg-gray-200 rounded-full h-[8px] dark:bg-gray-700">
+                    <div
+                      className="bg-yellow-400 h-[8px] rounded-full"
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                  <div className="text-xs w-[10%] text-center">{count}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Render Product Review Cards */}
+          <div className="w-full mt-4">
+            {productReviews.map((review, index) => (
+              <ProductReviewCard key={index} review={review} />
+            ))}
+          </div>
         </>
       ) : (
-        <></>
+        <div>No reviews yet.</div>
       )}
     </div>
   );

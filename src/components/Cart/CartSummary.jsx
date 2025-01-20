@@ -7,6 +7,7 @@ import { CartProductContext } from "../../context/cartProductContext";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import ButtonLoader from "../Global/ButtonLoader";
 
 const CartSummary = ({
   onclick,
@@ -105,15 +106,19 @@ const CartSummary = ({
         onClick={count === 3 ? handlePlaceOrder : onclick}
         className="py-3 rounded-2xl text-center w-full font-bold text-white text-base blue-bg mt-5 outline-none disabled:cursor-not-allowed"
       >
-        {count === 0
-          ? "Proceed To Checkout"
-          : count === 3
-          ? loading
-            ? "Order Placing..."
-            : "Place Order"
-          : count === 4
-          ? "Continue to Shopping"
-          : "Next"}
+        {count === 0 ? (
+          "Proceed To Checkout"
+        ) : count === 3 ? (
+          loading ? (
+            <ButtonLoader />
+          ) : (
+            "Place Order"
+          )
+        ) : count === 4 ? (
+          "Continue to Shopping"
+        ) : (
+          "Next"
+        )}
       </button>
       <OrderModal isOrderPlaced={isOrderPlaced} onclick={handleCloseModal} />
     </div>

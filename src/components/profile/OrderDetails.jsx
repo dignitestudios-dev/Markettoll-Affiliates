@@ -58,7 +58,7 @@ const OrderDetails = () => {
   return (
     <div className="p-5 bg-[#F7F7F7] rounded-[20px] grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="p-5 rounded-[20px] bg-white col-span-1 lg:col-span-2">
-        <Link to="/order-history" className="flex items-center gap-1 mb-4">
+        <Link to="/order-history" className="flex items-center gap-1 mb-4 w-16">
           <GoArrowLeft className="text-xl light-blue-text" />
           <span className="text-sm font-medium text-gray-500">Back</span>
         </Link>
@@ -124,7 +124,6 @@ const OrderDetails = () => {
           <p className="text-sm">Will be delivered to your address</p>
         </div>
         {extractedProducts?.delivery?.map((product) => {
-          console.log(product?.product?.seller, "shelter");
           const userDetail = {
             id: product?.product?.seller?._id,
             lastMessage: {
@@ -286,7 +285,7 @@ const OrderDetails = () => {
           </div>
           <div className="w-full flex items-center justify-between mt-3">
             <span className="text-[#000000B2]">Shipping Fee</span>
-            <span className="text-[#000000B2]">$000.00</span>
+            <span className="text-[#000000B2]">$00.00</span>
           </div>
           <div className="border my-4" />
           <div className="w-full flex items-center justify-between">

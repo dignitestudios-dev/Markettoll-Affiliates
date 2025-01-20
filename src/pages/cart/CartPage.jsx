@@ -36,7 +36,7 @@ const CartPage = () => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      // console.log("cartProducts >>>", res?.data?.data);
+      console.log("cartProducts >>>", res?.data?.data);
       setCartProducts(res?.data?.data);
       setCartCount(res?.data?.data?.length);
     } catch (error) {
