@@ -118,12 +118,12 @@ const AddPaymentPage = () => {
           },
         }
       );
-      console.log("subscription successfull >>", res?.data);
+      // console.log("subscription successfull >>", res?.data);
       if (res?.data?.success) {
         setShowSuccessModal(true);
       }
     } catch (error) {
-      console.log("error while subscribing >>>", error);
+      // console.log("error while subscribing >>>", error);
       toast.error(error?.response?.data?.message);
     }
   };
