@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
-// import { Country, State, City } from "country-state-city";
+import React, { useContext, useState } from "react";
 import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
@@ -15,54 +14,15 @@ import {
 import "react-country-state-city/dist/react-country-state-city.css";
 
 const AddLocationForm = ({}) => {
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
   const navigate = useNavigate();
-  const { user, fetchUserProfile } = useContext(AuthContext);
+  const [stateFullName, setStateFullName] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [loading, setLoading] = useState(false);
   const [zipCode, setZipCode] = useState("");
-
-  const [stateFullName, setStateFullName] = useState("");
-  const [fullStateName, setFullStateName] = useState("");
-  const [states, setStates] = useState([]);
-  const [stateCities, setStateCities] = useState([]);
+  const { user, fetchUserProfile } = useContext(AuthContext);
 
   const [countryid, setCountryid] = useState(0);
   const [stateid, setstateid] = useState(0);
-
-  // useEffect(() => {
-  //   const usStates = State.getStatesOfCountry("US");
-  //   setStates(usStates);
-  // }, []);
-
-  // useEffect(() => {
-  //   if (selectedState) {
-  //     const allCities = City.getCitiesOfState("US", selectedState);
-  //     setStateCities(allCities);
-  //   } else {
-  //     setStateCities([]);
-  //   }
-  // }, [selectedState]);
-
-  // const getStateFullName = (abbreviation) => {
-  //   const state = states.find((state) => state.isoCode === abbreviation);
-  //   return state ? state.name : abbreviation;
-  // };
-
-  // useEffect(() => {
-  //   if (selectedState) {
-  //     const fullState = getStateFullName(selectedState);
-  //     setFullStateName(fullState);
-  //     setStateFullName(fullState);
-  //   } else {
-  //     setFullStateName("");
-  //   }
-  // }, [selectedState]);
-
-  // const handleStateChange = (event) => {
-  //   setSelectedState(event.target.value);
-  //   setSelectedCity("");
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,7 +30,7 @@ const AddLocationForm = ({}) => {
       toast.error("Something went wrong");
       return;
     }
-    if (!selectedState || !selectedCity) {
+    if (!stateFullName || !selectedCity) {
       toast.error("Please select both state and city.");
       return;
     }
@@ -123,71 +83,54 @@ const AddLocationForm = ({}) => {
           Back
         </button>
         <h2 className="text-[36px] font-bold blue-text">Add Location</h2>
-        {/* <div className="flex flex-col items-start gap-1 w-full lg:w-[630px]">
-          <label htmlFor="country" className="text-sm font-medium">
-            Country
-          </label>
-          <input
-            type="text"
-            disabled
-            value={"United States"}
-            className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
-            placeholder="Country"
-          />
-        </div>
-
-        <div className="w-full lg:w-[630px] grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="flex flex-col items-start gap-1 w-full">
-            <label htmlFor="state" className="text-sm font-medium">
-              State
-            </label>
-            <select
-              name="state"
-              id="state"
-              className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
-              value={selectedState}
-              onChange={handleStateChange}
-            >
-              <option value="">Select a State</option>
-              {states.map((state) => (
-                <option key={state.isoCode} value={state.isoCode}>
-                  {state.name}
-                </option>
-              ))}
-            </select>
+        <div className="w-full lg:w-[630px] flex flex-col gap-5">
+          <div className="w-full lg:w-[630px] flex flex-col items-start gap-1 location">
+            <h6 className="text-[13px] font-medium">Country</h6>
+            <CountrySelect
+              onChange={(e) => {
+                setCountryid(e.id);
+              }}
+              placeHolder="Select Country"
+            />
           </div>
-          <div className="flex flex-col items-start gap-1 w-full">
-            <label htmlFor="city" className="text-sm font-medium">
-              City
-            </label>
-            <select
-              name="city"
-              id="city"
-              className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              disabled={!selectedState}
-            >
-              <option value="">Select a City</option>
-              {stateCities.map((city) => (
-                <option key={city.name} value={city.name}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="w-full flex flex-col items-start gap-1 location">
+              <h6 className="text-[13px] font-medium">State</h6>
+              <StateSelect
+                countryid={countryid}
+                onChange={(e) => {
+                  setstateid(e.id);
+                  setStateFullName(e.name);
+                }}
+                placeHolder="Select State"
+                className="w-full"
+              />
+            </div>
+            <div className="w-full flex flex-col items-start gap-1 location">
+              <h6 className="text-[13px] font-medium">City</h6>
+              <CitySelect
+                countryid={countryid}
+                stateid={stateid}
+                onChange={(e) => {
+                  console.log(e);
+                  setSelectedCity(e.name);
+                }}
+                placeHolder="Select City"
+              />
+            </div>
           </div>
-        </div>
-        <div className="w-full lg:w-[630px] flex flex-col items-start gap-1">
-          <label htmlFor="zipCode" className="text-sm font-medium">
-            Zip Code
-          </label>
-          <input
-            type="text"
-            placeholder="00000"
-            value={zipCode}
-            onChange={(e) => setZipCode(e.target.value)}
-            className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
-          />
+          <div className="w-full lg:w-[630px] flex flex-col items-start gap-1">
+            <label htmlFor="zipCode" className="text-sm font-medium">
+              Zip Code
+            </label>
+            <input
+              type="text"
+              placeholder="00000"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              className="w-full px-4 py-3 rounded-[16px] border outline-none text-sm bg-white"
+            />
+          </div>
         </div>
         <div className="w-full lg:w-[635px]">
           <button
@@ -197,35 +140,7 @@ const AddLocationForm = ({}) => {
           >
             {loading ? <ButtonLoader /> : "Add"}
           </button>
-        </div> */}
-      </div>
-      <div>
-        <h6>Country</h6>
-        <CountrySelect
-          onChange={(e) => {
-            setCountryid(e.id);
-          }}
-          placeHolder="Select Country"
-        />
-        <h6>State</h6>
-        <StateSelect
-          countryid={countryid}
-          onChange={(e) => {
-            setstateid(e.id);
-            setStateFullName(e.name);
-          }}
-          placeHolder="Select State"
-        />
-        <h6>City</h6>
-        <CitySelect
-          countryid={countryid}
-          stateid={stateid}
-          onChange={(e) => {
-            console.log(e);
-            setSelectedCity(e.name);
-          }}
-          placeHolder="Select City"
-        />
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,12 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { City, Country, State } from "country-state-city";
 import AddPickupAddress from "./AddPickupAddress";
+import {
+  CitySelect,
+  CountrySelect,
+  StateSelect,
+} from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
 
 const AddProductForm = () => {
   const { user, userProfile } = useContext(AuthContext);
@@ -65,34 +71,14 @@ const AddProductForm = () => {
   const [states, setStates] = useState([]);
   const [stateCities, setStateCities] = useState([]);
 
-  useEffect(() => {
-    const usStates = State.getStatesOfCountry("US");
-    setStates(usStates);
-  }, []);
+  const [stateFullName, setStateFullName] = useState(
+    product ? product?.selectedState : ""
+  );
+  const [zipCode, setZipCode] = useState("");
 
-  useEffect(() => {
-    if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState);
-      setStateCities(allCities);
-    } else {
-      setStateCities([]);
-    }
-  }, [selectedState]);
-
-  const getStateFullName = (abbreviation) => {
-    const state = states.find((state) => state.isoCode === abbreviation);
-    return state ? state.name : abbreviation;
-  };
-
-  useEffect(() => {
-    if (selectedState) {
-      const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState);
-      // setStateFullName(fullState);
-    } else {
-      setFullStateName("");
-    }
-  }, [selectedState]);
+  const [countryid, setCountryid] = useState(0);
+  const [stateid, setstateid] = useState(0);
+  console.log(countryid);
 
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
@@ -203,7 +189,7 @@ const AddProductForm = () => {
       toast.error("Price can not be 0");
       return;
     }
-    if (!fullStateName) {
+    if (!stateFullName) {
       toast.error("Please select a state");
       return;
     }
@@ -230,7 +216,7 @@ const AddProductForm = () => {
           description,
           productCategory,
           productSubCategory,
-          selectedState: fullStateName,
+          selectedState: stateFullName,
           selectedCity,
           fulfillmentMethod: { selfPickup, delivery },
           pickupAddress: isPickupAddressSameAsProfile
@@ -423,8 +409,35 @@ const AddProductForm = () => {
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
             </div>
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="w-full flex flex-col items-start gap-1 location">
+                <h6 className="text-[13px] font-medium">State</h6>
+                <StateSelect
+                  countryid={233}
+                  onChange={(e) => {
+                    setstateid(e.id);
+                    setStateFullName(e.name);
+                  }}
+                  placeHolder="Select State"
+                  className="w-full"
+                  style={{ border: "none" }}
+                />
+              </div>
+              <div className="w-full flex flex-col items-start gap-1 location">
+                <h6 className="text-[13px] font-medium">City</h6>
+                <CitySelect
+                  countryid={233}
+                  stateid={stateid}
+                  onChange={(e) => {
+                    console.log(e);
+                    setSelectedCity(e.name);
+                  }}
+                  placeHolder="Select City"
+                />
+              </div>
+            </div>
 
-            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className="flex flex-col items-start gap-1 w-full">
                 <label htmlFor="state" className="text-sm font-medium">
                   State
@@ -464,7 +477,7 @@ const AddProductForm = () => {
                   ))}
                 </select>
               </div>
-            </div>
+            </div> */}
 
             <div className="w-full">
               <label htmlFor="quantity" className="text-sm font-semibold">

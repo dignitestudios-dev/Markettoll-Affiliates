@@ -50,3 +50,26 @@
 .category-buttons::-webkit-scrollbar {
   display: none;
 }
+
+.stdropdown-container {
+  border: 1px solid rgb(223, 223, 223);
+  /* border-radius: 40px !important; */
+  color: #5c5c5c;
+  font-size: 15px;
+  background-color: white;
+  border: none !important;
+  padding: 3px;
+}
+
+.stdropdown-tools {
+  display: none;
+}
+
+.location > div {
+  width: 100% !important;
+  border-radius: 30px !important;
+}
+
+.stsearch-box {
+  border-radius: 150px !important;
+}
