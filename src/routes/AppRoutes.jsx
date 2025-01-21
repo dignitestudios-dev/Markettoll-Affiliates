@@ -103,7 +103,7 @@ const AppRoutes = () => {
         />
 
         <Route path="/sign-up" element={<Layout page={<SignUpPage />} />} />
-        {/*<Route
+        <Route
           path="/review-profile"
           element={<Layout page={<ReviewProfilePage />} />}
         />
@@ -209,7 +209,7 @@ const AppRoutes = () => {
           path="/edit-product/:productId"
           element={<Layout page={<EditProductPage />} />}
         />
-        <Route
+        {/*<Route
           path="/services/:serviceId"
           element={<Layout page={<ServiceDetailsPage />} />}
         />
