@@ -81,7 +81,7 @@ const AppRoutes = () => {
         />
 
         <Route path="/login" element={<Layout page={<LoginPage />} />} />
-        {/*<Route
+        <Route
           path="/add-phone-number"
           element={<Layout page={<AddPhoneNumberFromSocialLogin />} />}
         />
@@ -103,7 +103,7 @@ const AppRoutes = () => {
         />
 
         <Route path="/sign-up" element={<Layout page={<SignUpPage />} />} />
-        <Route
+        {/*<Route
           path="/review-profile"
           element={<Layout page={<ReviewProfilePage />} />}
         />
