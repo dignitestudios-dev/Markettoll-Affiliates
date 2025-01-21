@@ -2,13 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoSend } from "react-icons/io5";
 import {
-  addDoc,
   collection,
   db,
   doc,
-  getDoc,
   serverTimestamp,
-  setDoc,
+  writeBatch,
 } from "../../firebase/firebase";
 import BlockAndDeleteModal from "./BlockAndDeleteModal";
 import BlockUserModal from "./BlockUserModal";
@@ -55,6 +53,7 @@ const MessageBoard = ({
 
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
+
     const chatId = userId;
     const lastMessage = {
       userSendId: userId,
@@ -88,40 +87,40 @@ const MessageBoard = ({
       timestamp: serverTimestamp(),
     };
 
+    const batch = writeBatch(db); 
+
     try {
       const messagesRef = collection(db, "chats", chatId, seller?.id);
-      await addDoc(messagesRef, messageData);
-      await setDoc(doc(db, "chats", chatId, "myUsers", seller?.id), {
-        lastMessage: lastMessage,
+      batch.set(doc(db, "chats", chatId, "myUsers", seller?.id), {
+        lastMessage,
       });
-      const recRef = collection(db, "chats", seller?.id, chatId);
-      await addDoc(recRef, messageData);
-      await setDoc(doc(db, "chats", seller?.id, "myUsers", chatId), {
+      batch.set(doc(db, "chats", seller?.id, "myUsers", chatId), {
         lastMessage: RecReflastMessage,
       });
+      batch.set(doc(messagesRef), messageData); 
+      const recRef = collection(db, "chats", seller?.id, chatId);
+      batch.set(doc(recRef), messageData);
+      await batch.commit();
       fetchMessages(seller?.id, seller);
       setMessage("");
+      const notificationData = {
+        title: "This is a chat message notification.",
+        attachments: [],
+        body: RecReflastMessage?.content,
+      };
 
-      try {
-        const res = await axios.post(
-          `${BASE_URL}/users/chat-message-notification/${seller?.id}`,
-          {
-            title: "This is a chat message notification.",
-            attachments: [],
-            body: RecReflastMessage?.content,
+      const res = await axios.post(
+        `${BASE_URL}/users/chat-message-notification/${seller?.id}`,
+        notificationData,
+        {
+          headers: {
+            Authorization: `Bearer ${userInfo?.token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${userInfo?.token}`,
-            },
-          }
-        );
-      } catch (error) {
-        console.log("error while boosting service 1 >>>>", error);
-        toast.error(error?.response?.data?.message);
-      }
+        }
+      );
     } catch (error) {
       console.error("Error sending message: ", error);
+      toast.error("Error while sending message. Please try again.");
     }
   };
 
@@ -209,7 +208,7 @@ const MessageBoard = ({
                 onClick={() => toggleBlockUserModal()}
                 className="text-base font-medium w-full px-5 py-1 text-start"
               >
-               {hasBlocked ? "Unblock" : "block"}
+                {hasBlocked ? "Unblock" : "block"}
               </button>
               <button
                 type="button"

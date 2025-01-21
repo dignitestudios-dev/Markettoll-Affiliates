@@ -24,56 +24,45 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
   const chatId = userId;
   const sellerRef = collection(db, "chats", chatId, "myUsers");
 
-  const getStatusDataForUserIds = async () => {
-    const messagesQuery = query(sellerRef);
-    const querySnapshot = await getDocs(messagesQuery);
-    const userIds = querySnapshot.docs.map((doc) => doc.id);
+  const getStatusDataForUserIds = async (userIds) => {
+    // Fetch all statuses at once instead of individually subscribing
+    const statusRefs = userIds.map((userId) => doc(db, "status", userId));
+    const statusSnapshots = await Promise.all(
+      statusRefs.map((ref) => getDoc(ref))
+    );
 
-    userIds.forEach((userId) => {
-      const userRef = doc(db, "status", userId);
-      onSnapshot(userRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const statusData = docSnap.data();
-          setOnlineStatus((prevStatus) => {
-            const existingStatusIndex = prevStatus.findIndex(
-              (status) => status.userId === userId
-            );
-            if (existingStatusIndex !== -1) {
-              prevStatus[existingStatusIndex] = { ...statusData, userId };
-            } else {
-              prevStatus.push({ ...statusData, userId });
-            }
-            return [...prevStatus];
-          });
-        }
-      });
-    });
+    const updatedStatuses = statusSnapshots.reduce((acc, docSnap, index) => {
+      if (docSnap.exists()) {
+        acc.push({ ...docSnap.data(), userId: userIds[index] });
+      }
+      return acc;
+    }, []);
+
+    setOnlineStatus(updatedStatuses); // Update online status in one batch
   };
-
-  useEffect(() => {
-    const statusCollectionRef = collection(db, "status");
-    const unsubscribe = onSnapshot(statusCollectionRef, (snapshot) => {
-      getStatusDataForUserIds();
-    });
-    return () => unsubscribe();
-  }, [LastMessages]);
 
   const fetchUsers = async () => {
     try {
-      onSnapshot(sellerRef, (snapshot) => {
-        const updatedUserList = snapshot.docs.map((doc, i) => {
-          return {
-            isOnline: doc.id.includes(onlineStatus[i]?.userId)
-              ? onlineStatus[i]
-              : false,
-            id: doc.id,
-            ...doc.data(),
-          };
-        });
-        setLastMessages(updatedUserList);
-        console.log(updatedUserList, "userssList,Updated-->");
-        setOriginalUserList(updatedUserList);
+      // Fetch users once and get their IDs
+      const messagesQuery = query(sellerRef);
+      const querySnapshot = await getDocs(messagesQuery);
+      const userIds = querySnapshot.docs.map((doc) => doc.id);
+
+      // Fetch the status data for all user IDs
+      await getStatusDataForUserIds(userIds);
+
+      // Now set the LastMessages with the status data attached
+      const updatedUserList = querySnapshot.docs.map((doc, i) => {
+        return {
+          isOnline:
+            onlineStatus.find((status) => status.userId === doc.id) || false,
+          id: doc.id,
+          ...doc.data(),
+        };
       });
+
+      setLastMessages(updatedUserList);
+      setOriginalUserList(updatedUserList);
     } catch (error) {
       console.error("Error fetching users: ", error);
     }
@@ -93,7 +82,6 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
           .toLowerCase()
           .includes(filterValue.toLowerCase())
       );
-      // console.log(dataFilter, filterValue, originalUserList, "filteration");
       setLastMessages(dataFilter);
     }
   };

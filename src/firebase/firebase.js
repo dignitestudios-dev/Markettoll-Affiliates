@@ -16,7 +16,8 @@ import {
   orderBy,
   arrayUnion,
   arrayRemove,
-  deleteDoc
+  deleteDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { getMessaging, getToken } from "firebase/messaging";
 
@@ -59,5 +60,6 @@ export {
   arrayRemove,
   deleteDoc,
   getToken,
-  messaging
+  messaging,
+  writeBatch
 };
