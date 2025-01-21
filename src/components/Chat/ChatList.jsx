@@ -52,16 +52,16 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
 
   useEffect(() => {
     const statusCollectionRef = collection(db, "status");
-    const unsubscribe = onSnapshot(statusCollectionRef, (snapshot) => {      
+    const unsubscribe = onSnapshot(statusCollectionRef, (snapshot) => {
       getStatusDataForUserIds();
     });
     return () => unsubscribe();
-  }, []);
+  }, [LastMessages]);
 
   const fetchUsers = async () => {
-    try {      
+    try {
       onSnapshot(sellerRef, (snapshot) => {
-        const updatedUserList = snapshot.docs.map((doc, i) => {     
+        const updatedUserList = snapshot.docs.map((doc, i) => {
           return {
             isOnline: doc.id.includes(onlineStatus[i]?.userId)
               ? onlineStatus[i]
@@ -71,7 +71,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
           };
         });
         setLastMessages(updatedUserList);
-        console.log(updatedUserList,"userssList,Updated-->")
+        console.log(updatedUserList, "userssList,Updated-->");
         setOriginalUserList(updatedUserList);
       });
     } catch (error) {
@@ -81,7 +81,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
 
   useEffect(() => {
     fetchUsers();
-  }, [userId,onlineStatus]);
+  }, [userId, onlineStatus]);
 
   const filterUser = (e) => {
     const filterValue = e.target.value;

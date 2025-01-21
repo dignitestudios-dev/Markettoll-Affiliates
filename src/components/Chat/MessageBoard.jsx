@@ -209,7 +209,7 @@ const MessageBoard = ({
                 onClick={() => toggleBlockUserModal()}
                 className="text-base font-medium w-full px-5 py-1 text-start"
               >
-               {hasBlocked ? "Unblock" : "blocked"}
+               {hasBlocked ? "Unblock" : "block"}
               </button>
               <button
                 type="button"
