@@ -79,9 +79,9 @@ const AppRoutes = () => {
           path="/search-product"
           element={<Layout page={<SearchProductList />} />}
         />
-        {/*
+
         <Route path="/login" element={<Layout page={<LoginPage />} />} />
-        <Route
+        {/*<Route
           path="/add-phone-number"
           element={<Layout page={<AddPhoneNumberFromSocialLogin />} />}
         />
