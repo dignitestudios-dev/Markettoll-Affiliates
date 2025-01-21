@@ -7,8 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <>
-      <AppRoutes />
-      <ToastContainer />
+      {/* <AppRoutes />
+      <ToastContainer /> */}
+      <h2 className="text-black text-4xl font-semibold">Hello World</h2>
     </>
   );
 }
