@@ -70,7 +70,7 @@ const ChatList = ({ selectedUser, toggleChatList }) => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [userId, onlineStatus]);
 
   const filterUser = (e) => {
     const filterValue = e.target.value;

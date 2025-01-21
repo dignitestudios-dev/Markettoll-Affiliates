@@ -17,10 +17,9 @@ const validate = (values) => {
 
   if (!values.email) {
     errors.email = "Required";
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = "Invalid email address";
   }
-  // else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-  //   errors.email = "Invalid email address";
-  // }
 
   if (!values.password) {
     errors.password = "Required";
@@ -40,49 +39,49 @@ const LoginForm = () => {
   const [fcmToken, setFcmToken] = useState("");
 
   // Request notification permission and retrieve FCM token
-  // const requestNotificationPermission = async () => {
-  //   try {
-  //     const permission = await Notification.requestPermission();
-  //     if (permission === "granted") {
-  //       const fcmToken = await getToken(messaging, {
-  //         vapidKey:
-  //           "BHduyiO2b203CE8_q-deJ6nzjawReezy16LF-1hi_CQKELLF-y4Jqnevt7wjhLZRPhnCiZ4SY1V8Co7GHfIfF-o",
-  //       });
-  //       // console.log("fcmToken >>>", fcmToken);
-  //       setFcmToken(fcmToken);
-  //       localStorage.setItem("fcmTokenMarkettoll", JSON.stringify(fcmToken));
-  //       // return fcmToken;
-  //     } else {
-  //       throw new Error("Notification permission not granted");
-  //     }
-  //   } catch (err) {
-  //     console.error("Error getting FCM token", err);
-  //   }
-  // };
+  const requestNotificationPermission = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        const fcmToken = await getToken(messaging, {
+          vapidKey:
+            "BHduyiO2b203CE8_q-deJ6nzjawReezy16LF-1hi_CQKELLF-y4Jqnevt7wjhLZRPhnCiZ4SY1V8Co7GHfIfF-o",
+        });
+        // console.log("fcmToken >>>", fcmToken);
+        setFcmToken(fcmToken);
+        localStorage.setItem("fcmTokenMarkettoll", JSON.stringify(fcmToken));
+        // return fcmToken;
+      } else {
+        throw new Error("Notification permission not granted");
+      }
+    } catch (err) {
+      console.error("Error getting FCM token", err);
+    }
+  };
 
-  // useEffect(() => {
-  //   requestNotificationPermission();
-  // }, []);
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
-  // const sendFcmToken = async (token) => {
-  //   try {
-  //     const res = await axios.post(
-  //       `${BASE_URL}/users/push-notification-token`,
-  //       {
-  //         platform: "web",
-  //         token: fcmToken,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     console.log("fcmToken res >>>", res?.data);
-  //   } catch (error) {
-  //     console.log("err while posting fcmToken >>>", error);
-  //   }
-  // };
+  const sendFcmToken = async (token) => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/push-notification-token`,
+        {
+          platform: "web",
+          token: fcmToken,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("fcmToken res >>>", res?.data);
+    } catch (error) {
+      console.log("err while posting fcmToken >>>", error);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -106,7 +105,7 @@ const LoginForm = () => {
         );
         // console.log("login response >>>>", response);
         if (response.data.success) {
-          // await sendFcmToken(response?.data?.data?.token);
+          await sendFcmToken(response?.data?.data?.token);
           Cookies.set("user", JSON.stringify(response?.data?.data));
           localStorage.setItem("user", JSON.stringify(response?.data?.data));
           resetForm();
@@ -173,7 +172,6 @@ const LoginForm = () => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.email}
-              required
               placeholder="johnsmith@gmail.com"
               className="w-full bg-transparent text-[14px] font-[400] text-[#5C5C5C] outline-none"
             />

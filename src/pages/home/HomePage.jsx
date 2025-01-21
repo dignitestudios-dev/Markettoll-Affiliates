@@ -34,7 +34,7 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    setData({ deliveryAddress: "" });
+    // setData({ deliveryAddress: "" });
     fetchUserProfile();
   }, []);
 
