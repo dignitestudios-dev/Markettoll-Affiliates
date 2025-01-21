@@ -57,6 +57,10 @@ const AddLocationForm = ({}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Something went wrong");
+      return;
+    }
     if (!selectedState || !selectedCity) {
       toast.error("Please select both state and city.");
       return;

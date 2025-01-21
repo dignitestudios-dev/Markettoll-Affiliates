@@ -153,11 +153,11 @@ const AppRoutes = () => {
           path="/would-you-boost-your-product"
           element={<Layout page={<WouldYouBoostProduct />} />}
         />
-        {/*
-        <Route
+
+        {/* <Route
           path="/add-service"
           element={<Layout page={<AddServicePage />} />}
-        />
+        /> */}
 
         <Route
           path="/service-review"
@@ -227,11 +227,11 @@ const AppRoutes = () => {
         <Route
           path="/order-details/:orderId"
           element={<Layout page={<ReviewOrderDetails />} />}
-        /> */}
+        />
 
-        {/* <Route path="/chats" element={<Layout page={<ChatPage />} />} /> */}
+        <Route path="/chats" element={<Layout page={<ChatPage />} />} />
 
-        {/* <Route
+        <Route
           path="/favourites"
           element={<Layout page={<FavouriteItemsPage />} />}
         />
@@ -277,7 +277,7 @@ const AppRoutes = () => {
             <Layout page={<SettingsPage page={<SettingsPayementPage />} />} />
           }
         />
-        <Route
+        {/* <Route
           path="/settings/addresses"
           element={
             <Layout page={<SettingsPage page={<SettingsAddressPage />} />} />
@@ -304,7 +304,7 @@ const AppRoutes = () => {
               page={<SettingsPage page={<SettingsAddressEditPage />} />}
             />
           }
-        />
+        /> */}
         <Route
           path="/settings/change-password"
           element={
@@ -354,7 +354,7 @@ const AppRoutes = () => {
               page={<SettingsPage page={<SettingsDeleteAccountPage />} />}
             />
           }
-        /> */}
+        />
 
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
