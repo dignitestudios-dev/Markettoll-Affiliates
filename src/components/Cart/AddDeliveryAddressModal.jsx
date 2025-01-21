@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-// Validation schema using Yup
 const validationSchema = Yup.object({
   streetAddress: Yup.string()
     .min(5, "Street address must be at least 5 characters")

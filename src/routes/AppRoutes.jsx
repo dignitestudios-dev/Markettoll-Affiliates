@@ -205,10 +205,10 @@ const AppRoutes = () => {
           path="/products/:productId"
           element={<Layout page={<ProductDetailPage />} />}
         />
-        <Route
+        {/* <Route
           path="/edit-product/:productId"
           element={<Layout page={<EditProductPage />} />}
-        />
+        /> */}
         <Route
           path="/services/:serviceId"
           element={<Layout page={<ServiceDetailsPage />} />}
@@ -223,7 +223,7 @@ const AppRoutes = () => {
           element={<Layout page={<SellerProfilePage />} />}
         />
 
-        <Route path="/cart" element={<Layout page={<CartPage />} />} />
+        {/* <Route path="/cart" element={<Layout page={<CartPage />} />} /> */}
         <Route
           path="/order-details/:orderId"
           element={<Layout page={<ReviewOrderDetails />} />}
