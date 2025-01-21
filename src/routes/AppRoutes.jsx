@@ -229,7 +229,7 @@ const AppRoutes = () => {
           element={<Layout page={<ReviewOrderDetails />} />}
         />
 
-        {/* <Route path="/chats" element={<Layout page={<ChatPage />} />} /> */}
+        <Route path="/chats" element={<Layout page={<ChatPage />} />} />
 
         <Route
           path="/favourites"
