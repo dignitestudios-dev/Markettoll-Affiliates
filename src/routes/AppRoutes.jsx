@@ -229,15 +229,13 @@ const AppRoutes = () => {
           element={<Layout page={<ReviewOrderDetails />} />}
         />
 
-        {/* chat routes */}
-        <Route path="/chats" element={<Layout page={<ChatPage />} />} />
+        {/* <Route path="/chats" element={<Layout page={<ChatPage />} />} /> */}
 
         <Route
           path="/favourites"
           element={<Layout page={<FavouriteItemsPage />} />}
         />
 
-        {/* profile routes */}
         <Route
           path="/account/peronal-info"
           element={<Layout page={<PersonalInfoPage />} />}
@@ -267,7 +265,6 @@ const AppRoutes = () => {
           element={<Layout page={<OrderDetailsPage />} />}
         />
 
-        {/* Settings */}
         <Route
           path="/settings"
           element={
