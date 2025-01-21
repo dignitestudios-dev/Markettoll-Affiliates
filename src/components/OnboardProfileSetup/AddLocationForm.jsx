@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Country, State, City } from "country-state-city";
+// import { Country, State, City } from "country-state-city";
 import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
@@ -7,6 +7,12 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import ButtonLoader from "../Global/ButtonLoader";
 import { toast } from "react-toastify";
+import {
+  CitySelect,
+  CountrySelect,
+  StateSelect,
+} from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
 
 const AddLocationForm = ({}) => {
   const [selectedState, setSelectedState] = useState("");
@@ -21,39 +27,42 @@ const AddLocationForm = ({}) => {
   const [states, setStates] = useState([]);
   const [stateCities, setStateCities] = useState([]);
 
-  useEffect(() => {
-    const usStates = State.getStatesOfCountry("US");
-    setStates(usStates);
-  }, []);
+  const [countryid, setCountryid] = useState(0);
+  const [stateid, setstateid] = useState(0);
 
-  useEffect(() => {
-    if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState);
-      setStateCities(allCities);
-    } else {
-      setStateCities([]);
-    }
-  }, [selectedState]);
+  // useEffect(() => {
+  //   const usStates = State.getStatesOfCountry("US");
+  //   setStates(usStates);
+  // }, []);
 
-  const getStateFullName = (abbreviation) => {
-    const state = states.find((state) => state.isoCode === abbreviation);
-    return state ? state.name : abbreviation;
-  };
+  // useEffect(() => {
+  //   if (selectedState) {
+  //     const allCities = City.getCitiesOfState("US", selectedState);
+  //     setStateCities(allCities);
+  //   } else {
+  //     setStateCities([]);
+  //   }
+  // }, [selectedState]);
 
-  useEffect(() => {
-    if (selectedState) {
-      const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState);
-      setStateFullName(fullState);
-    } else {
-      setFullStateName("");
-    }
-  }, [selectedState]);
+  // const getStateFullName = (abbreviation) => {
+  //   const state = states.find((state) => state.isoCode === abbreviation);
+  //   return state ? state.name : abbreviation;
+  // };
 
-  const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
-    setSelectedCity("");
-  };
+  // useEffect(() => {
+  //   if (selectedState) {
+  //     const fullState = getStateFullName(selectedState);
+  //     setFullStateName(fullState);
+  //     setStateFullName(fullState);
+  //   } else {
+  //     setFullStateName("");
+  //   }
+  // }, [selectedState]);
+
+  // const handleStateChange = (event) => {
+  //   setSelectedState(event.target.value);
+  //   setSelectedCity("");
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -114,7 +123,7 @@ const AddLocationForm = ({}) => {
           Back
         </button>
         <h2 className="text-[36px] font-bold blue-text">Add Location</h2>
-        <div className="flex flex-col items-start gap-1 w-full lg:w-[630px]">
+        {/* <div className="flex flex-col items-start gap-1 w-full lg:w-[630px]">
           <label htmlFor="country" className="text-sm font-medium">
             Country
           </label>
@@ -188,7 +197,35 @@ const AddLocationForm = ({}) => {
           >
             {loading ? <ButtonLoader /> : "Add"}
           </button>
-        </div>
+        </div> */}
+      </div>
+      <div>
+        <h6>Country</h6>
+        <CountrySelect
+          onChange={(e) => {
+            setCountryid(e.id);
+          }}
+          placeHolder="Select Country"
+        />
+        <h6>State</h6>
+        <StateSelect
+          countryid={countryid}
+          onChange={(e) => {
+            setstateid(e.id);
+            setStateFullName(e.name);
+          }}
+          placeHolder="Select State"
+        />
+        <h6>City</h6>
+        <CitySelect
+          countryid={countryid}
+          stateid={stateid}
+          onChange={(e) => {
+            console.log(e);
+            setSelectedCity(e.name);
+          }}
+          placeHolder="Select City"
+        />
       </div>
     </div>
   );
