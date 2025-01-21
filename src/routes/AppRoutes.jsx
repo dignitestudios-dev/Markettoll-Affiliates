@@ -75,11 +75,11 @@ const AppRoutes = () => {
     <Suspense fallback={<Loader />}>
       <Routes>
         <Route path="/" element={<Layout page={<HomePage />} />} />
-        {/* <Route
+        <Route
           path="/search-product"
           element={<Layout page={<SearchProductList />} />}
         />
-
+        {/*
         <Route path="/login" element={<Layout page={<LoginPage />} />} />
         <Route
           path="/add-phone-number"
