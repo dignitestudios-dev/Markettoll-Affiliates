@@ -17,9 +17,10 @@ const validate = (values) => {
 
   if (!values.email) {
     errors.email = "Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
   }
+  // else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+  //   errors.email = "Invalid email address";
+  // }
 
   if (!values.password) {
     errors.password = "Required";
@@ -172,6 +173,7 @@ const LoginForm = () => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.email}
+              required
               placeholder="johnsmith@gmail.com"
               className="w-full bg-transparent text-[14px] font-[400] text-[#5C5C5C] outline-none"
             />
