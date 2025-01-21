@@ -120,7 +120,7 @@ const MessageBoard = ({
       );
     } catch (error) {
       console.error("Error sending message: ", error);
-      toast.error("Error while sending message. Please try again.");
+      toast.error(error?.response?.data?.message);
     }
   };
 
