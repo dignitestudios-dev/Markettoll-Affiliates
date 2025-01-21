@@ -123,7 +123,7 @@ const AddPaymentPage = () => {
         setShowSuccessModal(true);
       }
     } catch (error) {
-      console.log("error while subscribing >>>", error);
+      // console.log("error while subscribing >>>", error);
       toast.error(error?.response?.data?.message);
     }
   };
