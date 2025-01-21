@@ -75,7 +75,7 @@ const AppRoutes = () => {
     <Suspense fallback={<Loader />}>
       <Routes>
         <Route path="/" element={<Layout page={<HomePage />} />} />
-        <Route
+        {/* <Route
           path="/search-product"
           element={<Layout page={<SearchProductList />} />}
         />
@@ -227,11 +227,11 @@ const AppRoutes = () => {
         <Route
           path="/order-details/:orderId"
           element={<Layout page={<ReviewOrderDetails />} />}
-        />
+        /> */}
 
         {/* <Route path="/chats" element={<Layout page={<ChatPage />} />} /> */}
 
-        <Route
+        {/* <Route
           path="/favourites"
           element={<Layout page={<FavouriteItemsPage />} />}
         />
@@ -354,7 +354,7 @@ const AppRoutes = () => {
               page={<SettingsPage page={<SettingsDeleteAccountPage />} />}
             />
           }
-        />
+        /> */}
 
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
