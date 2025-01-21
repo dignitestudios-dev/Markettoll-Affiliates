@@ -129,20 +129,20 @@ const AppRoutes = () => {
           path="/review-profile-image"
           element={<Layout page={<OnBoardingProfileReviewUpdate />} />}
         />
-        <Route
+        {/* <Route
           path="/add-location"
           element={<Layout page={<AddLocation />} />}
-        />
+        /> */}
 
         <Route
           path="/add-service-or-product"
           element={<Layout page={<WouldAddService />} />}
         />
 
-        {/*<Route
+        {/* <Route
           path="/add-product"
           element={<Layout page={<AddProductPage />} />}
-        />
+        /> */}
 
         <Route
           path="/product-review"
@@ -153,7 +153,7 @@ const AppRoutes = () => {
           path="/would-you-boost-your-product"
           element={<Layout page={<WouldYouBoostProduct />} />}
         />
-
+        {/*
         <Route
           path="/add-service"
           element={<Layout page={<AddServicePage />} />}
