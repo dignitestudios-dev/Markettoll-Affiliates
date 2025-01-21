@@ -112,7 +112,7 @@ const AppRoutes = () => {
           element={<Layout page={<IdentityVerifiedPage />} />}
         />
 
-        {/*<Route
+        <Route
           path="/subscriptions"
           element={<Layout page={<PackagesPage />} />}
         />
@@ -121,7 +121,7 @@ const AppRoutes = () => {
           element={<Layout page={<AddPayment />} />}
         />
 
-        <Route
+        {/* <Route
           path="/profile-setup"
           element={<Layout page={<OnboardProfileSetupPage />} />}
         />
