@@ -29,15 +29,16 @@ const validate = (values) => {
     errors.newPassword = "Required";
   } else if (values.newPassword.length < 8) {
     errors.newPassword = "Password must be at least 8 characters";
-  } else if (!/(?=.*[a-z])/.test(values.newPassword)) {
-    errors.newPassword = "Password must contain at least one lowercase letter";
-  } else if (!/(?=.*[A-Z])/.test(values.newPassword)) {
-    errors.newPassword = "Password must contain at least one uppercase letter";
-  } else if (!/(?=.*[0-9])/.test(values.newPassword)) {
-    errors.password = "Password must contain at least one number";
-  } else if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(values.newPassword)) {
-    errors.newPassword = "Password must contain at least one special character";
   }
+  // else if (!/(?=.*[a-z])/.test(values.newPassword)) {
+  //   errors.newPassword = "Password must contain at least one lowercase letter";
+  // } else if (!/(?=.*[A-Z])/.test(values.newPassword)) {
+  //   errors.newPassword = "Password must contain at least one uppercase letter";
+  // } else if (!/(?=.*[0-9])/.test(values.newPassword)) {
+  //   errors.password = "Password must contain at least one number";
+  // } else if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(values.newPassword)) {
+  //   errors.newPassword = "Password must contain at least one special character";
+  // }
 
   if (!values.confirmNewPassword) {
     errors.confirmNewPassword = "Required";
