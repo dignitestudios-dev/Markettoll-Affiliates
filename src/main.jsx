@@ -8,6 +8,8 @@ import StripeProvider from "./components/Global/StripeProvider.jsx";
 import AddProductProvider from "./context/addProduct.jsx";
 import CartProductContextProvider from "./context/cartProductContext.jsx";
 import SearchedProductProvider from "./context/searchedProductContext.jsx";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
