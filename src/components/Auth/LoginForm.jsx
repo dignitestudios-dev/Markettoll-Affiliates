@@ -40,49 +40,49 @@ const LoginForm = () => {
   const [fcmToken, setFcmToken] = useState("");
 
   // Request notification permission and retrieve FCM token
-  const requestNotificationPermission = async () => {
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        const fcmToken = await getToken(messaging, {
-          vapidKey:
-            "BHduyiO2b203CE8_q-deJ6nzjawReezy16LF-1hi_CQKELLF-y4Jqnevt7wjhLZRPhnCiZ4SY1V8Co7GHfIfF-o",
-        });
-        // console.log("fcmToken >>>", fcmToken);
-        setFcmToken(fcmToken);
-        localStorage.setItem("fcmTokenMarkettoll", JSON.stringify(fcmToken));
-        // return fcmToken;
-      } else {
-        throw new Error("Notification permission not granted");
-      }
-    } catch (err) {
-      console.error("Error getting FCM token", err);
-    }
-  };
+  // const requestNotificationPermission = async () => {
+  //   try {
+  //     const permission = await Notification.requestPermission();
+  //     if (permission === "granted") {
+  //       const fcmToken = await getToken(messaging, {
+  //         vapidKey:
+  //           "BHduyiO2b203CE8_q-deJ6nzjawReezy16LF-1hi_CQKELLF-y4Jqnevt7wjhLZRPhnCiZ4SY1V8Co7GHfIfF-o",
+  //       });
+  //       // console.log("fcmToken >>>", fcmToken);
+  //       setFcmToken(fcmToken);
+  //       localStorage.setItem("fcmTokenMarkettoll", JSON.stringify(fcmToken));
+  //       // return fcmToken;
+  //     } else {
+  //       throw new Error("Notification permission not granted");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error getting FCM token", err);
+  //   }
+  // };
 
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
+  // useEffect(() => {
+  //   requestNotificationPermission();
+  // }, []);
 
-  const sendFcmToken = async (token) => {
-    try {
-      const res = await axios.post(
-        `${BASE_URL}/users/push-notification-token`,
-        {
-          platform: "web",
-          token: fcmToken,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("fcmToken res >>>", res?.data);
-    } catch (error) {
-      console.log("err while posting fcmToken >>>", error);
-    }
-  };
+  // const sendFcmToken = async (token) => {
+  //   try {
+  //     const res = await axios.post(
+  //       `${BASE_URL}/users/push-notification-token`,
+  //       {
+  //         platform: "web",
+  //         token: fcmToken,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     console.log("fcmToken res >>>", res?.data);
+  //   } catch (error) {
+  //     console.log("err while posting fcmToken >>>", error);
+  //   }
+  // };
 
   const formik = useFormik({
     initialValues: {
@@ -106,7 +106,7 @@ const LoginForm = () => {
         );
         // console.log("login response >>>>", response);
         if (response.data.success) {
-          await sendFcmToken(response?.data?.data?.token);
+          // await sendFcmToken(response?.data?.data?.token);
           Cookies.set("user", JSON.stringify(response?.data?.data));
           localStorage.setItem("user", JSON.stringify(response?.data?.data));
           resetForm();
