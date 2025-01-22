@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
-import { STATES } from "../../constants/states";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
-import { useFormik } from "formik";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
@@ -24,12 +22,10 @@ const SettingsAddAddressPage = () => {
   const [loading, setLoading] = useState(false);
 
   const [stateFullName, setStateFullName] = useState("");
-  const [fullStateName, setFullStateName] = useState("");
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!streetAddress || !selectedState || !selectedCity || !zipCode) {
+    if (!streetAddress || !stateFullName || !selectedCity || !zipCode) {
       toast.error("Please fill the required fields");
       return;
     }
@@ -55,14 +51,15 @@ const SettingsAddAddressPage = () => {
           },
         }
       );
-      console.log("address added >>>", res);
+      // console.log("address added >>>", res);
       if (res?.status == 201) {
         setAddressAdded(!addressAdded);
         fetchUserProfile();
         // navigate("/settings/addresses");
       }
     } catch (error) {
-      console.log("add delivery address err >>>", error?.response?.data);
+      // console.log("add delivery address err >>>", error?.response?.data);
+      toast.error(error?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -93,7 +90,7 @@ const SettingsAddAddressPage = () => {
             placeholder="Street address"
             value={streetAddress}
             onChange={(e) => setStreetAddress(e.target.value)}
-            className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
+            className="border rounded-2xl px-4 py-3.5 outline-none w-full text-sm"
           />
         </div>
         <div className="w-full flex flex-col items-start gap-1">
@@ -105,7 +102,7 @@ const SettingsAddAddressPage = () => {
             placeholder="Apartment/ Suite"
             value={apartment}
             onChange={(e) => setApartment(e.target.value)}
-            className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
+            className="border rounded-2xl px-4 py-3.5 outline-none w-full text-sm"
           />
         </div>
         <div className="w-full flex flex-col items-start gap-1">
@@ -117,11 +114,11 @@ const SettingsAddAddressPage = () => {
             placeholder="Country"
             disabled
             value={"United States"}
-            className="border bg-white rounded-2xl px-4 py-3 outline-none w-full text-sm"
+            className="border bg-white rounded-2xl px-4 py-3.5 outline-none w-full text-sm"
           />
         </div>
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="flex flex-col items-start gap-1 w-full">
+          <div className="flex flex-col items-start gap-1 w-full location">
             <label htmlFor="state" className="text-sm font-medium">
               State
             </label>
@@ -137,7 +134,7 @@ const SettingsAddAddressPage = () => {
               style={{ border: "none" }}
             />
           </div>
-          <div className="flex flex-col items-start gap-1 w-full">
+          <div className="flex flex-col items-start gap-1 w-full location">
             <label htmlFor="city" className="text-sm font-medium">
               City
             </label>
@@ -161,7 +158,7 @@ const SettingsAddAddressPage = () => {
             placeholder="Zip Code"
             value={zipCode}
             onChange={(e) => setZipCode(e.target.value)}
-            className="border rounded-2xl px-4 py-3 outline-none w-full text-sm"
+            className="border rounded-2xl px-4 py-3.5 outline-none w-full text-sm"
           />
         </div>
         <button
