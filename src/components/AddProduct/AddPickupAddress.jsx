@@ -201,7 +201,7 @@ const AddPickupAddress = () => {
             <label htmlFor="state" className="text-sm font-medium">
               State
             </label>
-            <select
+            {/* <select
               name="state"
               id="state"
               className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
@@ -214,7 +214,18 @@ const AddPickupAddress = () => {
                   {state.name}
                 </option>
               ))}
-            </select>
+            </select> */}
+              <StateSelect
+                 countryid={233}
+                 onChange={(e) => {
+                   setstateid(e.id);
+                   setFullStateName(e.name);
+                   setSelectedState(e.name);
+                 }}
+                 placeHolder="Select State"
+                 className="w-full"
+                 style={{ border: "none" }}
+              />
           </div>
           <div className="flex flex-col items-start gap-1 w-full">
             <label htmlFor="city" className="text-sm font-medium">
