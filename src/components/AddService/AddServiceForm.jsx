@@ -7,11 +7,14 @@ import { STATES } from "../../constants/states";
 import { ProductDataReview } from "../../context/addProduct";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
-import { Country, State, City } from "country-state-city";
+import { CitySelect, StateSelect } from "react-country-state-city";
 
 const AddServiceForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [countryid, setCountryid] = useState(0);
+  const [stateid, setstateid] = useState(0);
+
   const [productImages, setProductImages] = useState(
     location?.state?.serviceData?.productImages || []
   );
@@ -32,51 +35,12 @@ const AddServiceForm = () => {
     location?.state?.serviceData?.coverImageIndex || ""
   );
   const { setServiceData } = useContext(ProductDataReview);
-  console.log(location?.state?.serviceData);
+
 
   const [fullStateName, setFullStateName] = useState(
     location?.state?.serviceData?.selectedState || ""
   );
-  const [states, setStates] = useState([]);
-  const [stateCities, setStateCities] = useState([]);
-
-  useEffect(() => {
-    const usStates = State.getStatesOfCountry("US");
-    setStates(usStates);
-  }, []);
-
-  useEffect(() => {
-    if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState);
-      setStateCities(allCities);
-    } else {
-      setStateCities([]);
-    }
-  }, [selectedState]);
-
-  const getStateFullName = (abbreviation) => {
-    const state = states.find((state) => state.isoCode === abbreviation);
-    return state ? state.name : abbreviation;
-  };
-
-  useEffect(() => {
-    if (selectedState) {
-      const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState);
-    } else {
-      setFullStateName("");
-    }
-  }, [selectedState]);
-
-  const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
-    setSelectedCity("");
-  };
-
-  const selectedStateData = STATES.find(
-    (state) => state.name === selectedState
-  );
-
+  
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (productImages.length + files.length <= 5) {
@@ -294,46 +258,37 @@ const AddServiceForm = () => {
                 className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
             </div>
-
-            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <div className="flex flex-col items-start gap-1 w-full">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">       
+              <div className="flex flex-col items-start gap-1 w-full increas-child-width">
                 <label htmlFor="state" className="text-sm font-medium">
                   State
                 </label>
-                <select
-                  name="state"
-                  id="state"
-                  className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
-                  value={selectedState}
-                  onChange={handleStateChange}
-                >
-                  <option value="">Select a State</option>
-                  {states.map((state) => (
-                    <option key={state.isoCode} value={state.isoCode}>
-                      {state.name}
-                    </option>
-                  ))}
-                </select>
+                 <StateSelect
+                 countryid={233}
+                 onChange={(e) => {
+                   setstateid(e.id);
+                   setFullStateName(e.name);
+                   setSelectedState(e.name);
+                 }}
+                 placeHolder="Select State"
+                 className="w-full"
+                 style={{ border: "none" }}
+              />
               </div>
-              <div className="flex flex-col items-start gap-1 w-full">
+              <div className="flex flex-col items-start gap-1 w-full increas-child-width">
                 <label htmlFor="city" className="text-sm font-medium">
                   City
-                </label>
-                <select
-                  name="city"
-                  id="city"
-                  className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  disabled={!selectedState} // Disable city dropdown if no state is selected
-                >
-                  <option value="">Select a City</option>
-                  {stateCities.map((city) => (
-                    <option key={city.name} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
+                </label>         
+                <CitySelect
+                countryid={233}
+                stateid={stateid}
+                onChange={(e) => {
+                  console.log(e);
+                  setSelectedCity(e.name);
+                }}
+                placeHolder="Select City"
+                style={{ border: "none" }}
+              />
               </div>
             </div>
 

@@ -294,3 +294,7 @@ input[type="number"]::-ms-clear {
 .thumbnail:hover {
   transform: scale(1.1);
 }
+
+.increas-child-width>div {
+  width: 100% !important;
+}

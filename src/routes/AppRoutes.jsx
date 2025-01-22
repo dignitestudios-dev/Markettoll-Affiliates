@@ -154,10 +154,10 @@ const AppRoutes = () => {
           element={<Layout page={<WouldYouBoostProduct />} />}
         />
 
-        {/* <Route
+        <Route
           path="/add-service"
           element={<Layout page={<AddServicePage />} />}
-        /> */}
+        />
 
         <Route
           path="/service-review"
@@ -223,7 +223,7 @@ const AppRoutes = () => {
           element={<Layout page={<SellerProfilePage />} />}
         />
 
-        {/* <Route path="/cart" element={<Layout page={<CartPage />} />} /> */}
+        <Route path="/cart" element={<Layout page={<CartPage />} />} />
         <Route
           path="/order-details/:orderId"
           element={<Layout page={<ReviewOrderDetails />} />}
@@ -277,12 +277,19 @@ const AppRoutes = () => {
             <Layout page={<SettingsPage page={<SettingsPayementPage />} />} />
           }
         />
-        {/* <Route
+        <Route
+          path="/settings/addresses/add-addresses"
+          element={
+            <Layout page={<SettingsPage page={<SettingsAddAddressPage />} />} />
+          }
+        />
+         <Route
           path="/settings/addresses"
           element={
             <Layout page={<SettingsPage page={<SettingsAddressPage />} />} />
           }
         />
+        {/*
         <Route
           path="/settings/edit-home-adress"
           element={
@@ -291,12 +298,7 @@ const AppRoutes = () => {
             />
           }
         />
-        <Route
-          path="/settings/addresses/add-addresses"
-          element={
-            <Layout page={<SettingsPage page={<SettingsAddAddressPage />} />} />
-          }
-        />
+        
         <Route
           path="/settings/addresses/edit-addresses/:id"
           element={

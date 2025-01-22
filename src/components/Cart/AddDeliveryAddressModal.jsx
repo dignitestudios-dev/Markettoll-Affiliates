@@ -4,11 +4,10 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { STATES } from "../../constants/states";
-import { Country, State, City } from "country-state-city";
 import { toast } from "react-toastify";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-
+import { CitySelect, StateSelect } from "react-country-state-city";
 const validationSchema = Yup.object({
   streetAddress: Yup.string()
     .min(5, "Street address must be at least 5 characters")
@@ -33,36 +32,12 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
   const [stateCities, setStateCities] = useState([]);
   const [stateFullName, setStateFullName] = useState("");
   const [fullStateName, setFullStateName] = useState("");
+  const [stateid, setstateid] = useState(0);
 
-  useEffect(() => {
-    const allCountries = Country.getAllCountries();
-    const usStates = State.getStatesOfCountry("US");
-    setStates(usStates);
-  }, []);
 
-  useEffect(() => {
-    if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState);
-      setStateCities(allCities);
-    } else {
-      setStateCities([]);
-    }
-  }, [selectedState]);
+ 
 
-  const getStateFullName = (abbreviation) => {
-    const state = states.find((state) => state.isoCode === abbreviation);
-    return state ? state.name : abbreviation;
-  };
 
-  useEffect(() => {
-    if (selectedState) {
-      const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState);
-      setStateFullName(fullState);
-    } else {
-      setFullStateName("");
-    }
-  }, [selectedState]);
 
   const handleAddDeliveryAddress = async (values) => {
     setLoading(true);
@@ -183,7 +158,7 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
                   <label htmlFor="state" className="text-sm font-medium">
                     State
                   </label>
-                  <Field
+                  {/* <Field
                     as="select"
                     name="selectedState"
                     className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
@@ -199,7 +174,23 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
                         {state.name}
                       </option>
                     ))}
-                  </Field>
+                  </Field> */}
+
+                  <StateSelect
+                    name="selectedState"
+                    countryid={233}
+                    onChange={(e) => {
+                      setstateid(e.id);
+                      setFieldValue("selectedState", e.name);
+                      setFullStateName(e.name);
+                      setSelectedState(e.name);
+                      setSelectedCity("");
+                    }}
+                    placeHolder="Select State"
+                    className="w-full"
+                    style={{ border: "none" }}
+                  />
+
                   <ErrorMessage
                     name="selectedState"
                     component="div"
@@ -211,7 +202,7 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
                   <label htmlFor="city" className="text-sm font-medium">
                     City
                   </label>
-                  <Field
+                  {/* <Field
                     as="select"
                     name="selectedCity"
                     className="w-full px-4 py-3 rounded-full border outline-none text-sm bg-white"
@@ -223,7 +214,21 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
                         {city.name}
                       </option>
                     ))}
-                  </Field>
+                  </Field> */}
+
+                  <CitySelect
+                    name="selectedCity"
+                    countryid={233}
+                    stateid={stateid}
+                    disabled={!selectedState}
+                    onChange={(e) => {
+                      console.log(e);
+                      setSelectedCity(e.name);
+                      setFieldValue("selectedCity", e.name);
+                    }}
+                    placeHolder="Select City"
+                    style={{ border: "none" }}
+                  />
                   <ErrorMessage
                     name="selectedCity"
                     component="div"
