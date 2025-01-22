@@ -34,11 +34,6 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
   const [fullStateName, setFullStateName] = useState("");
   const [stateid, setstateid] = useState(0);
 
-
- 
-
-
-
   const handleAddDeliveryAddress = async (values) => {
     setLoading(true);
     try {
@@ -48,7 +43,7 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
           streetAddress: values.streetAddress,
           apartment_suite: values.apartment,
           country: "United States",
-          state: stateFullName,
+          state: fullStateName,
           city: values.selectedCity,
           zipCode: values.zipCode,
         },
@@ -154,7 +149,7 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
 
               {/* State and City */}
               <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <div className="flex flex-col items-start gap-1 w-full">
+                <div className="flex flex-col items-start gap-1 w-full location">
                   <label htmlFor="state" className="text-sm font-medium">
                     State
                   </label>
@@ -198,7 +193,7 @@ const AddDeliveryAddressModal = ({ state, onclick }) => {
                   />
                 </div>
 
-                <div className="flex flex-col items-start gap-1 w-full">
+                <div className="flex flex-col items-start gap-1 w-full location">
                   <label htmlFor="city" className="text-sm font-medium">
                     City
                   </label>
