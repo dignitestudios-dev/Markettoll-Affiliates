@@ -15,12 +15,12 @@ import "react-country-state-city/dist/react-country-state-city.css";
 
 const AddLocationForm = ({}) => {
   const navigate = useNavigate();
-  const [stateFullName, setStateFullName] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [zipCode, setZipCode] = useState("");
   const { user, fetchUserProfile } = useContext(AuthContext);
-
+  const [stateFullName, setStateFullName] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [countryid, setCountryid] = useState(0);
   const [stateid, setstateid] = useState(0);
 

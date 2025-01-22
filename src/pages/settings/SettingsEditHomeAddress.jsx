@@ -1,16 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
-import { STATES } from "../../constants/states";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
-import { Country, State, City } from "country-state-city";
+import { CitySelect, StateSelect } from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
 
 const SettingsEditHomeAddress = () => {
-  const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const navigate = useNavigate();
   const [addressAdded, setAddressAdded] = useState(false);
@@ -18,44 +17,8 @@ const SettingsEditHomeAddress = () => {
   const [loading, setLoading] = useState(false);
 
   const [stateFullName, setStateFullName] = useState("");
-  const [fullStateName, setFullStateName] = useState("");
-  const [states, setStates] = useState([]);
-  const [stateCities, setStateCities] = useState([]);
 
-  useEffect(() => {
-    const allCountries = Country.getAllCountries();
-    const usStates = State.getStatesOfCountry("US");
-    setStates(usStates);
-  }, []);
-
-  useEffect(() => {
-    if (selectedState) {
-      const allCities = City.getCitiesOfState("US", selectedState);
-      setStateCities(allCities);
-    } else {
-      setStateCities([]);
-    }
-  }, [selectedState]);
-
-  const getStateFullName = (abbreviation) => {
-    const state = states.find((state) => state.isoCode === abbreviation);
-    return state ? state.name : abbreviation;
-  };
-
-  useEffect(() => {
-    if (selectedState) {
-      const fullState = getStateFullName(selectedState);
-      setFullStateName(fullState);
-      setStateFullName(fullState);
-    } else {
-      setFullStateName("");
-    }
-  }, [selectedState]);
-
-  const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
-    setSelectedCity("");
-  };
+  const [stateid, setstateid] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,7 +51,6 @@ const SettingsEditHomeAddress = () => {
     } finally {
       setLoading(false);
     }
-    // setAddressAdded(!addressAdded);
   };
 
   const handleCloseModalAndNaivigate = () => {
@@ -118,10 +80,36 @@ const SettingsEditHomeAddress = () => {
             disabled
             placeholder="United States"
             value={"United States"}
-            className="border rounded-2xl px-4 py-3 outline-none w-full text-sm bg-white"
+            className="border rounded-2xl px-4 py-3.5 outline-none w-full text-sm bg-white"
           />
         </div>
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="w-full flex flex-col items-start gap-1 location">
+            <h6 className="text-[13px] font-medium">State</h6>
+            <StateSelect
+              countryid={233}
+              onChange={(e) => {
+                setstateid(e.id);
+                setStateFullName(e.name);
+              }}
+              placeHolder="Select State"
+              className="w-full"
+            />
+          </div>
+          <div className="w-full flex flex-col items-start gap-1 location">
+            <h6 className="text-[13px] font-medium">City</h6>
+            <CitySelect
+              countryid={233}
+              stateid={stateid}
+              onChange={(e) => {
+                console.log(e);
+                setSelectedCity(e.name);
+              }}
+              placeHolder="Select City"
+            />
+          </div>
+        </div>
+        {/* <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div className="flex flex-col items-start gap-1 w-full">
             <label htmlFor="state" className="text-sm font-medium">
               State
@@ -161,7 +149,7 @@ const SettingsEditHomeAddress = () => {
               ))}
             </select>
           </div>
-        </div>
+        </div> */}
 
         <button
           type="submit"

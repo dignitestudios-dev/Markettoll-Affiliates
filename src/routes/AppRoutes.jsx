@@ -205,10 +205,10 @@ const AppRoutes = () => {
           path="/products/:productId"
           element={<Layout page={<ProductDetailPage />} />}
         />
-        {/* <Route
+        <Route
           path="/edit-product/:productId"
           element={<Layout page={<EditProductPage />} />}
-        /> */}
+        />
         <Route
           path="/services/:serviceId"
           element={<Layout page={<ServiceDetailsPage />} />}
@@ -283,13 +283,13 @@ const AppRoutes = () => {
             <Layout page={<SettingsPage page={<SettingsAddAddressPage />} />} />
           }
         />
-         <Route
+        <Route
           path="/settings/addresses"
           element={
             <Layout page={<SettingsPage page={<SettingsAddressPage />} />} />
           }
         />
-        {/*
+
         <Route
           path="/settings/edit-home-adress"
           element={
@@ -298,7 +298,7 @@ const AppRoutes = () => {
             />
           }
         />
-        
+
         <Route
           path="/settings/addresses/edit-addresses/:id"
           element={
@@ -306,7 +306,7 @@ const AppRoutes = () => {
               page={<SettingsPage page={<SettingsAddressEditPage />} />}
             />
           }
-        /> */}
+        />
         <Route
           path="/settings/change-password"
           element={
