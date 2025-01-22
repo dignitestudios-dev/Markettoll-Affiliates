@@ -10,7 +10,6 @@ import { ProductDataReview } from "../../context/addProduct";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
-import { City, Country, State } from "country-state-city";
 import AddPickupAddress from "./AddPickupAddress";
 import {
   CitySelect,
