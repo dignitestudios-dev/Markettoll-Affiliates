@@ -150,7 +150,7 @@ const AddServiceForm = () => {
             <div className="flex items-start flex-col justify-start">
               <label
                 htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center h-[170px] w-[170px] rounded-[20px] cursor-pointer bg-white hover:bg-gray-100 relative"
+                className="flex flex-col items-center border border-[#d9d9d9] justify-center h-[170px] w-[170px] rounded-[20px] cursor-pointer bg-white hover:bg-gray-100 relative"
               >
                 <div className="flex flex-col items-center justify-center w-full h-full rounded-full">
                   <GoPlus className="w-[48px] h-[48px] text-light-blue" />
@@ -221,7 +221,7 @@ const AddServiceForm = () => {
                 value={serviceName}
                 onChange={(e) => setServiceName(e.target.value)}
                 placeholder="Xbox Series X 1 TB"
-                className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
               <span className="text-[13px] text-[#5C5C5C] float-end">0/55</span>
             </div>
@@ -236,7 +236,7 @@ const AddServiceForm = () => {
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                className="w-full py-4 border border-[#d9d9d9] px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               ></textarea>
             </div>
 
@@ -255,7 +255,7 @@ const AddServiceForm = () => {
                     setPrice(filteredValue);
                   }
                 }}
-                className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
             </div>
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">       

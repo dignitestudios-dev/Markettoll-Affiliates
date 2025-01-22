@@ -257,7 +257,7 @@ const AddProductForm = () => {
             <div className="flex items-start flex-col justify-start">
               <label
                 htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center h-[170px] w-[170px] rounded-[20px] cursor-pointer bg-white hover:bg-gray-100 relative"
+                className="flex flex-col items-center border border-[#d9d9d9] justify-center h-[170px] w-[170px] rounded-[20px] cursor-pointer bg-white hover:bg-gray-100 relative"
               >
                 <div className="flex flex-col items-center justify-center w-full h-full rounded-full">
                   <GoPlus className="w-[48px] h-[48px] text-light-blue" />
@@ -323,7 +323,7 @@ const AddProductForm = () => {
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
                 placeholder="Xbox Series X 1 TB"
-                className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                className="w-full py-4 px-5 outline-none border border-[#d9d9d9] text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
               <span className="text-[13px] text-[#5C5C5C] float-end">0/55</span>
             </div>
@@ -339,7 +339,7 @@ const AddProductForm = () => {
                 <select
                   name="productCategory"
                   id="productCategory"
-                  className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                  className="w-full py-4 px-5 outline-none border border-[#d9d9d9] text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
                   value={productCategory}
                   onChange={handleCategoryChange}
                 >
@@ -362,7 +362,7 @@ const AddProductForm = () => {
                 <select
                   name="productSubCategory"
                   id="productSubCategory"
-                  className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                  className="w-full py-4 px-5 outline-none border border-[#d9d9d9] text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
                   value={productSubCategory}
                   onChange={handleSubCategoryChange}
                   disabled={!productCategory} // Disable if no category is selected
@@ -387,7 +387,7 @@ const AddProductForm = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
-                className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                className="w-full py-4 px-5 outline-none border border-[#d9d9d9] text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               ></textarea>
             </div>
 
@@ -406,7 +406,7 @@ const AddProductForm = () => {
                     setPrice(filteredValue);
                   }
                 }}
-                className="w-full py-4 px-5 outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                className="w-full py-4 px-5 outline-none border border-[#d9d9d9] text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
             </div>
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -420,7 +420,7 @@ const AddProductForm = () => {
                   }}
                   placeHolder="Select State"
                   className="w-full"
-                  style={{ border: "none" }}
+                  // style={{ border: "none !important" }}
                 />
               </div>
               <div className="w-full flex flex-col items-start gap-1 location">
@@ -496,7 +496,7 @@ const AddProductForm = () => {
                   placeholder="1"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-[60px] text-center py-4 px-5 outline-none text-sm rounded-[10px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                  className="w-[60px] text-center py-4 border border-[#d9d9d9] px-5 outline-none text-sm rounded-[10px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
                 />
                 <button
                   type="button"
