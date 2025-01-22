@@ -3,10 +3,6 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
-import axios from "axios";
-import { BASE_URL } from "../../api/api";
-import { toast } from "react-toastify";
-import { AuthContext } from "../../context/authContext";
 import {
   CitySelect,
   CountrySelect,
