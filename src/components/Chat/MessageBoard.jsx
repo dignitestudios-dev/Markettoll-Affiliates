@@ -87,7 +87,7 @@ const MessageBoard = ({
       timestamp: serverTimestamp(),
     };
 
-    const batch = writeBatch(db); 
+    const batch = writeBatch(db);
 
     try {
       const messagesRef = collection(db, "chats", chatId, seller?.id);
@@ -97,7 +97,7 @@ const MessageBoard = ({
       batch.set(doc(db, "chats", seller?.id, "myUsers", chatId), {
         lastMessage: RecReflastMessage,
       });
-      batch.set(doc(messagesRef), messageData); 
+      batch.set(doc(messagesRef), messageData);
       const recRef = collection(db, "chats", seller?.id, chatId);
       batch.set(doc(recRef), messageData);
       await batch.commit();
@@ -208,7 +208,7 @@ const MessageBoard = ({
                 onClick={() => toggleBlockUserModal()}
                 className="text-base font-medium w-full px-5 py-1 text-start"
               >
-                {hasBlocked ? "Unblock" : "block"}
+                {hasBlocked ? "Unblock" : "Block"}
               </button>
               <button
                 type="button"
