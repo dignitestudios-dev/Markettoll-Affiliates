@@ -30,9 +30,9 @@ const Footer = () => {
           />
           <div className="flex items-center justify-center gap-2">
             <img
-              src="/message-icon.png"
+              src="/email-white-icon.png"
               alt="message-icon"
-              className="w-[20px] h-[20px]"
+              className="w-[16.67px] h-[15px]"
             />
             <Link
               to={"mailto:info@markettoll.com"}
@@ -58,11 +58,8 @@ const Footer = () => {
         </div>
       </div>
       <div className="mt-10 text-center">
-        <p>
-          Copyright 2024 All rights reserved | This is made by{" "}
-          <Link to="https://www.dignitestudios.com" className="font-medium">
-            Dignite Studios
-          </Link>
+        <p className="relative mb-2">
+          Copyright &#169; 2024 All rights reserved.
         </p>
 
         <div className="flex items-center justify-center gap-x-4">
