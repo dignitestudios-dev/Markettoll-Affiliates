@@ -9,8 +9,8 @@ const Footer = () => {
   return (
     <footer className="padding-x w-full py-12 blue-bg text-white mt-12">
       <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3 gap-y-6">
-        <div className="flex items-center justify-center lg:justify-start gap-2">
-          <img
+        <div className="flex items-center justify-center lg:justify-start gap-4">
+          {/* <img
             src="/call-icon-white.png"
             alt="call-icon"
             className="w-[20px] h-[20px]"
@@ -20,6 +20,16 @@ const Footer = () => {
             className="font-medium text-[20px]"
           >
             1 (833) 770-2446
+          </Link> */}
+
+          <Link
+            to="/terms-and-conditions"
+            className="text-white underline text-sm"
+          >
+            Terms & Conditions
+          </Link>
+          <Link to="/privacy-policy" className="text-white underline text-sm">
+            Privacy Policy
           </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
@@ -62,7 +72,7 @@ const Footer = () => {
           Copyright &#169; 2024 All rights reserved.
         </p>
 
-        <div className="flex items-center justify-center gap-x-4">
+        {/* <div className="flex items-center justify-center gap-x-4">
           <Link to="/privacy-policy" className="text-white underline text-sm">
             Privacy Policy
           </Link>
@@ -72,7 +82,7 @@ const Footer = () => {
           >
             Terms & Conditions
           </Link>
-        </div>
+        </div> */}
       </div>
     </footer>
   );
