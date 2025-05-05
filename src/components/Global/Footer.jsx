@@ -4,13 +4,14 @@ import { FaFacebook } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa6";
 import { FaLinkedin } from "react-icons/fa";
+// eoifne
 
 const Footer = () => {
   return (
     <footer className="padding-x w-full py-12 blue-bg text-white mt-12">
       <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3 gap-y-6">
-        <div className="flex items-center justify-center lg:justify-start gap-2">
-          <img
+        <div className="flex items-center justify-center lg:justify-start gap-4">
+          {/* <img
             src="/call-icon-white.png"
             alt="call-icon"
             className="w-[20px] h-[20px]"
@@ -20,6 +21,16 @@ const Footer = () => {
             className="font-medium text-[20px]"
           >
             1 (833) 770-2446
+          </Link> */}
+
+          <Link
+            to="/terms-and-conditions"
+            className="text-white underline text-sm"
+          >
+            Terms & Conditions
+          </Link>
+          <Link to="/privacy-policy" className="text-white underline text-sm">
+            Privacy Policy
           </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
@@ -30,9 +41,9 @@ const Footer = () => {
           />
           <div className="flex items-center justify-center gap-2">
             <img
-              src="/message-icon.png"
+              src="/email-white-icon.png"
               alt="message-icon"
-              className="w-[20px] h-[20px]"
+              className="w-[16.67px] h-[15px]"
             />
             <Link
               to={"mailto:info@markettoll.com"}
@@ -58,14 +69,11 @@ const Footer = () => {
         </div>
       </div>
       <div className="mt-10 text-center">
-        <p>
-          Copyright 2024 All rights reserved | This is made by{" "}
-          <Link to="https://www.dignitestudios.com" className="font-medium">
-            Dignite Studios
-          </Link>
+        <p className="relative mb-2">
+          Copyright &#169; 2024 All rights reserved.
         </p>
 
-        <div className="flex items-center justify-center gap-x-4">
+        {/* <div className="flex items-center justify-center gap-x-4">
           <Link to="/privacy-policy" className="text-white underline text-sm">
             Privacy Policy
           </Link>
@@ -75,7 +83,7 @@ const Footer = () => {
           >
             Terms & Conditions
           </Link>
-        </div>
+        </div> */}
       </div>
     </footer>
   );

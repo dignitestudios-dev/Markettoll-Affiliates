@@ -407,9 +407,7 @@ const ProductDetails = () => {
                     type="button"
                     disabled={product?.quantity == 0}
                     onClick={() => handleIncrementQuantity("decrement")}
-                    className={`py-3.5 px-6 rounded-l-[20px] text-center blue-bg ${
-                      product?.quantity == 0 && "cursor-not-allowed"
-                    }`}
+                    className={`py-3.5 px-6 rounded-l-[20px] text-center blue-bg disabled:cursor-not-allowed`}
                   >
                     <FaMinus className="text-lg text-white" />
                   </button>
@@ -418,13 +416,13 @@ const ProductDetails = () => {
                     disabled
                     className="py-[9px] px-10 w-full border-t border-b text-center bg-white text-black text-[18px] font-medium cursor-default"
                   >
-                    {quantity}
+                    {product?.quantity == 0 ? 0 : quantity}
                   </button>
                   <button
                     type="button"
-                    // disabled={quantity === product?.quantity}
+                    disabled={product?.quantity == 0}
                     onClick={() => handleIncrementQuantity("increment")}
-                    className={`py-3.5 px-6 rounded-r-[20px] text-center blue-bg`}
+                    className={`py-3.5 px-6 rounded-r-[20px] text-center blue-bg disabled:cursor-not-allowed`}
                   >
                     <FaPlus className="text-lg text-white" />
                   </button>
