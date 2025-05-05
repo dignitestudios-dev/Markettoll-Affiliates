@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
@@ -10,11 +10,15 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import ButtonLoader from "../Global/ButtonLoader";
 
-const OrderDetails = () => {
+const OrderReceivedDetails = () => {
   const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
   const location = useLocation();
   const { userProfile } = useContext(AuthContext);
   const [productId, setProductId] = useState("");
+  const [extractedProducts, setExtractedProducts] = useState(null);
+  const [pickupProducts, setPickupProducts] = useState(null);
+  console.log("extractedProducts >>>", extractedProducts);
+  console.log("pickupProducts >>>", pickupProducts);
 
   const handleToggleFeedbackModal = (prodId) => {
     setOpenFeedbackModal(!openFeedbackModal);
@@ -36,24 +40,18 @@ const OrderDetails = () => {
     return new Intl.DateTimeFormat("en-US", options).format(date);
   }
 
-  const extractedProducts = location?.state?.data?.sellersProducts?.reduce(
-    (acc, product) => {
-      if (Array.isArray(product.fulfillmentMethods)) {
-        product.fulfillmentMethods.forEach((fulfillment) => {
-          if (fulfillment.method === "selfPickup") {
-            acc.selfPickup = [
-              ...acc.selfPickup,
-              ...(fulfillment.products || []),
-            ];
-          } else if (fulfillment.method === "delivery") {
-            acc.delivery = [...acc.delivery, ...(fulfillment.products || [])];
-          }
-        });
-      }
-      return acc;
-    },
-    { selfPickup: [], delivery: [] }
-  );
+  useEffect(() => {
+    if (location?.state?.data) {
+      const extractedDeliveryProducts = location?.state?.data?.products?.filter(
+        (products) => products?.fulfillmentMethod?.delivery === true
+      );
+      setExtractedProducts(extractedDeliveryProducts);
+      const extractedPickupProducts = location?.state?.data?.products?.filter(
+        (products) => products?.fulfillmentMethod?.delivery === false
+      );
+      setPickupProducts(extractedPickupProducts);
+    }
+  }, []);
 
   return (
     <div className="p-5 bg-[#F7F7F7] rounded-[20px] grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -119,11 +117,18 @@ const OrderDetails = () => {
         </div>
 
         {/* Delivery Orders */}
-        <div className="w-full border-b py-3 mt-5">
-          <h6 className="font-bold text-base">Delivery Orders</h6>
-          <p className="text-sm">Will be delivered to your address</p>
-        </div>
-        {extractedProducts?.delivery?.map((product) => {
+        {extractedProducts?.length === 0 ? (
+          ""
+        ) : (
+          <>
+            <div className="w-full border-b py-3 mt-5">
+              <h6 className="font-bold text-base">Delivery Orders</h6>
+              <p className="text-sm">Will be delivered to your address</p>
+            </div>
+          </>
+        )}
+
+        {extractedProducts?.map((product) => {
           const userDetail = {
             id: product?.product?.seller?._id,
             lastMessage: {
@@ -189,7 +194,7 @@ const OrderDetails = () => {
         <div className="w-full border-b py-3 mt-5">
           <h6 className="font-bold text-base">Pickup Orders</h6>
         </div>
-        {extractedProducts?.selfPickup?.map((product) => {
+        {pickupProducts?.map((product) => {
           return (
             <div className="w-full" key={product?._id}>
               <div className="w-full py-3 border-b flex items-center justify-between">
@@ -307,7 +312,7 @@ const OrderDetails = () => {
   );
 };
 
-export default OrderDetails;
+export default OrderReceivedDetails;
 
 const FeedBackModal = ({
   onclick,

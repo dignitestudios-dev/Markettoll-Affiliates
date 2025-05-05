@@ -80,6 +80,15 @@ const CurrentOrderList = () => {
                               return (
                                 <div className="w-full" key={key}>
                                   {product?.products?.map((pro, abc) => {
+                                    const userDetail = {
+                                      id: pro?.product?.seller?._id,
+                                      lastMessage: {
+                                        profileImage:
+                                          pro?.product?.seller?.profileImage,
+                                        profileName: pro?.product?.seller?.name,
+                                        id: product?.pro?.seller?._id,
+                                      },
+                                    };
                                     return (
                                       <div
                                         className="w-full grid grid-cols-1 lg:grid-cols-3 py-3 border-b"
@@ -100,6 +109,18 @@ const CurrentOrderList = () => {
                                                 ? "Delivery"
                                                 : "Self-Pickup"}
                                             </span>
+                                            <Link
+                                              to={`/chats`}
+                                              state={{ data: userDetail }}
+                                              className="font-normal mt-0.5 text-[13px] text-[#9D9D9DDD] flex items-center gap-2"
+                                            >
+                                              <img
+                                                src="/chat-icon.png"
+                                                alt="chat-icon"
+                                                className="w-[14px] md:w-[18px] h-[14px] md:h-[18px]"
+                                              />
+                                              Chat With Seller
+                                            </Link>
                                             <div className="lg:hidden flex items-center justify-center gap-1">
                                               <span className="text-sm text-[#9D9D9DDD]">
                                                 Price

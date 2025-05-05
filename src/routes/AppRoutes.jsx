@@ -69,6 +69,7 @@ import ReviewOrderDetails from "../components/Cart/ReviewOrderDetails";
 import OnBoardingProfileReviewUpdate from "../components/OnboardProfileSetup/OnBoardingProfileReviewUpdate";
 import AddLocation from "../pages/onboardProfile/AddLocation";
 import ArbitrationAgreement from "../pages/Policies/ArbitrationAgreement";
+import OrderReceivedDetails from "../components/profile/OrderRecievedDetails";
 
 const AppRoutes = () => {
   return (
@@ -263,6 +264,10 @@ const AppRoutes = () => {
         <Route
           path="/order-history/order-details/:orderId"
           element={<Layout page={<OrderDetailsPage />} />}
+        />
+        <Route
+          path="/order-history/order-received-details/:orderId"
+          element={<Layout page={<OrderReceivedDetails />} />}
         />
 
         <Route

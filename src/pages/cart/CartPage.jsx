@@ -54,6 +54,7 @@ const CartPage = () => {
     const checkFulfillmentMethod = cartProducts?.find((p) => {
       return p?.fulfillmentMethod?.delivery === true;
     });
+    console.log(checkFulfillmentMethod,"fullfilment address")
     setIsAnyProductToDeliver(checkFulfillmentMethod !== undefined);
   }, [cartProducts]);
 
@@ -102,6 +103,7 @@ const CartPage = () => {
       setRemovingProducts(false);
     }
   };
+console.log(count,"countss");
 
   if (loading) {
     return <Loader />;

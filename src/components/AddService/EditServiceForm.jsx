@@ -7,7 +7,6 @@ import { STATES } from "../../constants/states";
 import { ProductDataReview } from "../../context/addProduct";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
-import { Country, State, City } from "country-state-city";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
