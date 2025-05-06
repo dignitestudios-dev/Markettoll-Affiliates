@@ -160,6 +160,7 @@ console.log(count,"countss");
           <CartSummary
             onclick={handleIncrementCount}
             count={count}
+            setCount={setCount}
             isOrderPlaced={isOrderPlaced}
             setIsOrderPlaced={setIsOrderPlaced}
             cartProducts={cartProducts}

@@ -17,6 +17,7 @@ const CartSummary = ({
   cartProducts,
   totalAmount,
   fetchCartProducts,
+  setCount,
 }) => {
   const { data, cartCount, setCartCount } = useContext(CartProductContext);
   const { user } = useContext(AuthContext);
@@ -60,8 +61,10 @@ const CartSummary = ({
             // fetchCartProducts();
           }
         } catch (error) {
-          console.log("order failed >>>>", error?.response?.data?.message);
-          toast.error(error?.response?.data?.message);
+          if (error?.response?.data?.message == "Not enough funds in wallet.") {
+            toast.error(error?.response?.data?.message);
+            setCount(2);
+          }
         }
       }
     } catch (error) {
