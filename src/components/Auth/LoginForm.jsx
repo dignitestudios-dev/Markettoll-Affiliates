@@ -110,8 +110,15 @@ const LoginForm = () => {
           localStorage.setItem("user", JSON.stringify(response?.data?.data));
           resetForm();
 
-          fetchUserProfile();
-          navigate("/");
+          
+          if (response?.data?.data?.role=="client") {
+            fetchUserProfile();
+            navigate("/");            
+          }
+          else{
+            fetchUserProfile();
+            navigate("/affiliate");            
+          }
           return response.data;
         } else {
           console.error("Login failed:", response.data.message);

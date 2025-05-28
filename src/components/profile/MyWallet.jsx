@@ -132,13 +132,15 @@ const MyWallet = () => {
                 <span className="text-[#959595] text-lg font-medium">
                   Available Balance
                 </span>
-                <button
-                  type="button"
-                  onClick={handleToggleAddFundModal}
-                  className="light-blue-text underline tetx-sm"
-                >
-                  Add Fund
-                </button>
+                {user.role == "client" && (
+                  <button
+                    type="button"
+                    onClick={handleToggleAddFundModal}
+                    className="light-blue-text underline tetx-sm"
+                  >
+                    Add Fund
+                  </button>
+                )}
               </div>
               <div className="w-full flex items-center justify-between mt-5">
                 <div className="relative">

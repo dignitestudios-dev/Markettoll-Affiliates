@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { LuEyeOff } from "react-icons/lu";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -64,7 +64,10 @@ const SignUpForm = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-
+  const { state } = useLocation("");
+  console.log(state?.role == undefined, "state");
+  const queryParams = new URLSearchParams(location.search);
+  const referralId = queryParams.get("ref");
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -75,6 +78,7 @@ const SignUpForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      role: state?.role == undefined ? "client" : state?.role,
     },
     validate,
     onSubmit: async (values, { resetForm }) => {
@@ -86,6 +90,8 @@ const SignUpForm = () => {
           value: values.phoneNumber.value,
         },
         password: values.password,
+        role: values.role,
+        ref: referralId,
       };
       setLoading(true);
       setError("");

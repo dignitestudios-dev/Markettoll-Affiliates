@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoClose, IoSearchOutline } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { TbMenu2 } from "react-icons/tb";
 import Cookies from "js-cookie";
@@ -18,6 +18,8 @@ const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [openNotifications, setOpenNotifications] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
+  const loc = useLocation("");
+  console.log(loc?.pathname == "/login");
 
   const navigate = useNavigate();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
@@ -165,114 +167,120 @@ const Navbar = () => {
       <div className="hidden lg:flex items-center justify-end gap-3">
         {user ? (
           <div className="hidden lg:flex items-center justify-end gap-3 relative">
-            <form
-              onSubmit={handleSearchProduct}
-              className="h-[42px] w-[357px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
-            >
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsDropdownVisible(true)}
-                onBlur={() =>
-                  setTimeout(() => setIsDropdownVisible(false), 200)
-                }
-                className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
-              />
-              {searchQuery ? (
+            {user?.role != "influencer" && (
+              <>
+                <form
+                  onSubmit={handleSearchProduct}
+                  className="h-[42px] w-[357px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
+                >
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsDropdownVisible(true)}
+                    onBlur={() =>
+                      setTimeout(() => setIsDropdownVisible(false), 200)
+                    }
+                    className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
+                  />
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("");
+                        navigate("/");
+                      }}
+                    >
+                      <IoClose className="text-white text-xl" />
+                    </button>
+                  ) : (
+                    <button type="submit">
+                      <IoSearchOutline className="text-white text-2xl" />
+                    </button>
+                  )}
+                </form>
+                {isDropdownVisible && searchHistory.length > 0 && (
+                  <div className="absolute top-[45px] w-[357px] left-0 right-0 bg-white border rounded-xl shadow-lg mt-1 z-10">
+                    <ul className="max-h-[200px] overflow-y-auto py-2 px-5">
+                      {searchHistory
+                        .filter((item) =>
+                          item.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        .map((historyItem, index) => (
+                          <li
+                            key={index}
+                            className={`py-2 cursor-pointer flex items-center justify-between text-[16px] ${
+                              index !== 0 && "border-b-2"
+                            }`}
+                            onClick={() =>
+                              handleSearchHistoryClick(historyItem)
+                            }
+                          >
+                            <span>{historyItem}</span>
+                            <MdOutlineKeyboardArrowRight className="blue-text text-xl" />
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    navigate("/");
-                  }}
+                  onClick={() => handleNavigate("/chats", "Login to see chats")}
+                  className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
                 >
-                  <IoClose className="text-white text-xl" />
+                  <img
+                    src="/message-icon-blue.png"
+                    alt="messages-icon"
+                    className="w-[18px] h-[18px]"
+                  />
                 </button>
-              ) : (
-                <button type="submit">
-                  <IoSearchOutline className="text-white text-2xl" />
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleNavigate("/favourites", "Login to see favourites")
+                  }
+                  className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
+                >
+                  <img
+                    src="/heart-icon-blue.png"
+                    alt="heart-icon"
+                    className="w-[18px] h-[18px]"
+                  />
                 </button>
-              )}
-            </form>
-            {isDropdownVisible && searchHistory.length > 0 && (
-              <div className="absolute top-[45px] w-[357px] left-0 right-0 bg-white border rounded-xl shadow-lg mt-1 z-10">
-                <ul className="max-h-[200px] overflow-y-auto py-2 px-5">
-                  {searchHistory
-                    .filter((item) =>
-                      item.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .map((historyItem, index) => (
-                      <li
-                        key={index}
-                        className={`py-2 cursor-pointer flex items-center justify-between text-[16px] ${
-                          index !== 0 && "border-b-2"
-                        }`}
-                        onClick={() => handleSearchHistoryClick(historyItem)}
-                      >
-                        <span>{historyItem}</span>
-                        <MdOutlineKeyboardArrowRight className="blue-text text-xl" />
-                      </li>
-                    ))}
-                </ul>
-              </div>
+                <button
+                  type="button"
+                  onClick={handleOpenNotifications}
+                  className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
+                >
+                  <img
+                    src="/notifications-icon-blue.png"
+                    alt="notifications-icon"
+                    className="w-[18px] h-[18px]"
+                  />
+                  <NotificationsDropdown
+                    openNotifications={openNotifications}
+                    notifications={notifications}
+                    setOpenNotifications={setOpenNotifications}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate("/cart", "Login to see cart")}
+                  to="/cart"
+                  className="w-[32px] h-[32px] rounded-[10px] bg-white relative inline-flex items-center text-center justify-center"
+                >
+                  <img
+                    src="/cart-icon-blue.png"
+                    alt="cart-icon"
+                    className="w-[18px] h-[18px]"
+                  />
+                  <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-3 -end-3 dark:border-gray-900">
+                    {user ? cartCount : 0}
+                  </div>
+                </button>
+              </>
             )}
-            <button
-              type="button"
-              onClick={() => handleNavigate("/chats", "Login to see chats")}
-              className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
-            >
-              <img
-                src="/message-icon-blue.png"
-                alt="messages-icon"
-                className="w-[18px] h-[18px]"
-              />
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                handleNavigate("/favourites", "Login to see favourites")
-              }
-              className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
-            >
-              <img
-                src="/heart-icon-blue.png"
-                alt="heart-icon"
-                className="w-[18px] h-[18px]"
-              />
-            </button>
-            <button
-              type="button"
-              onClick={handleOpenNotifications}
-              className="w-[32px] h-[32px] rounded-[10px] bg-white flex items-center justify-center"
-            >
-              <img
-                src="/notifications-icon-blue.png"
-                alt="notifications-icon"
-                className="w-[18px] h-[18px]"
-              />
-              <NotificationsDropdown
-                openNotifications={openNotifications}
-                notifications={notifications}
-                setOpenNotifications={setOpenNotifications}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavigate("/cart", "Login to see cart")}
-              to="/cart"
-              className="w-[32px] h-[32px] rounded-[10px] bg-white relative inline-flex items-center text-center justify-center"
-            >
-              <img
-                src="/cart-icon-blue.png"
-                alt="cart-icon"
-                className="w-[18px] h-[18px]"
-              />
-              <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-3 -end-3 dark:border-gray-900">
-                {user ? cartCount : 0}
-              </div>
-            </button>
             <button
               type="button"
               onClick={handleShowProfileDropdown}
@@ -296,12 +304,24 @@ const Navbar = () => {
             </button>{" "}
           </div>
         ) : (
-          <Link
-            to="/login"
-            className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
-          >
-            Login
-          </Link>
+          <>
+            {loc?.pathname == "/login" ? (
+              <Link
+                to="/sign-up"
+                state={{ role: "influencer" }}
+                className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
+              >
+                Become an Affiliate
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
+              >
+                Login
+              </Link>
+            )}
+          </>
         )}
         {showProfileDropdown && (
           <div
@@ -309,73 +329,110 @@ const Navbar = () => {
             className="w-auto h-auto p-4 bg-white z-50 shadow-lg rounded-lg absolute top-20"
           >
             <ul className="flex flex-col items-start gap-2">
-              <li className="text-xs font-medium py-0.5">
-                <Link
-                  to="/account/peronal-info"
-                  onClick={() => setShowProfileDropdown(false)}
-                >
-                  Personal Information
-                </Link>
-              </li>
-              <li className="text-xs font-medium py-0.5">
-                <Link
-                  to="/account/my-listings"
-                  onClick={() => setShowProfileDropdown(false)}
-                >
-                  My Listings
-                </Link>
-              </li>
-              <li className="text-xs font-medium py-0.5">
-                <Link
-                  to="/account/my-wallet"
-                  onClick={() => setShowProfileDropdown(false)}
-                >
-                  My Wallet
-                </Link>
-              </li>
-              <li className="text-xs font-medium py-0.5">
-                <Link
-                  to="/account/subscriptions"
-                  onClick={() => setShowProfileDropdown(false)}
-                >
-                  Subscriptions
-                </Link>
-              </li>
-              <li className="text-xs font-medium py-0.5">
-                <Link
-                  to="/order-history"
-                  onClick={() => setShowProfileDropdown(false)}
-                >
-                  Order History
-                </Link>
-              </li>
-              <li className="text-xs font-medium py-0.5">
-                <Link
-                  to="/settings"
-                  onClick={() => setShowProfileDropdown(false)}
-                >
-                  Settings
-                </Link>
-              </li>
-              <li
-                className="text-xs font-medium py-0.5"
-                onClick={() => setShowProfileDropdown(false)}
-              >
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="text-red-500"
-                >
-                  Log out
-                </button>
-              </li>
+              {user?.role == "influencer" ? (
+                <>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/account/peronal-info"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      Personal Information
+                    </Link>
+                  </li>
+
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/account/my-wallet"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      My Wallet
+                    </Link>
+                  </li>
+
+                  <li
+                    className="text-xs font-medium py-0.5"
+                    onClick={() => setShowProfileDropdown(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="text-red-500"
+                    >
+                      Log out
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/account/peronal-info"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      Personal Information
+                    </Link>
+                  </li>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/account/my-listings"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      My Listings
+                    </Link>
+                  </li>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/account/my-wallet"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      My Wallet
+                    </Link>
+                  </li>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/account/subscriptions"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      Subscriptions
+                    </Link>
+                  </li>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/order-history"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      Order History
+                    </Link>
+                  </li>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/settings"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      Settings
+                    </Link>
+                  </li>
+                  <li
+                    className="text-xs font-medium py-0.5"
+                    onClick={() => setShowProfileDropdown(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="text-red-500"
+                    >
+                      Log out
+                    </button>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         )}
       </div>
 
       <div className="lg:hidden flex items-center justify-end gap-3">
-        {user && (
+        {user?.role != "influencer" && (
           <Link
             to="/chats"
             className="w-[28px] h-[28px] bg-white rounded-[10px] flex items-center justify-center"
@@ -387,7 +444,7 @@ const Navbar = () => {
             />
           </Link>
         )}
-        {user && (
+        {user?.role != "influencer" && (
           <button
             type="button"
             onClick={() =>
@@ -402,7 +459,7 @@ const Navbar = () => {
             />
           </button>
         )}
-        {user && (
+        {user?.role != "influencer" && (
           <Link
             to="/cart"
             className="w-[28px] h-[28px] rounded-[10px] bg-white flex items-center justify-center"
@@ -414,7 +471,7 @@ const Navbar = () => {
             />
           </Link>
         )}
-        {user && (
+        {user?.role != "influencer" && (
           <button
             type="button"
             onClick={handleOpenNotifications}
@@ -434,12 +491,24 @@ const Navbar = () => {
             <TbMenu2 className="text-2xl text-white" />
           </button>
         ) : (
-          <Link
-            to="/login"
-            className="bg-white blue-text px-4 py-2 rounded-lg text-sm font-semibold"
-          >
-            Login
-          </Link>
+          <>
+            {loc?.pathname == "/login" ? (
+              <Link
+                to="/sign-up"
+                state={{ role: "influencer" }}
+                className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
+              >
+                Become an Affiliate
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
+              >
+                Login
+              </Link>
+            )}
+          </>
         )}
       </div>
 
@@ -449,6 +518,7 @@ const Navbar = () => {
         } transition-all duration-700`}
       >
         <Sidebar
+        user={user}
           handleLogout={handleLogout}
           openSidebar={openSidebar}
           setOpenSidebar={setOpenSidebar}

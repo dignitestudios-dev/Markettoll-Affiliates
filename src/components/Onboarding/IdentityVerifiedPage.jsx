@@ -20,10 +20,14 @@ const IdentityVerifiedPage = () => {
         }
       );
       // Handle response here
-      console.log("Identity Verified:", res.data);
-      if (res.data.success) {
+      console.log("Identity Verified:", user, res.data);
+      if (res.data.success && user?.role == "client") {
         setTimeout(() => {
           navigate("/subscriptions");
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          navigate("/affiliate");
         }, 1000);
       }
     } catch (error) {
