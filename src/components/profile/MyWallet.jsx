@@ -16,6 +16,7 @@ const MyWallet = () => {
   const [cardAdded, setCardAdded] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showFundModal, setShowFundModal] = useState(false);
+  const [WalletInfo, setWalletInfo] = useState(0);
   const [transactionHistory, setTransactionHistory] = useState([]);
   const stripe = useStripe();
   const elements = useElements();
@@ -94,7 +95,7 @@ const MyWallet = () => {
   const fetchTransactionhistory = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/transaction-history?page=1`,
+        `${BASE_URL}/${userProfile.role=="user"?"users/transaction-history?page=1":"influencer/my-payouts"}`,
         {
           headers: user?.token ? { Authorization: `Bearer ${user.token}` } : {},
         }
@@ -109,7 +110,26 @@ const MyWallet = () => {
     }
   };
 
+  const fetchWalletInformation = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/influencer/my-wallet?page=1`,
+        {
+          headers: user?.token ? { Authorization: `Bearer ${user.token}` } : {},
+        }
+      );
+      setWalletInfo(res?.data?.data?.amount);
+      console.log(res,"wallet res");
+    } catch (error) {
+      console.log(
+        "erro while fetching transaction history >>>",
+        error?.response?.data
+      );
+    }
+  };
+
   useEffect(() => {
+    fetchWalletInformation();
     fetchTransactionhistory();
   }, [showModal, showFundModal]);
 
@@ -119,12 +139,12 @@ const MyWallet = () => {
       fetchTransactionhistory();
     }
   };
+console.log(WalletInfo)
 
   return (
     <div className="w-full p-4 rounded-xl bg-[#F5F5F5]">
       <div className="w-full bg-white rounded-xl p-6">
         <h2 className="text-[28px] font-bold blue-text">Wallet</h2>
-
         <div className="w-full mt-5 grid grid-cols-1 lg:grid-cols-2 gap-y-6 gap-x-10">
           <div className="">
             <div className="w-full bg-[#F5F5F5] rounded-xl p-5">
@@ -148,7 +168,7 @@ const MyWallet = () => {
                     $
                   </span>
                   <span className="blue-text text-xl md:text-[45px] font-bold">
-                    {userProfile?.walletBalance}
+                    {userProfile?.role=="user"?userProfile?.walletBalance:WalletInfo}
                   </span>
                   <span className="text-sm md:text-xl text-[#959595]">USD</span>
                 </div>

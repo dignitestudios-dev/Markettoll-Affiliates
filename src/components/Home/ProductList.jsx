@@ -7,9 +7,11 @@ import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
 import { SearchedProductContext } from "../../context/searchedProductContext";
+import { CiFilter } from "react-icons/ci";
 
 const ProductList = () => {
   const [showServices, setShowServices] = useState(false);
+  const [FilterModal, setFilterModal] = useState(false);
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -129,6 +131,10 @@ const ProductList = () => {
     }
   };
 
+  const handleFilterModal = () => {
+    setFilterModal(!FilterModal);
+  };
+
   if (loading) {
     return <Loader />;
   }
@@ -230,6 +236,15 @@ const ProductList = () => {
         )}
         {showServices && <div></div>}
         <div className="hidden lg:flex items-center justify-end">
+          <button
+            type="button"
+            onClick={() => handleFilterModal()}
+            className={`py-3 ${
+              !showServices ? "blue-bg text-white" : "bg-[#F7F7F7] text-black"
+            } text-base flex items-center  gap-1 font-bold px-5 mr-4 rounded-2xl`}
+          >
+            Apply Filters <CiFilter size={25} />
+          </button>
           <button
             type="button"
             onClick={() => handleShowServices("products")}
