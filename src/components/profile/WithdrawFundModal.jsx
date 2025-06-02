@@ -17,7 +17,7 @@ const WithdrawFundModal = ({ showModal, setShowModal, onclick }) => {
     const numericData = Number(amount);
     try {
       const res = await axios.post(
-        `${BASE_URL}/stripe/payout-from-wallet`,
+        `${BASE_URL}/${user?.role=="user"?"stripe/payout-from-wallet":"influencer/payout-request"} `,
         { amount: numericData },
         {
           headers: {
