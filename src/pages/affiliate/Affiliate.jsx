@@ -52,10 +52,7 @@ export default function Affiliate() {
     }
   };
 
-  // useEffect(() => {
-  //   // setData({ deliveryAddress: "" });
-    
-  // }, []);
+
 
   useEffect(() => {
     fetchUserProfile();
@@ -75,7 +72,7 @@ export default function Affiliate() {
                 try {
                   const response = await axios.post(
                     `${BASE_URL}/influencer/generate-referral-link`,
-                    {}, // <-- empty body if none is needed
+                    {}, 
                     {
                       headers: {
                         Authorization: `Bearer ${user?.token}`,
@@ -155,9 +152,8 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
               Copy
             </button>
           </div>
-
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2">
-            <h2 className="font-[400] text-[14px]  ">
+            <h2 className="font-[400] text-[14px]">
               How your affiliate link works
             </h2>
             <p className="text-[#18181899] font-[400] text-[14px] ">
