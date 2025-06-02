@@ -91,7 +91,7 @@ const SignUpForm = () => {
         },
         password: values.password,
         role: values.role,
-        ref: referralId,
+        influencerRef: referralId,
       };
       setLoading(true);
       setError("");
