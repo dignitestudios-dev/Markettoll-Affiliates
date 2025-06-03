@@ -24,8 +24,16 @@ const FilterProductModal = ({
           >
             <IoClose className="w-full h-full" />
           </button>
-          <p className="text-lg font-bold">Apply Filter</p>
-
+          <div className="flex justify-between items-center w-full">
+          <p className="text-[18px] font-[600]">Filters</p>
+          <p className="text-[12px] font-[500] text-[#00AAD5] ">Clear All</p>
+          </div>
+          <div>
+             <p className="text-[13px] font-[400]">Default location set to United States</p>
+             <div>
+              
+             </div>
+            </div>  
          
 
          

@@ -97,7 +97,7 @@ const MyWallet = () => {
     try {
       const res = await axios.get(
         `${BASE_URL}/${
-          userProfile.role == "user"
+          userProfile.role != "influencer"
             ? "users/transaction-history?page=1"
             : "influencer/my-payouts"
         }`,
