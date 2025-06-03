@@ -22,26 +22,53 @@ const ProductList = () => {
   const [loading, setLoading] = useState(false);
   const { searchResults } = useContext(SearchedProductContext);
   const [categories, setCategories] = useState([]);
+  const [currentAddress, setCurrentAddress] = useState(true);
+  const [mile, setMile] = useState(50);
+  const [city, setCity] = useState();
+  const [state, setState] = useState("");
+  const [lat, setLat] = useState({
+    lat: "",
+    lng: "",
+  });
+  const [applyFilter, setApplyFilter] = useState(false);
   const [productCategory, setProductCategory] = useState("All");
-  // console.log(user);
-
   const fetchProducts = async () => {
     const options = user?.token
       ? {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${user.token}`,
           },
         }
       : {};
+
+    const queryParams = [];
+
+    if (currentAddress) {
+      if (city)
+        queryParams.push(
+          `city=${encodeURIComponent(city).replace(/%20/g, " ")}`
+        );
+      if (state)
+        queryParams.push(
+          `state=${encodeURIComponent(state).replace(/%20/g, " ")}`
+        );
+    } else {
+      if (lat.lat) queryParams.push(`lat=${lat.lat}`);
+      if (lat.lng) queryParams.push(`lng=${lat.lng}`);
+      if (mile) queryParams.push(`mile=${mile}`);
+    }
+
+    const queryString = queryParams.length ? `?${queryParams.join("&")}` : "";
+
     setLoading(true);
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/home-screen-products`,
+        `${BASE_URL}/users/home-screen-products${queryString}`,
         options
       );
+      setFilterModal(false)
       setProducts(res?.data?.data);
       setFilteredProducts(res?.data?.data);
-      // console.log("products >>>>>", res?.data?.data);
     } catch (error) {
       console.log("home screen products err >>>>", error);
     } finally {
@@ -109,7 +136,7 @@ const ProductList = () => {
     fetchServices();
     fetchCategories();
     fetchUserProfile();
-  }, []);
+  }, [applyFilter]);
 
   const handleShowServices = (category) => {
     if (category == "services") {
@@ -139,6 +166,8 @@ const ProductList = () => {
   if (loading) {
     return <Loader />;
   }
+
+  console.log(city, state, mile, lat, "filter response");
 
   return (
     <div className="w-full min-h-[70vh]">
@@ -329,7 +358,17 @@ const ProductList = () => {
           )}
         </>
       )}
-      <FilterProductModal onclick={handleFilterModal} FilterModal={FilterModal} />
+      <FilterProductModal
+        applyFilter={applyFilter}
+        onclick={handleFilterModal}
+        setApplyFilter={setApplyFilter}
+        setCurrentAddress={setCurrentAddress}
+        setLat={setLat}
+        FilterModal={FilterModal}
+        setState={setState}
+        setMile={setMile}
+        setCity={setCity}
+      />
     </div>
   );
 };
