@@ -7,6 +7,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
+import SettingsAddBankAccount from "../../pages/settings/SettingsAddBankAccount";
 
 const MyWallet = () => {
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
@@ -95,7 +96,11 @@ const MyWallet = () => {
   const fetchTransactionhistory = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/${userProfile.role=="user"?"users/transaction-history?page=1":"influencer/my-payouts"}`,
+        `${BASE_URL}/${
+          userProfile.role == "user"
+            ? "users/transaction-history?page=1"
+            : "influencer/my-payouts"
+        }`,
         {
           headers: user?.token ? { Authorization: `Bearer ${user.token}` } : {},
         }
@@ -112,14 +117,11 @@ const MyWallet = () => {
 
   const fetchWalletInformation = async () => {
     try {
-      const res = await axios.get(
-        `${BASE_URL}/influencer/my-wallet?page=1`,
-        {
-          headers: user?.token ? { Authorization: `Bearer ${user.token}` } : {},
-        }
-      );
+      const res = await axios.get(`${BASE_URL}/influencer/my-wallet?page=1`, {
+        headers: user?.token ? { Authorization: `Bearer ${user.token}` } : {},
+      });
       setWalletInfo(res?.data?.data?.amount);
-      console.log(res,"wallet res");
+      console.log(res, "wallet res");
     } catch (error) {
       console.log(
         "erro while fetching transaction history >>>",
@@ -139,7 +141,7 @@ const MyWallet = () => {
       fetchTransactionhistory();
     }
   };
-console.log(WalletInfo)
+  console.log(WalletInfo);
 
   return (
     <div className="w-full p-4 rounded-xl bg-[#F5F5F5]">
@@ -168,7 +170,9 @@ console.log(WalletInfo)
                     $
                   </span>
                   <span className="blue-text text-xl md:text-[45px] font-bold">
-                    {userProfile?.role=="user"?userProfile?.walletBalance:WalletInfo}
+                    {userProfile?.role == "user"
+                      ? userProfile?.walletBalance
+                      : WalletInfo}
                   </span>
                   <span className="text-sm md:text-xl text-[#959595]">USD</span>
                 </div>
@@ -324,6 +328,10 @@ console.log(WalletInfo)
                   )}
                 </>
               )}
+            </div>
+            <h3 className="blue-text text-base font-bold mt-4">Add Bank</h3>
+            <div>
+              <SettingsAddBankAccount />
             </div>
           </div>
         </div>

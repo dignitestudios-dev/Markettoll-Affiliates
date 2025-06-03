@@ -63,6 +63,7 @@ const SettingsAddBankAccount = () => {
 
   const formik = useFormik({
     initialValues: {
+      accountHolderName: "",
       accountNumber: "",
       routingNumber: "",
       day: "",
@@ -78,6 +79,7 @@ const SettingsAddBankAccount = () => {
           `${BASE_URL}/stripe/connected-account`,
           {
             bankDetails: {
+              accountHolderName: values.accountHolderName,
               accountNumber: values.accountNumber,
               routingNumber: values.routingNumber,
             },
@@ -123,7 +125,29 @@ const SettingsAddBankAccount = () => {
           onSubmit={formik.handleSubmit}
           className="w-full flex flex-col items-start gap-5 mt-10"
         >
-          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="w-full flex flex-col items-start gap-1">
+              <label
+                htmlFor="accountNumber"
+                className="text-[13px] font-medium"
+              >
+                Account Holder Name
+              </label>
+              <input
+                type="text"
+                maxLength={12}
+                id="accountHolderName"
+                placeholder="John Smith"
+                className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
+                onChange={formik.handleChange}
+                value={formik.values.accountHolderName}
+              />
+              {formik.errors.accountHolderName ? (
+                <div className="text-xs text-red-600 font-medium">
+                  {formik.errors.accountHolderName}
+                </div>
+              ) : null}
+            </div>
             <div className="w-full flex flex-col items-start gap-1">
               <label
                 htmlFor="accountNumber"
@@ -135,7 +159,7 @@ const SettingsAddBankAccount = () => {
                 type="text"
                 maxLength={12}
                 id="accountNumber"
-                placeholder="John Smith"
+                placeholder="Account Number"
                 className="border rounded-2xl px-4 py-2.5 outline-none w-full text-sm"
                 onChange={formik.handleChange}
                 value={formik.values.accountNumber}
@@ -146,7 +170,7 @@ const SettingsAddBankAccount = () => {
                 </div>
               ) : null}
             </div>
-            <div className="w-full flex flex-col items-start gap-1">
+            <div className="w-full  flex flex-col items-start gap-1">
               <label
                 htmlFor="routingNumber"
                 className="text-[13px] font-medium"

@@ -8,6 +8,7 @@ import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
 import { SearchedProductContext } from "../../context/searchedProductContext";
 import { CiFilter } from "react-icons/ci";
+import FilterProductModal from "./FiltetProducts";
 
 const ProductList = () => {
   const [showServices, setShowServices] = useState(false);
@@ -328,6 +329,7 @@ const ProductList = () => {
           )}
         </>
       )}
+      <FilterProductModal onclick={handleFilterModal} FilterModal={FilterModal} />
     </div>
   );
 };
