@@ -55,7 +55,7 @@ const ProductList = () => {
     } else {
       if (lat.lat) queryParams.push(`lat=${lat.lat}`);
       if (lat.lng) queryParams.push(`lng=${lat.lng}`);
-      if (mile) queryParams.push(`mile=${mile}`);
+      if (mile) queryParams.push(`radius=${mile}`);
     }
 
     const queryString = queryParams.length ? `?${queryParams.join("&")}` : "";

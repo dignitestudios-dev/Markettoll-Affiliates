@@ -10,7 +10,7 @@ export default function DistanceSlider({setMile}) {
 
   return (
     <div className="w-full max-w-2xl mx-auto  mt-4 bg-white">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-8">Distance (Miles)</h2>
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Distance (Miles)</h2>
       
       <div className="relative">
         {/* Slider container */}

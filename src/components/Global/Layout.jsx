@@ -16,7 +16,7 @@ const Layout = ({ page }) => {
       <Navbar />
       {page}
       <Footer />
-      <WelcomePopup closeModal={closeModal} onclick={handleCloseModal} />
+      {/* <WelcomePopup closeModal={closeModal} onclick={handleCloseModal} /> */}
     </div>
   );
 };

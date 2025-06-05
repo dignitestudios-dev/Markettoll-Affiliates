@@ -67,9 +67,9 @@ const FilterAddress = ({setCity,setState}) => {
   };
 
   return (
-    <div className="w-full py-6">
+    <div className="w-full ">
       <div className="w-full  rounded-[30px]  flex flex-col relative">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-8">Add Location</h2>
+         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Location</h2>
         <div className="w-full  flex flex-col gap-4 ">
           <div className="w-full grid grid-cols-1 md:grid-cols-2  gap-3">
             <div className="w-full flex flex-col items-start  location">
