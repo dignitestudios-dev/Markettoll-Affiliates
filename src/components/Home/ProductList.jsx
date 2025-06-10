@@ -9,6 +9,7 @@ import Loader from "../Global/Loader";
 import { SearchedProductContext } from "../../context/searchedProductContext";
 import { CiFilter } from "react-icons/ci";
 import FilterProductModal from "./FiltetProducts";
+import Pagination from "../Global/Pagination";
 
 const ProductList = () => {
   const [showServices, setShowServices] = useState(false);
@@ -20,9 +21,10 @@ const ProductList = () => {
   const { user, setUserProfile } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { searchResults } = useContext(SearchedProductContext);
+  const { searchResults, searchQuery } = useContext(SearchedProductContext);
   const [categories, setCategories] = useState([]);
   const [currentAddress, setCurrentAddress] = useState(true);
+  const [paginationNum, setPaginationNum] = useState(1);
   const [mile, setMile] = useState(50);
   const [city, setCity] = useState();
   const [state, setState] = useState("");
@@ -66,7 +68,7 @@ const ProductList = () => {
         `${BASE_URL}/users/home-screen-products${queryString}`,
         options
       );
-      setFilterModal(false)
+      setFilterModal(false);
       setProducts(res?.data?.data);
       setFilteredProducts(res?.data?.data);
     } catch (error) {
@@ -159,6 +161,41 @@ const ProductList = () => {
     }
   };
 
+  const handleSearchProduct = async () => {
+    setLoading(true);
+    const options = user?.token
+      ? {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      : {};
+
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/users/home-screen-searched-products?name=${searchQuery}&category=&subCategory=&page=${paginationNum}  `,
+        options
+      );
+       setLoading(false);
+      setFilterModal(false);
+      console.log(res.data.data, "response");
+      setProducts(res?.data?.data);
+      setFilteredProducts(res?.data?.data);
+    } catch (error) {
+      console.log("home screen products err >>>>", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleSearchProduct();
+    console.log(searchQuery, "searchQuery");
+    if (searchQuery == "") {
+      fetchProducts();
+    }
+  }, [searchQuery, paginationNum]);
+
   const handleFilterModal = () => {
     setFilterModal(!FilterModal);
   };
@@ -166,8 +203,6 @@ const ProductList = () => {
   if (loading) {
     return <Loader />;
   }
-
-  console.log(city, state, mile, lat, "filter response");
 
   return (
     <div className="w-full min-h-[70vh]">
@@ -350,6 +385,10 @@ const ProductList = () => {
                       </div>
                     );
                   })}
+                  <Pagination
+                    setPaginationNum={setPaginationNum}
+                    paginationNum={paginationNum}
+                  />
                 </>
               ) : (
                 <p className="mt-5 text-sm blue-text">No products found.</p>
