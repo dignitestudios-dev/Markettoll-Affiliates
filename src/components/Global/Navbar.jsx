@@ -412,6 +412,16 @@ const Navbar = () => {
                       Settings
                     </Link>
                   </li>
+                  <li className="text-xs font-medium py-0.5">
+                    <Link
+                      to="/sign-up"
+                      state={{ role: "influencer" }}
+                     
+                    >
+                      Become an Affiliate
+                    </Link>
+                  </li>
+
                   <li
                     className="text-xs font-medium py-0.5"
                     onClick={() => setShowProfileDropdown(false)}
@@ -518,7 +528,7 @@ const Navbar = () => {
         } transition-all duration-700`}
       >
         <Sidebar
-        user={user}
+          user={user}
           handleLogout={handleLogout}
           openSidebar={openSidebar}
           setOpenSidebar={setOpenSidebar}

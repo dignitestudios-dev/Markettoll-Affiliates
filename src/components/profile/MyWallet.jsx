@@ -8,6 +8,7 @@ import { BASE_URL } from "../../api/api";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
 import SettingsAddBankAccount from "../../pages/settings/SettingsAddBankAccount";
+import { useNavigate } from "react-router-dom";
 
 const MyWallet = () => {
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
@@ -21,7 +22,8 @@ const MyWallet = () => {
   const [transactionHistory, setTransactionHistory] = useState([]);
   const stripe = useStripe();
   const elements = useElements();
-
+  const navigate = useNavigate();
+  console.log(userProfile, "user");
   const handleTogglwWithdrawModal = () => {
     setShowModal(!showModal);
   };
@@ -329,9 +331,72 @@ const MyWallet = () => {
                 </>
               )}
             </div>
-            <h3 className="blue-text text-base font-bold mt-4">Add Bank</h3>
+
             <div>
-              <SettingsAddBankAccount />
+              {!userProfile?.stripeConnectedAccount?.external_account
+                ?.routingNumber ? (
+                <>
+                  <h3 className="blue-text text-base font-bold mt-4">
+                    Add Bank
+                  </h3>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(
+                          `${BASE_URL}/stripe/setup-stripe`,
+                          {
+                            method: "GET",
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${user?.token}`, // Include token here
+                            },
+                          }
+                        );
+
+                        if (!res.ok) {
+                          const errorData = await res.json();
+                          throw new Error(
+                            errorData.message || "Something went wrong"
+                          );
+                        }
+
+                        const data = await res.json();
+                        console.log(data, "datasslink");
+
+                        // Correctly redirect to Stripe setup URL
+                        location.replace(data?.data?.url);
+
+                        toast.success("Stripe account created successfully!");
+                      } catch (error) {
+                        toast.error(`Error: ${error.message}`);
+                      }
+                    }}
+                    className="bg-[#0098EA] px-5 p-3 rounded-lg mt-2 text-white"
+                  >
+                    Create Connected Account
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  disabled={userProfile?.stripeConnectedAccount?.id}
+                  onClick={() => setState(!state)}
+                  className="mt-4 flex items-center justify-between custom-shadow py-4 px-5 rounded-2xl w-full"
+                >
+                  <div className="flex items-center gap-2">
+                    <img src="/bank.png" alt="bank" className="w-5 h-5" />
+                    <span className="text-sm text-[#5C5C5C]">
+                      {userProfile?.stripeConnectedAccount?.external_account?.id
+                        ? ` **** **** ****
+                              ${userProfile?.stripeConnectedAccount?.external_account?.last4}`
+                        : `Add Bank Account`}
+                    </span>
+                  </div>
+                  <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />
+                </button>
+              )}
+
+              {/* <SettingsAddBankAccount /> */}
             </div>
           </div>
         </div>

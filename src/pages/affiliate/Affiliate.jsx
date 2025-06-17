@@ -135,7 +135,7 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
             </button>
           </div>
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2 flex items-center justify-between">
-            <span>{RefralLink}</span>
+           <span>{RefralLink?.slice(1, 50)}</span>
             <button
               className="blue-bg text-white flex items-center gap-1 px-5 py-2 rounded-[12px] font-medium text-base"
               onClick={() => {
