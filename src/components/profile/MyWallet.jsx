@@ -232,172 +232,179 @@ const MyWallet = () => {
           </div>
 
           <div>
-            <h3 className="blue-text text-base font-bold mb-4">
-              {userProfile && userProfile?.stripeCustomer?.id
-                ? "Connected Card"
-                : "Connect Card"}
-            </h3>
-            <div className="w-full flex flex-col items-start gap-3">
-              {userProfile?.stripeCustomer?.id && (
-                <button
-                  type="button"
-                  onClick={handleConnectCard}
-                  className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
-                >
-                  <div className="flex items-center gap-2">
-                    <img
-                      src="/mastercard-icon.png"
-                      alt="master card icon"
-                      className="w-[24.79px] h-[15.33px]"
-                    />
-                    <span className="text-sm text-[#5C5C5C]">
-                      **** **** ****{" "}
-                      {userProfile?.stripeCustomer?.paymentMethod?.last4}
-                    </span>
-                  </div>
-                  {userProfile?.stripeCustomer?.paymentMethodId && (
-                    <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
-                  )}
-                </button>
-              )}
+            {userProfile?.role != "influencer" && (
+              <>
+                <h3 className="blue-text text-base font-bold mb-4">
+                  {userProfile && userProfile?.stripeCustomer?.id
+                    ? "Connected Card"
+                    : "Connect Card"}
+                </h3>
 
-              {userProfile?.stripeCustomer?.id ? (
-                <></>
-              ) : (
-                <>
-                  {!connectCard ? (
-                    <button
-                      type="button"
-                      onClick={handleConnectCard}
-                      className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
-                    >
-                      <div className="flex items-center gap-2">
-                        <img
-                          src="/credit-card-icon.png"
-                          alt="credit card icon"
-                          className="w-[20px] h-[20px]"
-                        />
-                        <span className="text-sm text-[#5C5C5C]">
-                          Add Debit/ Credit Card
-                        </span>
-                      </div>
-                      <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
-                    </button>
-                  ) : (
-                    <form
-                      onSubmit={handleSubmit}
-                      className="w-full flex flex-col items-start gap-4"
-                    >
-                      <div className="w-full flex flex-col items-center gap-5 mt-10">
-                        <div className="w-full flex flex-col items-start gap-1 lg:w-[605px]">
-                          <label
-                            htmlFor="cardHolderName"
-                            className="font-medium text-sm"
-                          >
-                            Card Holder Name
-                          </label>
-                          <input
-                            type="text"
-                            id="cardHolderName"
-                            name="cardHolderName"
-                            placeholder="John Smith"
-                            className="w-full bg-white border rounded-full px-4 py-3.5 text-sm text-[#5C5C5C] outline-none"
+                <div className="w-full flex flex-col items-start gap-3">
+                  <div>
+                    {userProfile?.stripeCustomer?.id && (
+                      <button
+                        type="button"
+                        onClick={handleConnectCard}
+                        className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
+                      >
+                        <div className="flex items-center gap-2">
+                          <img
+                            src="/mastercard-icon.png"
+                            alt="master card icon"
+                            className="w-[24.79px] h-[15.33px]"
                           />
+                          <span className="text-sm text-[#5C5C5C]">
+                            **** **** ****{" "}
+                            {userProfile?.stripeCustomer?.paymentMethod?.last4}
+                          </span>
                         </div>
-
-                        <div className="w-full lg:w-[605px]">
-                          <label
-                            htmlFor="cardDetails"
-                            className="font-medium text-sm"
-                          >
-                            Card Details
-                          </label>
-                          <CardElement className="w-full bg-white rounded-full border px-6 py-4 text-sm text-[#5C5C5C] outline-none" />
-                        </div>
-
-                        <div className="w-full lg:w-[605px] mt-2">
-                          <button
-                            type="submit"
-                            // disabled={!stripe}
-                            // onClick={handleSubmit}
-                            className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
-                          >
-                            Save
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  )}
-                </>
-              )}
-            </div>
-
-            <div>
-              {!userProfile?.stripeConnectedAccount?.external_account
-                ?.routingNumber ? (
-                <>
-                  <h3 className="blue-text text-base font-bold mt-4">
-                    Add Bank
-                  </h3>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch(
-                          `${BASE_URL}/stripe/setup-stripe`,
-                          {
-                            method: "GET",
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${user?.token}`, // Include token here
-                            },
-                          }
-                        );
-
-                        if (!res.ok) {
-                          const errorData = await res.json();
-                          throw new Error(
-                            errorData.message || "Something went wrong"
-                          );
-                        }
-
-                        const data = await res.json();
-                        console.log(data, "datasslink");
-
-                        // Correctly redirect to Stripe setup URL
-                        location.replace(data?.data?.url);
-
-                        toast.success("Stripe account created successfully!");
-                      } catch (error) {
-                        toast.error(`Error: ${error.message}`);
-                      }
-                    }}
-                    className="bg-[#0098EA] px-5 p-3 rounded-lg mt-2 text-white"
-                  >
-                    Create Connected Account
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  disabled={userProfile?.stripeConnectedAccount?.id}
-                  onClick={() => setState(!state)}
-                  className="mt-4 flex items-center justify-between custom-shadow py-4 px-5 rounded-2xl w-full"
-                >
-                  <div className="flex items-center gap-2">
-                    <img src="/bank.png" alt="bank" className="w-5 h-5" />
-                    <span className="text-sm text-[#5C5C5C]">
-                      {userProfile?.stripeConnectedAccount?.external_account?.id
-                        ? ` **** **** ****
-                              ${userProfile?.stripeConnectedAccount?.external_account?.last4}`
-                        : `Add Bank Account`}
-                    </span>
+                        {userProfile?.stripeCustomer?.paymentMethodId && (
+                          <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
+                        )}
+                      </button>
+                    )}
                   </div>
-                  <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />
-                </button>
-              )}
 
-              {/* <SettingsAddBankAccount /> */}
-            </div>
+                  {userProfile?.stripeCustomer?.id ? (
+                    <></>
+                  ) : (
+                    <>
+                      {!connectCard ? (
+                        <button
+                          type="button"
+                          onClick={handleConnectCard}
+                          className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
+                        >
+                          <div className="flex items-center gap-2">
+                            <img
+                              src="/credit-card-icon.png"
+                              alt="credit card icon"
+                              className="w-[20px] h-[20px]"
+                            />
+                            <span className="text-sm text-[#5C5C5C]">
+                              Add Debit/ Credit Card
+                            </span>
+                          </div>
+                          <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
+                        </button>
+                      ) : (
+                        <form
+                          onSubmit={handleSubmit}
+                          className="w-full flex flex-col items-start gap-4"
+                        >
+                          <div className="w-full flex flex-col items-center gap-5 mt-10">
+                            <div className="w-full flex flex-col items-start gap-1 lg:w-[605px]">
+                              <label
+                                htmlFor="cardHolderName"
+                                className="font-medium text-sm"
+                              >
+                                Card Holder Name
+                              </label>
+                              <input
+                                type="text"
+                                id="cardHolderName"
+                                name="cardHolderName"
+                                placeholder="John Smith"
+                                className="w-full bg-white border rounded-full px-4 py-3.5 text-sm text-[#5C5C5C] outline-none"
+                              />
+                            </div>
+
+                            <div className="w-full lg:w-[605px]">
+                              <label
+                                htmlFor="cardDetails"
+                                className="font-medium text-sm"
+                              >
+                                Card Details
+                              </label>
+                              <CardElement className="w-full bg-white rounded-full border px-6 py-4 text-sm text-[#5C5C5C] outline-none" />
+                            </div>
+
+                            <div className="w-full lg:w-[605px] mt-2">
+                              <button
+                                type="submit"
+                                // disabled={!stripe}
+                                // onClick={handleSubmit}
+                                className="py-3 px-10 rounded-full w-full blue-bg text-white font-bold text-base"
+                              >
+                                Save
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      )}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+            {userProfile?.role == "influencer" && (
+              <div>
+                {!userProfile?.stripeConnectedAccount?.external_account
+                  ?.routingNumber ? (
+                  <>
+                    <h3 className="blue-text text-base font-bold mt-4">
+                      Add Bank
+                    </h3>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(
+                            `${BASE_URL}/stripe/setup-stripe`,
+                            {
+                              method: "GET",
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${user?.token}`, // Include token here
+                              },
+                            }
+                          );
+
+                          if (!res.ok) {
+                            const errorData = await res.json();
+                            throw new Error(
+                              errorData.message || "Something went wrong"
+                            );
+                          }
+
+                          const data = await res.json();
+                          console.log(data, "datasslink");
+                          window.open(data?.data?.url, "_blank");
+
+                          toast.success("Stripe account created successfully!");
+                        } catch (error) {
+                          toast.error(`Error: ${error.message}`);
+                        }
+                      }}
+                      className="bg-[#0098EA] px-5 p-3 rounded-lg mt-2 text-white"
+                    >
+                      Create Connected Account
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={userProfile?.stripeConnectedAccount?.id}
+                    onClick={() => setState(!state)}
+                    className="mt-4 flex items-center justify-between custom-shadow py-4 px-5 rounded-2xl w-full"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img src="/bank.png" alt="bank" className="w-5 h-5" />
+                      <span className="text-sm text-[#5C5C5C]">
+                        {userProfile?.stripeConnectedAccount?.external_account
+                          ?.id
+                          ? ` **** **** ****
+                              ${userProfile?.stripeConnectedAccount?.external_account?.last4}`
+                          : `Add Bank Account`}
+                      </span>
+                    </div>
+                    <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />
+                  </button>
+                )}
+
+                {/* <SettingsAddBankAccount /> */}
+              </div>
+            )}
           </div>
         </div>
       </div>

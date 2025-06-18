@@ -50,7 +50,7 @@ const FilterProductModal = ({
   return (
     FilterModal && (
       <div className="w-full  z-50 h-screen fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center">
-        <div className="bg-white relative w-full lg:w-[575px]  rounded-2xl p-6 flex flex-col items-start justify-center gap-5">
+        <div className="bg-white relative w-full lg:w-[700px]  rounded-2xl p-6 flex flex-col items-start justify-center gap-5">
           <button
             type="button"
             onClick={onclick}

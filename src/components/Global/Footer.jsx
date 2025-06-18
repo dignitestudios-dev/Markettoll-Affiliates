@@ -32,6 +32,9 @@ const Footer = () => {
           <Link to="/privacy-policy" className="text-white underline text-sm">
             Privacy Policy
           </Link>
+            <Link to="/sign-up" className="text-white underline text-sm" state={{ role: "influencer" }}>
+              Become an Affiliate
+            </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
           <img
