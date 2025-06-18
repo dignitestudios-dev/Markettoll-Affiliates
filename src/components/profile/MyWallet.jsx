@@ -241,7 +241,7 @@ const MyWallet = () => {
                 </h3>
 
                 <div className="w-full flex flex-col items-start gap-3">
-                  <div>
+                  <div className="w-full">
                     {userProfile?.stripeCustomer?.id && (
                       <button
                         type="button"
@@ -370,8 +370,6 @@ const MyWallet = () => {
                           const data = await res.json();
                           console.log(data, "datasslink");
                           window.open(data?.data?.url, "_blank");
-
-                          toast.success("Stripe account created successfully!");
                         } catch (error) {
                           toast.error(`Error: ${error.message}`);
                         }
