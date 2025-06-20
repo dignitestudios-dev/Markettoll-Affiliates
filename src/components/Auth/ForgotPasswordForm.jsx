@@ -47,6 +47,7 @@ const ForgotPasswordForm = () => {
           },
         });
       } catch (error) {
+        toast.error(error?.response?.data?.message);
         console.log("Verify email err >>>>", error);
       } finally {
         setLoading(false);
