@@ -35,7 +35,7 @@ const FilterProductModal = ({
     setSearchByCity(checked);
     if (checked) {
       setSearchByMiles(false);
-      setLinkActive(false); 
+      setLinkActive(false);
     }
   };
 
@@ -43,7 +43,7 @@ const FilterProductModal = ({
     setSearchByMiles(checked);
     if (checked) {
       setSearchByCity(false);
-      setLinkActive(false); 
+      setLinkActive(false);
     }
   };
 
@@ -147,7 +147,7 @@ const FilterProductModal = ({
                 Search with city state
               </span>
             </label>
- 
+
             <label className="flex items-center space-x-2">
               <input
                 type="checkbox"

@@ -64,7 +64,7 @@ export default function Affiliate() {
         <>
           <div className="w-full flex items-center justify-between z-0">
             <h2 className="text-2xl lg:text-[36px] font-bold">
-              <span className="blue-text">Welcome Mike!</span>{" "}
+              <span className="blue-text">Welcome {userProfile?.name}!</span>{" "}
             </h2>
             <button
               type="button"
