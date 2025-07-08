@@ -68,6 +68,8 @@ const SignUpForm = () => {
   console.log(state?.role == undefined, "state");
   const queryParams = new URLSearchParams(location.search);
   const referralId = queryParams.get("ref");
+  const type = queryParams.get("type");
+  console.log(type, "userType1");
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -78,7 +80,7 @@ const SignUpForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      role: state?.role == undefined ? "client" : state?.role,
+      ...(type === "affiliate" && { role: "influencer" }),
     },
     validate,
     onSubmit: async (values, { resetForm }) => {

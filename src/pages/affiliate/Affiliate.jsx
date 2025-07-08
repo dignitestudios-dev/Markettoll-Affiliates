@@ -10,7 +10,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function Affiliate() {
-  const {userProfile, setUserProfile  ,user } = useContext(AuthContext);
+  const { userProfile, setUserProfile, user } = useContext(AuthContext);
   const [openModal, setOpenModal] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const handleOpenModal = () => {
@@ -52,8 +52,6 @@ export default function Affiliate() {
     }
   };
 
-
-
   useEffect(() => {
     fetchUserProfile();
     fetchRefrals();
@@ -66,48 +64,74 @@ export default function Affiliate() {
             <h2 className="text-2xl lg:text-[36px] font-bold">
               <span className="blue-text">Welcome {userProfile?.name}!</span>{" "}
             </h2>
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  const response = await axios.post(
-                    `${BASE_URL}/influencer/generate-referral-link`,
-                    {}, 
-                    {
-                      headers: {
-                        Authorization: `Bearer ${user?.token}`,
-                      },
-                    }
-                  );
-                  console.log(response, "resss");
-                  setRefralLink(response?.data?.data?.referralLink);
-                  handleOpenModal();
-                } catch (error) {
-                  console.log(error);
-                }
-              }}
-              className="blue-bg text-white flex items-center gap-1 px-5 py-2 rounded-[20px] font-medium text-base"
-            >
-              Generate Affilate Link
-            </button>
+            <div className="flex gap-2" >
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const response = await axios.post(
+                      `${BASE_URL}/influencer/generate-referral-link`,
+                      {},
+                      {
+                        headers: {
+                          Authorization: `Bearer ${user?.token}`,
+                        },
+                      }
+                    );
+                    console.log(response, "resss");
+                    setRefralLink(response?.data?.data?.referralLink);
+                    handleOpenModal();
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }}
+                className="blue-bg text-white flex items-center gap-1 px-5 py-2 rounded-[20px] font-medium text-base"
+              >
+                Generate Referral Link
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const response = await axios.post(
+                      `${BASE_URL}/influencer/generate-affiliate-link`,
+                      {},
+                      {
+                        headers: {
+                          Authorization: `Bearer ${user?.token}`,
+                        },
+                      }
+                    );
+                    console.log(response, "resss");
+                    setRefralLink(response?.data?.data?.referralLink);
+                    handleOpenModal();
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }}
+                className="blue-bg text-white flex items-center gap-1 px-5 py-2 rounded-[20px] font-medium text-base"
+              >
+                Generate Affilate Link
+              </button>
+            </div>
           </div>
           <div>
-            <Stats />
-          </div>
+            <Stats /> 
+          </div>  
         </>
-      )}
-      <CommisionBreakDown
+      )}  
+      <CommisionBreakDown 
         showAll={showAll}
         setShowAll={setShowAll}
-        refrals={refrals}
-      />
+        refrals={refrals} 
+      />  
 
-      <Popup
+      <Popup  
         openModal={openModal}
         RefralLink={RefralLink}
-        onclick={handleOpenModal}
+        onclick={handleOpenModal} 
       />
-    </div>
+    </div>  
   );
 }
 
@@ -119,7 +143,7 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
           <div className="flex justify-between items-start">
             <div>
               <h3 className="text-[#000000]  font-bold text-lg">
-                Affiliate Link
+                Generate Link
               </h3>
               <p className="text-[#18181899] font-[400] text-[16px] ">
                 Share this link to start earning commissions on every referral.
@@ -135,7 +159,7 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
             </button>
           </div>
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2 flex items-center justify-between">
-           <span>{RefralLink?.slice(1, 50)}</span>
+            <span>{RefralLink?.slice(1, 50)}</span>
             <button
               className="blue-bg text-white flex items-center gap-1 px-5 py-2 rounded-[12px] font-medium text-base"
               onClick={() => {
