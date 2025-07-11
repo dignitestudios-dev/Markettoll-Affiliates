@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FiPlus } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
-import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import Stats from "../../components/affiliate/Stats";
 import CommisionBreakDown from "../../components/affiliate/CommisionBreakDown";
+import AffiliateBreakDown from "../../components/affiliate/AffiliateBreakDown";
 import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
 import axios from "axios";
@@ -12,12 +11,11 @@ import { toast } from "react-toastify";
 export default function Affiliate() {
   const { userProfile, setUserProfile, user } = useContext(AuthContext);
   const [openModal, setOpenModal] = useState(false);
-  const [showAll, setShowAll] = useState(false);
-  const handleOpenModal = () => {
-    setOpenModal(!openModal);
-  };
+  const [activeView, setActiveView] = useState("main"); // "main" | "commission" | "affiliate"
   const [RefralLink, setRefralLink] = useState("");
   const [refrals, setRefrals] = useState([]);
+  const [showAffiliate, setShowAffliate] = useState([]);
+
   const fetchRefrals = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/influencer/my-referrals`, {
@@ -25,19 +23,27 @@ export default function Affiliate() {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      console.log(res, "resss");
       setRefrals(res?.data?.data);
     } catch (error) {
-      console.log(
-        "error while fetching notifications >>>",
-        error?.response?.data
-      );
+      console.log("Error fetching referrals:", error?.response?.data);
+    }
+  };
+  const fetchAffliate = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/influencer/my-affiliates`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      setShowAffliate(res?.data?.data);
+    } catch (error) {
+      console.log("Error fetching referrals:", error?.response?.data);
     }
   };
 
-  const userCookie = localStorage.getItem("user");
-  const user2 = userCookie ? JSON.parse(userCookie) : null;
   const fetchUserProfile = async () => {
+    const userCookie = localStorage.getItem("user");
+    const user2 = userCookie ? JSON.parse(userCookie) : null;
     if (user2?.token) {
       try {
         const res = await axios.get(`${BASE_URL}/users/profile`, {
@@ -55,32 +61,30 @@ export default function Affiliate() {
   useEffect(() => {
     fetchUserProfile();
     fetchRefrals();
+    fetchAffliate();
   }, []);
+  console.log(showAffiliate, "affiliates")
   return (
     <div className="padding-x py-6 z-0">
-      {!showAll && (
+      {activeView === "main" && (
         <>
           <div className="w-full flex items-center justify-between z-0">
             <h2 className="text-2xl lg:text-[36px] font-bold">
-              <span className="blue-text">Welcome {userProfile?.name}!</span>{" "}
+              <span className="blue-text">Welcome {userProfile?.name}!</span>
             </h2>
-            <div className="flex gap-2" >
+            <div className="flex gap-2">
               <button
-                type="button"
                 onClick={async () => {
                   try {
-                    const response = await axios.post(
+                    const res = await axios.post(
                       `${BASE_URL}/influencer/generate-referral-link`,
                       {},
                       {
-                        headers: {
-                          Authorization: `Bearer ${user?.token}`,
-                        },
+                        headers: { Authorization: `Bearer ${user?.token}` },
                       }
                     );
-                    console.log(response, "resss");
-                    setRefralLink(response?.data?.data?.referralLink);
-                    handleOpenModal();
+                    setRefralLink(res?.data?.data?.referralLink);
+                    setOpenModal(true);
                   } catch (error) {
                     console.log(error);
                   }
@@ -89,49 +93,53 @@ export default function Affiliate() {
               >
                 Generate Referral Link
               </button>
+
               <button
-                type="button"
                 onClick={async () => {
                   try {
-                    const response = await axios.post(
+                    const res = await axios.post(
                       `${BASE_URL}/influencer/generate-affiliate-link`,
                       {},
                       {
-                        headers: {
-                          Authorization: `Bearer ${user?.token}`,
-                        },
+                        headers: { Authorization: `Bearer ${user?.token}` },
                       }
                     );
-                    console.log(response, "resss");
-                    setRefralLink(response?.data?.data?.referralLink);
-                    handleOpenModal();
+                    setRefralLink(res?.data?.data?.referralLink);
+                    setOpenModal(true);
                   } catch (error) {
                     console.log(error);
                   }
                 }}
                 className="blue-bg text-white flex items-center gap-1 px-5 py-2 rounded-[20px] font-medium text-base"
               >
-                Generate Affilate Link
+                Generate Affiliate Link
               </button>
             </div>
           </div>
-          <div>
-            <Stats /> 
-          </div>  
+          <Stats refrals={showAffiliate} setActiveView={setActiveView}  />
         </>
-      )}  
-      <CommisionBreakDown 
-        showAll={showAll}
-        setShowAll={setShowAll}
-        refrals={refrals} 
-      />  
+      )}
 
-      <Popup  
+      {activeView === "commission" || activeView === "main" && (
+        <CommisionBreakDown
+          refrals={refrals}
+          setActiveView={setActiveView}
+        />
+      )}
+
+      {activeView === "affiliate" && (
+        <AffiliateBreakDown
+          refrals={showAffiliate}
+          setActiveView={setActiveView}
+        />
+      )}
+
+      <Popup
         openModal={openModal}
         RefralLink={RefralLink}
-        onclick={handleOpenModal} 
+        onclick={() => setOpenModal(false)}
       />
-    </div>  
+    </div>
   );
 }
 
@@ -139,51 +147,38 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
   return (
     openModal && (
       <div className="w-full h-screen bg-[rgba(0,0,0,0.5)] fixed inset-0 z-50 flex items-center justify-center">
-        <div className="w-[440px] h-auto p-5 rounded-2xl bg-white flex flex-col  justify-center gap-3 relative">
+        <div className="w-[440px] h-auto p-5 rounded-2xl bg-white flex flex-col gap-3 relative">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-[#000000]  font-bold text-lg">
-                Generate Link
-              </h3>
-              <p className="text-[#18181899] font-[400] text-[16px] ">
+              <h3 className="text-[#000000] font-bold text-lg">Generate Link</h3>
+              <p className="text-[#18181899] text-[16px]">
                 Share this link to start earning commissions on every referral.
               </p>
             </div>
-
-            <button
-              type="button"
-              onClick={() => onclick()}
-              className="w-6 h-6 rounded-full bg-gray-100 p-1"
-            >
+            <button onClick={onclick} className="w-6 h-6 rounded-full bg-gray-100 p-1">
               <IoClose className="w-full h-full" />
             </button>
           </div>
+
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2 flex items-center justify-between">
-            <span>{RefralLink?.slice(1, 50)}</span>
+            <span>{RefralLink?.slice(0, 50)}</span>
             <button
-              className="blue-bg text-white flex items-center gap-1 px-5 py-2 rounded-[12px] font-medium text-base"
+              className="blue-bg text-white px-5 py-2 rounded-[12px]"
               onClick={() => {
                 navigator.clipboard
                   .writeText(RefralLink)
-                  .then(() => {
-                    toast.success("Link copied to clipboard!");
-                  })
-                  .catch((err) => {
-                    toast.error("Failed to copy: ");
-                  });
+                  .then(() => toast.success("Link copied to clipboard!"))
+                  .catch(() => toast.error("Failed to copy link."));
               }}
             >
               Copy
             </button>
           </div>
+
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2">
-            <h2 className="font-[400] text-[14px]">
-              How your affiliate link works
-            </h2>
-            <p className="text-[#18181899] font-[400] text-[14px] ">
-              Anyone who clicks and subscribes through your link will be
-              automatically tagged to your account. You’ll earn 1% commission on
-              every successful subscription they make.
+            <h2 className="text-[14px]">How your affiliate link works</h2>
+            <p className="text-[#18181899] text-[14px]">
+              Anyone who clicks and subscribes through your link will be tagged to your account. You’ll earn 1% commission on every successful subscription they make.
             </p>
           </div>
         </div>
