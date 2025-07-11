@@ -15,7 +15,7 @@ export default function Affiliate() {
   const [RefralLink, setRefralLink] = useState("");
   const [refrals, setRefrals] = useState([]);
   const [showAffiliate, setShowAffliate] = useState([]);
-
+console.log(userProfile,"userss")
   const fetchRefrals = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/influencer/my-referrals`, {
@@ -57,12 +57,13 @@ export default function Affiliate() {
       }
     }
   };
-
-  useEffect(() => {
-    fetchUserProfile();
+useEffect(()=>{
+  fetchUserProfile();
+},[])
+  useEffect(() => {    
     fetchRefrals();
     fetchAffliate();
-  }, []);
+  }, [user]);
   console.log(showAffiliate, "affiliates")
   return (
     <div className="padding-x py-6 z-0">
