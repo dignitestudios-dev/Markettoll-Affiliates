@@ -65,7 +65,7 @@ const SignUpForm = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const { state } = useLocation("");
-  console.log(state?.role == undefined, "state");
+  console.log(state?.role, "state");
   const queryParams = new URLSearchParams(location.search);
   const referralId = queryParams.get("ref");
   const type = queryParams.get("type");
@@ -80,7 +80,7 @@ const SignUpForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
-    ...(type === "affiliate" && { role: "influencer" }),
+    ...(type === "affiliate" || state?.role === "influencer" && { role: "influencer" }),
     },
     validate,
     onSubmit: async (values, { resetForm }) => {
