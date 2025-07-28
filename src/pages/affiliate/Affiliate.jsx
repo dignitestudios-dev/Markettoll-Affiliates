@@ -15,7 +15,7 @@ export default function Affiliate() {
   const [RefralLink, setRefralLink] = useState("");
   const [refrals, setRefrals] = useState([]);
   const [showAffiliate, setShowAffliate] = useState([]);
-console.log(userProfile,"userss")
+  console.log(userProfile, "userss");
   const fetchRefrals = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/influencer/my-referrals`, {
@@ -57,14 +57,14 @@ console.log(userProfile,"userss")
       }
     }
   };
-useEffect(()=>{
-  fetchUserProfile();
-},[])
-  useEffect(() => {    
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+  useEffect(() => {
     fetchRefrals();
     fetchAffliate();
   }, [user]);
-  console.log(showAffiliate, "affiliates")
+  console.log(showAffiliate, "affiliates");
   return (
     <div className="padding-x py-6 z-0">
       {activeView === "main" && (
@@ -117,16 +117,14 @@ useEffect(()=>{
               </button>
             </div>
           </div>
-          <Stats refrals={showAffiliate} setActiveView={setActiveView}  />
+          <Stats refrals={showAffiliate} setActiveView={setActiveView} />
         </>
       )}
 
-      {activeView === "commission" || activeView === "main" && (
-        <CommisionBreakDown
-          refrals={refrals}
-          setActiveView={setActiveView}
-        />
-      )}
+      {activeView === "commission" ||
+        (activeView === "main" && (
+          <CommisionBreakDown refrals={refrals} setActiveView={setActiveView} />
+        ))}
 
       {activeView === "affiliate" && (
         <AffiliateBreakDown
@@ -151,12 +149,17 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
         <div className="w-[440px] h-auto p-5 rounded-2xl bg-white flex flex-col gap-3 relative">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-[#000000] font-bold text-lg">Generate Link</h3>
+              <h3 className="text-[#000000] font-bold text-lg">
+                Generate Link
+              </h3>
               <p className="text-[#18181899] text-[16px]">
                 Share this link to start earning commissions on every referral.
               </p>
             </div>
-            <button onClick={onclick} className="w-6 h-6 rounded-full bg-gray-100 p-1">
+            <button
+              onClick={onclick}
+              className="w-6 h-6 rounded-full bg-gray-100 p-1"
+            >
               <IoClose className="w-full h-full" />
             </button>
           </div>
@@ -179,7 +182,8 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2">
             <h2 className="text-[14px]">How your affiliate link works</h2>
             <p className="text-[#18181899] text-[14px]">
-              Anyone who clicks and subscribes through your link will be tagged to your account. You’ll earn 1% commission on every successful subscription they make.
+              Invite affiliates through the link and start earning commissions
+              on every referral.
             </p>
           </div>
         </div>
