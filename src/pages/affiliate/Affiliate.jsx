@@ -13,6 +13,7 @@ export default function Affiliate() {
   const [openModal, setOpenModal] = useState(false);
   const [activeView, setActiveView] = useState("main"); // "main" | "commission" | "affiliate"
   const [RefralLink, setRefralLink] = useState("");
+  const [BioMessage, setBioMessage] = useState("");
   const [refrals, setRefrals] = useState([]);
   const [showAffiliate, setShowAffliate] = useState([]);
   console.log(userProfile, "userss");
@@ -86,6 +87,9 @@ export default function Affiliate() {
                     );
                     setRefralLink(res?.data?.data?.referralLink);
                     setOpenModal(true);
+                    setBioMessage(
+                      "Share a unique link to refer users. Earn a commission percentage each time a referred user subscribes to a paid plan."
+                    );
                   } catch (error) {
                     console.log(error);
                   }
@@ -106,6 +110,9 @@ export default function Affiliate() {
                       }
                     );
                     setRefralLink(res?.data?.data?.referralLink);
+                    setBioMessage(
+                      "Invite other affiliates to join. After referring a set number of affiliates, you become eligible for a bonus commission, which adds on top of your existing commission percentage."
+                    );
                     setOpenModal(true);
                   } catch (error) {
                     console.log(error);
@@ -136,13 +143,14 @@ export default function Affiliate() {
       <Popup
         openModal={openModal}
         RefralLink={RefralLink}
+        BioMessage={BioMessage}
         onclick={() => setOpenModal(false)}
       />
     </div>
   );
 }
 
-const Popup = ({ openModal, onclick, RefralLink }) => {
+const Popup = ({ openModal, onclick, RefralLink, BioMessage }) => {
   return (
     openModal && (
       <div className="w-full h-screen bg-[rgba(0,0,0,0.5)] fixed inset-0 z-50 flex items-center justify-center">
@@ -181,10 +189,7 @@ const Popup = ({ openModal, onclick, RefralLink }) => {
 
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2">
             <h2 className="text-[14px]">How your affiliate link works</h2>
-            <p className="text-[#18181899] text-[14px]">
-              Invite affiliates through the link and start earning commissions
-              on every referral.
-            </p>
+            <p className="text-[#18181899] text-[14px]">{BioMessage}</p>
           </div>
         </div>
       </div>
