@@ -223,7 +223,7 @@ const VerifyOtpForm = () => {
 
         <div className="w-full flex items-center justify-between mt-2">
           <input
-            type="number"
+            type="text"
             name="otp"
             id="otp"
             maxLength="4"
