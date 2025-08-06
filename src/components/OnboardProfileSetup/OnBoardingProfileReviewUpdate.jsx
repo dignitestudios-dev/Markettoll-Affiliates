@@ -8,10 +8,11 @@ import { toast } from "react-toastify";
 
 const OnBoardingProfileReviewUpdate = () => {
   const location = useLocation();
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(location?.state?.profileImage);
   const [loading, setLoading] = useState(false);
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   // console.log(userProfile);
+  
   const navigate = useNavigate();
 
   // Trigger the hidden input file dialog

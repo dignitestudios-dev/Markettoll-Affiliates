@@ -40,7 +40,7 @@ const OnboardProfileSetupForm = () => {
           fetchUserProfile();
           // setCount(2);
           navigate("/review-profile-image", {
-            state: { userData: response?.data?.data },
+            state: { userData: response?.data?.data,profileImage:image },
           });
           return response.data;
         }

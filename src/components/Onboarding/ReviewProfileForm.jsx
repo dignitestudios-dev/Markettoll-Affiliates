@@ -11,7 +11,7 @@ const ReviewProfileForm = () => {
   const navigate = useNavigate();
   const data = JSON.parse(localStorage.getItem("user")) || null;
   // console.log("Cookies data >>>>>", data?.token);
-  const { verificationStatus } = useContext(AuthContext);
+  const { verificationStatus, setVerificationStatus } = useContext(AuthContext);
 
   const handleVerifyEmail = async () => {
     try {
@@ -156,7 +156,13 @@ const ReviewProfileForm = () => {
 
         <button
           type="submit"
-          onClick={() => navigate("/identity-verified")}
+          onClick={() => {
+            setVerificationStatus({
+              email: false,
+              phone: false,
+            });
+            navigate("/identity-verified");
+          }}
           disabled={!(verificationStatus.email && verificationStatus.phone)}
           className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mb-7 disabled:opacity-50 disabled:cursor-not-allowed"
         >

@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/authContext";
 
 const Layout = ({ page }) => {
   const [closeModal, setCloseModal] = useState(true);
- const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const handleCloseModal = () => {
     setCloseModal(!closeModal);
   };

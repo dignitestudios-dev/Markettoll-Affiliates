@@ -12,11 +12,20 @@ import { CartProductContext } from "../../context/cartProductContext";
 
 const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
-  const { userProfile, setUserProfile } = useContext(AuthContext);
+  const { userProfile, setUserProfile,setVerificationStatus } = useContext(AuthContext);
   const userCookie = localStorage.getItem("user");
   const user2 = userCookie ? JSON.parse(userCookie) : null;
   const { setData } = useContext(CartProductContext);
   const navigate = useNavigate("");
+
+  useEffect(() => {
+    setVerificationStatus({
+      email: false,
+      phone: false,
+    });
+  }, []);
+
+
   const fetchUserProfile = async () => {
     if (user2?.token) {
       try {
