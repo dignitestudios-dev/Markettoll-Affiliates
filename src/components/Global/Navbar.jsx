@@ -158,14 +158,14 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
+console.log(user?.verified,"verifiedTest")
   return (
     <nav className="padding-x w-full py-5 flex items-center justify-between blue-bg sticky top-0 z-50 ">
       <Link to="/">
         <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
       <div className="hidden lg:flex items-center justify-end gap-3">
-        {user?.verified ? (
+        {user?.identityVerified ? (
           <div className="hidden lg:flex items-center justify-end gap-3 relative">
             {user?.role != "influencer" && (
               <>
