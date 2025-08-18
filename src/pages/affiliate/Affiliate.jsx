@@ -127,7 +127,6 @@ export default function Affiliate() {
           <Stats refrals={showAffiliate} setActiveView={setActiveView} />
         </>
       )}
-
       {activeView === "commission" ||
         (activeView === "main" && (
           <CommisionBreakDown refrals={refrals} setActiveView={setActiveView} />
