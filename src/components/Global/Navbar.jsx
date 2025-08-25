@@ -158,14 +158,14 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-console.log(user?.verified,"verifiedTest")
+  console.log(user?.verified, "verifiedTest");
   return (
     <nav className="padding-x w-full py-5 flex items-center justify-between blue-bg sticky top-0 z-50 ">
       <Link to="/">
         <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
       <div className="hidden lg:flex items-center justify-end gap-3">
-        {user?.identityVerified ? (
+        {user?.identityVerified && loc?.pathname != "/login" ? (
           <div className="hidden lg:flex items-center justify-end gap-3 relative">
             {user?.role != "influencer" && (
               <>
@@ -413,11 +413,7 @@ console.log(user?.verified,"verifiedTest")
                     </Link>
                   </li>
                   <li className="text-xs font-medium py-0.5">
-                    <Link
-                      to="/sign-up"
-                      state={{ role: "influencer" }}
-                     
-                    >
+                    <Link to="/sign-up" state={{ role: "influencer" }}>
                       Become an Affiliate
                     </Link>
                   </li>
@@ -442,7 +438,7 @@ console.log(user?.verified,"verifiedTest")
       </div>
 
       <div className="lg:hidden flex items-center justify-end gap-3">
-        {user?.role != "influencer" && (
+        {user?.role != "influencer" && loc?.pathname != "/login" && (
           <Link
             to="/chats"
             className="w-[28px] h-[28px] bg-white rounded-[10px] flex items-center justify-center"
@@ -454,7 +450,7 @@ console.log(user?.verified,"verifiedTest")
             />
           </Link>
         )}
-        {user?.role != "influencer" && (
+        {user?.role != "influencer" && loc?.pathname != "/login" && (
           <button
             type="button"
             onClick={() =>
@@ -469,7 +465,7 @@ console.log(user?.verified,"verifiedTest")
             />
           </button>
         )}
-        {user?.role != "influencer" && (
+        {user?.role != "influencer" && loc?.pathname != "/login" && (
           <Link
             to="/cart"
             className="w-[28px] h-[28px] rounded-[10px] bg-white flex items-center justify-center"
@@ -481,7 +477,7 @@ console.log(user?.verified,"verifiedTest")
             />
           </Link>
         )}
-        {user?.role != "influencer" && (
+        {user?.role != "influencer" && loc?.pathname != "/login" && (
           <button
             type="button"
             onClick={handleOpenNotifications}
@@ -496,7 +492,7 @@ console.log(user?.verified,"verifiedTest")
           </button>
         )}
 
-        {user ? (
+        {user && loc?.pathname != "/login" ? (
           <button type="button" onClick={() => setOpenSidebar(!openSidebar)}>
             <TbMenu2 className="text-2xl text-white" />
           </button>
