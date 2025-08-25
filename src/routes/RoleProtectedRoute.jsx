@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 
 // Utility to match dynamic paths like /product/:id
@@ -74,23 +74,21 @@ const allowedPathsForRoles = {
 const RoleProtectedRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
-  const navigate=useNavigate("");
   const currentPath = location.pathname;
+
+  // agar login hi nahi hai
   if (!user) {
-    console.log(user,"test1");
-    navigate("/");
-    <Navigate to="/" replace />;
-    return children;
+    return <Navigate to="/" replace />;
   }
 
-  const allowedPaths = allowedPathsForRoles[user.role];
+  // role based allowed paths
+  const allowedPaths = allowedPathsForRoles[user?.role];
   const isAllowed = allowedPaths?.some((pattern) =>
     pathMatches(pattern, currentPath)
   );
 
   if (!isAllowed) {
-    
-    return user?.role == "influencer" ? (
+    return user?.role === "influencer" ? (
       <Navigate to="/affiliate" replace />
     ) : (
       <Navigate to="/" replace />
