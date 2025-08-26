@@ -80,7 +80,7 @@ const SignUpForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
-    ...(type === "affiliate" || state?.role === "influencer" && { role: "influencer" }),
+    ...(type === "affiliate" || state?.role == "influencer" && { role: "influencer" }),
     },
     validate,
     onSubmit: async (values, { resetForm }) => {

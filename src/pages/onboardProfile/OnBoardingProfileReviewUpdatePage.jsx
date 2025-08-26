@@ -1,4 +1,3 @@
-import React from "react";
 import OnBoardingProfileReviewUpdate from "../../components/OnboardProfileSetup/OnBoardingProfileReviewUpdate";
 
 const OnBoardingProfileReviewUpdatePage = () => {

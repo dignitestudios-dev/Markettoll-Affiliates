@@ -140,35 +140,19 @@ const AppRoutes = () => {
         />
         <Route
           path="/review-profile"
-          element={
-            <RoleProtectedRoute>
-              <Layout page={<ReviewProfilePage />} />
-            </RoleProtectedRoute>
-          }
+          element={<Layout page={<ReviewProfilePage />} />}
         />
         <Route
           path="/identity-verified"
-          element={
-            <RoleProtectedRoute>
-              <Layout page={<IdentityVerifiedPage />} />
-            </RoleProtectedRoute>
-          }
+          element={<Layout page={<IdentityVerifiedPage />} />}
         />
         <Route
           path="/subscriptions"
-          element={
-            <RoleProtectedRoute>
-              <Layout page={<PackagesPage />} />
-            </RoleProtectedRoute>
-          }
+          element={<Layout page={<PackagesPage />} />}
         />
         <Route
           path="/subscriptions/add-payment-details"
-          element={
-            <RoleProtectedRoute>
-              <Layout page={<AddPayment />} />
-            </RoleProtectedRoute>
-          }
+          element={<Layout page={<AddPayment />} />}
         />
         <Route
           path="/profile-setup"
