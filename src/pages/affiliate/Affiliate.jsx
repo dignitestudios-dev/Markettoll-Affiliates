@@ -74,7 +74,7 @@ export default function Affiliate() {
             <h2 className="text-2xl lg:text-[36px] font-bold">
               <span className="blue-text">Welcome {userProfile?.name}!</span>
             </h2>
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-end w-full">
               <button
                 onClick={async () => {
                   try {
