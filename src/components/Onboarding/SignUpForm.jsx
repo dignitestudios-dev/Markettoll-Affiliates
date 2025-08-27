@@ -68,7 +68,7 @@ const SignUpForm = () => {
   console.log(state?.role, "state");
   const queryParams = new URLSearchParams(location.search);
   const referralId = queryParams.get("ref");
-  const type = queryParams.get("type");
+  const type = queryParams.get("affiliate");
   console.log(type,"userType1")
   const formik = useFormik({
     initialValues: {
