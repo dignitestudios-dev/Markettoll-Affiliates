@@ -292,7 +292,7 @@ const ProductList = () => {
               Clothing
             </button> */}
             <Link
-              to={`/home/categories/${categories[0]?.name}`}
+              to={`/home/categories/`}
               className={`bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2`}
             >
               See All

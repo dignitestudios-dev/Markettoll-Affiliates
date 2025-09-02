@@ -113,11 +113,11 @@ const AppRoutes = () => {
           element={<Layout page={<SearchProductList />} />}
         />
         <Route
-          path="/categories"
+          path="/home/categories"
           element={<Layout page={<CategoriesPage />} />}
         />
         <Route
-          path="/categories/:category"
+          path="/home/categories/:category"
           element={<Layout page={<CategoryProducts />} />}
         />
         <Route
