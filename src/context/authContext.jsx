@@ -17,7 +17,7 @@ const AuthContextProvider = ({ children }) => {
   });
   const userCookie = localStorage.getItem("user");
   const user = userCookie ? JSON.parse(userCookie) : null;
-
+  console.log(JSON.parse(userCookie),"userRecird")
   const fetchUserProfile = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/users/profile`, {

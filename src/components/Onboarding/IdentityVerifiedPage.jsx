@@ -29,11 +29,12 @@ const IdentityVerifiedPage = () => {
         }, 1000);
       } else {
         setTimeout(() => {
-          navigate("/login");
+          navigate("/affiliate");
         }, 1000);
       }
     } catch (error) {
-      console.error("Error verifying identity:", error);      
+      console.error("Error verifying identity:", error);
+      // Optionally handle errors (e.g., show an alert to the user)
     }
   };
 

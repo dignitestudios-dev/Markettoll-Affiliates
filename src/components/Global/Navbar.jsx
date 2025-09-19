@@ -165,7 +165,7 @@ const Navbar = () => {
         <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
       <div className="hidden lg:flex items-center justify-end gap-3">
-        {user?.identityVerified && loc?.pathname != "/login" ? (
+        {user?.token && loc?.pathname != "/login" ? (
           <div className="hidden lg:flex items-center justify-end gap-3 relative">
             {user?.role != "influencer" && (
               <>
