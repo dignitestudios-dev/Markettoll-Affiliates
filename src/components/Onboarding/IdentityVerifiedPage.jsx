@@ -3,7 +3,7 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { useNavigate } from "react-router-dom";
-
+import Cookies from "js-cookie";
 const IdentityVerifiedPage = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -20,6 +20,8 @@ const IdentityVerifiedPage = () => {
         }
       );
       // Handle response here
+      Cookies.set("user", JSON.stringify(res?.data?.data));
+      localStorage.setItem("user", JSON.stringify(res?.data?.data));
       console.log("Identity Verified:", user, res.data);
       if (res?.data?.success && user?.role == "client") {
         setTimeout(() => {
