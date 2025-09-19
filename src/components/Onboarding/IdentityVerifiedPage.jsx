@@ -20,8 +20,8 @@ const IdentityVerifiedPage = () => {
         }
       );
       // Handle response here
-      Cookies.set("user", JSON.stringify(res?.data?.data));
-      localStorage.setItem("user", JSON.stringify(res?.data?.data));
+      Cookies.set("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
       console.log("Identity Verified:", user, res.data);
       if (res?.data?.success && user?.role == "client") {
         setTimeout(() => {
