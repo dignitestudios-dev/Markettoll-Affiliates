@@ -176,7 +176,7 @@ const ProductList = () => {
         `${BASE_URL}/users/home-screen-searched-products?name=${searchQuery}&category=&subCategory=&page=${paginationNum}  `,
         options
       );
-       setLoading(false);
+      setLoading(false);
       setFilterModal(false);
       console.log(res.data.data, "response");
       setProducts(res?.data?.data);
