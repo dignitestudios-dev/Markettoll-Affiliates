@@ -141,6 +141,19 @@ const Navbar = () => {
       `/search-product?name=${historyItem}&category=${queryParams?.category}&subCategory=${queryParams?.subCategory}&page=1`
     );
   };
+  const hiddenSearchRoutes = [
+    "/login",
+    "/sign-up",
+    "/forgot-password",
+    "/verify-otp",
+    "/update-password",
+    "/password-updated",
+    "/add-phone-number",
+    "/privacy-policy",
+    "/terms-and-conditions",
+    "/arbitration-agreement",
+  ];
+  const shouldHideSearch = hiddenSearchRoutes.includes(location.pathname);
 
   useEffect(() => {
     fetchNotifications();
@@ -165,59 +178,64 @@ const Navbar = () => {
         <img src="/logo-white.png" alt="logo" className="w-[74px] h-[57px]" />
       </Link>
       <div className="hidden lg:flex items-center justify-end gap-3">
-        <div className="relative">
-          <form
-            onSubmit={handleSearchProduct}
-            className="h-[42px] w-[357px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
-          >
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsDropdownVisible(true)}
-              onBlur={() => setTimeout(() => setIsDropdownVisible(false), 200)}
-              className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
-            />
-            {searchQuery ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                  navigate("/");
-                }}
-              >
-                <IoClose className="text-white text-xl" />
-              </button>
-            ) : (
-              <button type="submit">
-                <IoSearchOutline className="text-white text-2xl" />
-              </button>
+        {!shouldHideSearch && (
+          <div className="relative">
+            <form
+              onSubmit={handleSearchProduct}
+              className="h-[42px] w-[357px] flex items-center justify-between gap-2 px-3 rounded-[15px] bg-[#38adebe7] border-none"
+            >
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsDropdownVisible(true)}
+                onBlur={() =>
+                  setTimeout(() => setIsDropdownVisible(false), 200)
+                }
+                className="outline-none bg-transparent w-full h-full text-sm text-[#ffff] placeholder:text-[#ffff]"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    navigate("/");
+                  }}
+                >
+                  <IoClose className="text-white text-xl" />
+                </button>
+              ) : (
+                <button type="submit">
+                  <IoSearchOutline className="text-white text-2xl" />
+                </button>
+              )}
+            </form>
+
+            {isDropdownVisible && searchHistory?.length > 0 && (
+              <div className="absolute top-[45px] w-[357px] left-0 right-0 bg-white border rounded-xl shadow-lg mt-1 z-10">
+                <ul className="max-h-[200px] overflow-y-auto py-2 px-5">
+                  {searchHistory
+                    .filter((item) =>
+                      item.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((historyItem, index) => (
+                      <li
+                        key={index}
+                        className={`py-2 cursor-pointer flex items-center justify-between text-[16px] ${
+                          index !== 0 && "border-b-2"
+                        }`}
+                        onClick={() => handleSearchHistoryClick(historyItem)}
+                      >
+                        <span>{historyItem}</span>
+                        <MdOutlineKeyboardArrowRight className="blue-text text-xl" />
+                      </li>
+                    ))}
+                </ul>
+              </div>
             )}
-          </form>
-          {isDropdownVisible && searchHistory?.length > 0 && (
-            <div className="absolute top-[45px] w-[357px] left-0 right-0 bg-white border rounded-xl shadow-lg mt-1 z-10">
-              <ul className="max-h-[200px] overflow-y-auto py-2 px-5">
-                {searchHistory
-                  .filter((item) =>
-                    item.toLowerCase().includes(searchQuery.toLowerCase())
-                  )
-                  .map((historyItem, index) => (
-                    <li
-                      key={index}
-                      className={`py-2 cursor-pointer flex items-center justify-between text-[16px] ${
-                        index !== 0 && "border-b-2"
-                      }`}
-                      onClick={() => handleSearchHistoryClick(historyItem)}
-                    >
-                      <span>{historyItem}</span>
-                      <MdOutlineKeyboardArrowRight className="blue-text text-xl" />
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
         {user?.token && loc?.pathname != "/login" ? (
           <div className="hidden lg:flex items-center justify-end gap-3 relative">
             {user?.role != "influencer" && (
