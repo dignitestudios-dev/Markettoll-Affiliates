@@ -141,19 +141,6 @@ const Navbar = () => {
       `/search-product?name=${historyItem}&category=${queryParams?.category}&subCategory=${queryParams?.subCategory}&page=1`
     );
   };
-  const hiddenSearchRoutes = [
-    "/login",
-    "/sign-up",
-    "/forgot-password",
-    "/verify-otp",
-    "/update-password",
-    "/password-updated",
-    "/add-phone-number",
-    "/privacy-policy",
-    "/terms-and-conditions",
-    "/arbitration-agreement",
-  ];
-  const shouldHideSearch = hiddenSearchRoutes.includes(location.pathname);
 
   useEffect(() => {
     fetchNotifications();
@@ -171,6 +158,20 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const hiddenSearchRoutes = [
+    "/login",
+    "/sign-up",
+    "/forgot-password",
+    "/verify-otp",
+    "/update-password",
+    "/password-updated",
+    "/add-phone-number",
+    "/privacy-policy",
+    "/terms-and-conditions",
+    "/arbitration-agreement",
+  ];
+  const shouldHideSearch = hiddenSearchRoutes.includes(location.pathname);
   console.log(user?.verified, "verifiedTest");
   return (
     <nav className="padding-x w-full py-5 flex items-center justify-between blue-bg sticky top-0 z-50 ">
@@ -211,7 +212,6 @@ const Navbar = () => {
                 </button>
               )}
             </form>
-
             {isDropdownVisible && searchHistory?.length > 0 && (
               <div className="absolute top-[45px] w-[357px] left-0 right-0 bg-white border rounded-xl shadow-lg mt-1 z-10">
                 <ul className="max-h-[200px] overflow-y-auto py-2 px-5">
@@ -236,6 +236,7 @@ const Navbar = () => {
             )}
           </div>
         )}
+
         {user?.token && loc?.pathname != "/login" ? (
           <div className="hidden lg:flex items-center justify-end gap-3 relative">
             {user?.role != "influencer" && (
