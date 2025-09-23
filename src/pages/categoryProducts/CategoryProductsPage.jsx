@@ -1,4 +1,3 @@
-import React from "react";
 import CategoryProductsList from "../../components/CategoryProducts/CategoryProductsList";
 
 const CategoryProductsPage = () => {

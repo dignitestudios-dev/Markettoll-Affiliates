@@ -3,8 +3,13 @@ import { Link, useParams } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
-const CategoriesSidebar = ({ products }) => {
+const CategoriesSidebar = ({
+  products,
+  handleCategoryTab,
+  selectedCategory,
+}) => {
   const { category } = useParams();
+  console.log(category, products, "productss");
   return (
     <div className="">
       <Link to="/" className="flex items-center gap-1">
@@ -16,12 +21,18 @@ const CategoriesSidebar = ({ products }) => {
         {products?.map((l, index) => {
           return (
             <Link
-              to={`/home/categories/${l?.name}`}
+              key={index}
+              // to={`/home/categories/${l?.name}`}
+              onClick={() => handleCategoryTab(l?.name)}
               className={`w-full flex items-center justify-between ${
                 index !== 12 && "border-b border-[#9D9D9DDD]"
-              } py-3.5 ${l.name == category && "blue-text"}`}
+              } py-3.5 ${
+                l.name == selectedCategory
+                  ? "blue-text font-bold "
+                  : "font-medium"
+              }`}
             >
-              <span className="text-base font-medium">{l?.name}</span>
+              <span className="text-base ">{l?.name}</span>
               <MdOutlineKeyboardArrowRight className="light-blue-text text-xl" />
             </Link>
           );

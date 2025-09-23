@@ -367,7 +367,7 @@ const ProductList = () => {
                             {productList?.category}
                           </h3>
                           <Link
-                            to={`/categories/${productList?.category}`}
+                            to={`/home/categories/${productList?.category}`}
                             className="text-[#6C6C6C] text-[18px] font-medium"
                           >
                             See all
@@ -385,10 +385,10 @@ const ProductList = () => {
                       </div>
                     );
                   })}
-                  <Pagination
+                  {/* <Pagination
                     setPaginationNum={setPaginationNum}
                     paginationNum={paginationNum}
-                  />
+                  /> */}
                 </>
               ) : (
                 <p className="mt-5 text-sm blue-text">No products found.</p>

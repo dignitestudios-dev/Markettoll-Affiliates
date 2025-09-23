@@ -3,9 +3,10 @@ import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import Loader from "../Global/Loader";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import ProductCard from "../Global/ProductCard";
+import Pagination from "../Global/Pagination";
 
 const CategoryProducts = () => {
   const [products, setProducts] = useState([]);
@@ -16,9 +17,10 @@ const CategoryProducts = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const name = searchParams.get("name") || "";
+  const [paginationNum, setPaginationNum] = useState(1);
   const subCategory = searchParams.get("subCategory") || "";
   const page = searchParams.get("page") || 1;
-
+  const navigate = useNavigate("");
   const fetchProducts = async () => {
     const options = user?.token
       ? {
@@ -33,7 +35,7 @@ const CategoryProducts = () => {
 
       const apiUrl = `${BASE_URL}/users/home-screen-searched-products?name=${name}&category=${encodeURIComponent(
         category
-      )}&subCategory=${subCategory}&page=${page}`;
+      )}&subCategory=${subCategory}&page=${paginationNum}`;
 
       const res = await axios.get(apiUrl, options);
 
@@ -49,7 +51,7 @@ const CategoryProducts = () => {
   // Fetch products when component mounts or when the user changes
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [paginationNum]);
 
   // Filter products based on category when products or category change
   useEffect(() => {
@@ -66,7 +68,10 @@ const CategoryProducts = () => {
   return (
     <div className="w-full padding-x py-6">
       <div className="w-full">
-        <Link to={`/`} className="flex items-center justify-start gap-1">
+        <Link
+          onClick={() => navigate(-1)}
+          className="flex items-center justify-start gap-1"
+        >
           <FiArrowLeft className="light-blue-text text-lg" />{" "}
           <span className="font-medium text-gray-500">Back</span>{" "}
         </Link>
@@ -85,6 +90,11 @@ const CategoryProducts = () => {
             <p className="">No Products Found</p>
           </div>
         )}
+
+        <Pagination
+          setPaginationNum={setPaginationNum}
+          paginationNum={paginationNum}
+        />
       </div>
     </div>
   );
