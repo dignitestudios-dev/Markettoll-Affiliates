@@ -34,6 +34,7 @@ const ProductList = () => {
   });
   const [applyFilter, setApplyFilter] = useState(false);
   const [productCategory, setProductCategory] = useState("All");
+
   const fetchProducts = async () => {
     const options = user?.token
       ? {
@@ -220,19 +221,19 @@ const ProductList = () => {
             >
               All
             </button>
-            {products?.map((p, index) => {
+            {categories?.map((category, index) => {
               return (
                 <button
                   key={index}
                   type="button"
-                  onClick={() => filterProducts(p?.category)}
+                  onClick={() => filterProducts(category?.name)}
                   className={`${
-                    productCategory === p?.category
+                    productCategory === category?.name
                       ? "blue-bg text-white"
                       : "bg-[#F7F7F7] text-black"
                   } text-[13px] font-medium rounded-lg px-3 py-2`}
                 >
-                  {p?.category}
+                  {category?.name}
                 </button>
               );
             })}

@@ -211,7 +211,7 @@ const ServiceDetailsPage = () => {
               <img
                 src={displayImage?.url}
                 alt="product image"
-                className="w-full h-auto lg:h-[376px] object-cover rounded-xl"
+                className="w-full h-auto lg:h-[376px] object-contain rounded-xl bg-gray-100"
               />
               <div className="w-full max-h-[109px] overflow-x-scroll flex items-start gap-5 mt-6 thumbnail-scroll">
                 {service?.images?.map((image, index) => (
@@ -302,7 +302,7 @@ const ServiceDetailsPage = () => {
                       <img
                         src={
                           service?.sellerDetails?.profileImage == ""
-                            ? "/seller-profile-img.png"
+                            ? "/placeholder-profile-icon.png"
                             : service?.sellerDetails?.profileImage
                         }
                         alt="seller profile image"

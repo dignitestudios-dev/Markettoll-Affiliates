@@ -87,24 +87,11 @@ const UpdatePasswordForm = () => {
           />
         </Link>
         <h2 className={`blue-text text-[36px] font-bold`}>Update Password</h2>
-        <p className="text-base font-medium lg:w-[80%] lg:leading-[19.41px]">
-          Please enter the code that we sent to your email johnsmith@gmail.com
+      <p className="text-base font-medium lg:w-[80%] lg:leading-[19.41px] mb-10">
+          Please enter the code that we sent to your email{" "}
+          {location?.state?.email || ""}
           to reset your password.
         </p>
-
-        <div className="flex items-center gap-3 my-5">
-          <img
-            src="/profile-pic.png"
-            alt="profile-pic"
-            className="block w-[84px] h-[84px]"
-          />
-          <div className="flex flex-col">
-            <h3 className="text-[18px] font-bold">John Smith</h3>
-            <h3 className="text-[16px] font-normal text-[#606060]">
-              johnsmith@gmail.com
-            </h3>
-          </div>
-        </div>
 
         <div className="w-full flex flex-col items-start gap-1">
           <label htmlFor="phone" className="text-[14px] font-medium">

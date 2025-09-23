@@ -76,8 +76,9 @@ const RoleProtectedRoute = ({ children }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // agar login hi nahi hai
-  if (!user) {
+  console.log("currentPath: ", currentPath)
+
+  if (!user && !currentPath.includes("services")) {
     return <Navigate to="/" replace />;
   }
 
@@ -87,7 +88,8 @@ const RoleProtectedRoute = ({ children }) => {
     pathMatches(pattern, currentPath)
   );
 
-  if (!isAllowed) {
+
+  if (!isAllowed && !currentPath.includes("services")) {
     return user?.role === "influencer" ? (
       <Navigate to="/affiliate" replace />
     ) : (
