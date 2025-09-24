@@ -49,7 +49,7 @@ const CategoriesPage = () => {
   const fetchCategoryProduct = useCallback(async () => {
     await fetchData(async () => {
       const { data } = await axios.get(
-        `${BASE_URL}/users/home-screen-searched-products?name=&category=${selectedCategory}&subCategory=&page=1`,
+        `${BASE_URL}/users/home-screen-searched-products?name=&category=${selectedCategory}&subCategory=&page=1&limit=12`,
         {
           headers: { Authorization: `Bearer ${user?.token}` },
         }
@@ -57,7 +57,7 @@ const CategoriesPage = () => {
       // const match = data?.data?.find((p) => p.category == selectedCategory);
       // console.log(match, "math Product");
       console.log(data, "dataItems,");
-      setCategoryProducts(data?.data || null);
+      setCategoryProducts(data?.data?.products || null);
     });
   }, [user?.token, selectedCategory]);
 

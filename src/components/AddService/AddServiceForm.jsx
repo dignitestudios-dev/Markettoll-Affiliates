@@ -34,13 +34,22 @@ const AddServiceForm = () => {
   const [coverImageIndex, setCoverImageIndex] = useState(
     location?.state?.serviceData?.coverImageIndex || ""
   );
+  const [zipCode, setZipCode] = useState(
+    location?.state?.serviceData?.zipCode || ""
+  );
+  const [telephone, setTelephone] = useState(
+    location?.state?.serviceData?.telephone || ""
+  );
+  const [website, setWebsite] = useState(
+    location?.state?.serviceData?.website || ""
+  );
+  const [email, setEmail] = useState(location?.state?.serviceData?.email || "");
   const { setServiceData } = useContext(ProductDataReview);
-
 
   const [fullStateName, setFullStateName] = useState(
     location?.state?.serviceData?.selectedState || ""
   );
-  
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (productImages.length + files.length <= 5) {
@@ -75,6 +84,9 @@ const AddServiceForm = () => {
     if (!serviceName) {
       toast.error("Please enter service name");
       return;
+    } else if (serviceName.length < 4) {
+      toast.error("Service name must be at least 4 characters long.");
+      return;
     }
     if (!description) {
       toast.error("Please add description");
@@ -82,7 +94,11 @@ const AddServiceForm = () => {
     } else if (description.length < 100) {
       toast.error("Description can not be less than 100 characters");
       return;
+    } else if (description.length > 1500) {
+      toast.error("Description must be at most 1500 characters long.");
+      return;
     }
+
     if (!price) {
       toast.error("Please add price");
       return;
@@ -97,6 +113,23 @@ const AddServiceForm = () => {
       toast.error("Please select a city");
       return;
     }
+    if (!zipCode) {
+      toast.error("Please enter zip code");
+      return;
+    }
+    if (!website || website === "https://") {
+      toast.error("Please enter website");
+      return;
+    }
+    if (!telephone) {
+      toast.error("Please enter telephone");
+      return;
+    }
+    if (!email) {
+      toast.error("Please enter email");
+      return;
+    }
+
     setServiceData({
       productImages,
       serviceName,
@@ -105,6 +138,10 @@ const AddServiceForm = () => {
       selectedState: fullStateName,
       selectedCity,
       coverImageIndex,
+      zipCode,
+      website,
+      telephone,
+      email,
     });
     navigate("/service-review", {
       state: {
@@ -116,6 +153,10 @@ const AddServiceForm = () => {
           selectedState: fullStateName,
           selectedCity,
           coverImageIndex,
+          zipCode,
+          website,
+          telephone,
+          email,
         },
       },
     });
@@ -191,10 +232,7 @@ const AddServiceForm = () => {
                   <div className="flex items-center gap-1 mt-1">
                     <input
                       type="checkbox"
-                      checked={
-                        location?.state?.serviceData?.coverImageIndex ||
-                        coverImageIndex === index
-                      }
+                      checked={coverImageIndex === index}
                       onChange={() => handleCoverPhotoChange(index)}
                       className="w-[14px] h-[14px]"
                     />
@@ -228,7 +266,7 @@ const AddServiceForm = () => {
 
             <div className="w-full">
               <label htmlFor="description" className="text-sm font-semibold">
-                Description
+                Description <span className="text-gray-400">({description.length})</span>
               </label>
               <textarea
                 name="description"
@@ -289,6 +327,103 @@ const AddServiceForm = () => {
                 placeHolder="Select City"
                 style={{ border: "none" }}
               />
+              </div>
+            </div>
+
+            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Zip Code */}
+              <div className="w-full">
+                <label htmlFor="zipCode" className="text-sm font-semibold">
+                  Zip Code
+                </label>
+                <input
+                  type="text"
+                  id="zipCode"
+                  placeholder="12345"
+                  value={zipCode}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, ""); // only numbers
+                    if (value.length <= 5) setZipCode(value);
+                  }}
+                  className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                />
+              </div>
+
+              {/* Website */}
+              <div className="w-full">
+                <label htmlFor="website" className="text-sm font-semibold">
+                  Website
+                </label>
+                <div className="flex w-full">
+                  <span className="py-4 px-5 border border-r-0 border-[#d9d9d9] bg-gray-100 text-sm rounded-l-[20px] text-[#5C5C5C]">
+                    https://
+                  </span>
+                  <input
+                    type="text"
+                    id="website"
+                    placeholder="example.com"
+                    value={website.replace(/^https:\/\//, "")} // strip https:// before showing
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/^https?:\/\//, ""); // strip if user tries typing it
+                      setWebsite("https://" + value);
+                    }}
+                    className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-r-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Telephone */}
+              <div className="w-full">
+                <label htmlFor="telephone" className="text-sm font-semibold">
+                  Telephone
+                </label>
+                <input
+                  type="tel"
+                  id="telephone"
+                  placeholder="(123) 456 7890"
+                  value={telephone}
+                  onChange={(e) => {
+                    // remove non-digits
+                    const digits = e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 10);
+
+                    let formatted = digits;
+                    if (digits.length > 6) {
+                      formatted = `(${digits.slice(0, 3)}) ${digits.slice(
+                        3,
+                        6
+                      )} ${digits.slice(6, 10)}`;
+                    } else if (digits.length > 3) {
+                      formatted = `(${digits.slice(0, 3)}) ${digits.slice(
+                        3,
+                        6
+                      )}`;
+                    } else if (digits.length > 0) {
+                      formatted = `(${digits}`;
+                    }
+
+                    setTelephone(formatted);
+                  }}
+                  className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="w-full">
+                <label htmlFor="email" className="text-sm font-semibold">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
+                />
               </div>
             </div>
 

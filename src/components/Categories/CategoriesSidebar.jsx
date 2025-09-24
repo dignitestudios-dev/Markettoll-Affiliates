@@ -23,7 +23,10 @@ const CategoriesSidebar = ({
             <Link
               key={index}
               // to={`/home/categories/${l?.name}`}
-              onClick={() => handleCategoryTab(l?.name)}
+              onClick={() => {
+                const formattedCategory = l?.name?.replace("&", "%26")
+                handleCategoryTab(formattedCategory);
+              }}
               className={`w-full flex items-center justify-between ${
                 index !== 12 && "border-b border-[#9D9D9DDD]"
               } py-3.5 ${

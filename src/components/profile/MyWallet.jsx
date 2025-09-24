@@ -13,7 +13,10 @@ import { useNavigate } from "react-router-dom";
 const MyWallet = () => {
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const [connectCard, setConnectCard] = useState(
-    userProfile?.stripeCustomer?.id ? false : true
+    userProfile?.stripeCustomer?.id &&
+      userProfile.stripeCustomer.paymentMethod.id
+      ? false
+      : true
   );
   const [cardAdded, setCardAdded] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -235,38 +238,45 @@ const MyWallet = () => {
             {userProfile?.role != "influencer" && (
               <>
                 <h3 className="blue-text text-base font-bold mb-4">
-                  {userProfile && userProfile?.stripeCustomer?.id
+                  {userProfile &&
+                  userProfile?.stripeCustomer?.id &&
+                  userProfile.stripeCustomer.paymentMethod.id
                     ? "Connected Card"
                     : "Connect Card"}
                 </h3>
 
                 <div className="w-full flex flex-col items-start gap-3">
                   <div className="w-full">
-                    {userProfile?.stripeCustomer?.id && (
-                      <button
-                        type="button"
-                        onClick={handleConnectCard}
-                        className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
-                      >
-                        <div className="flex items-center gap-2">
-                          <img
-                            src="/mastercard-icon.png"
-                            alt="master card icon"
-                            className="w-[24.79px] h-[15.33px]"
-                          />
-                          <span className="text-sm text-[#5C5C5C]">
-                            **** **** ****{" "}
-                            {userProfile?.stripeCustomer?.paymentMethod?.last4}
-                          </span>
-                        </div>
-                        {userProfile?.stripeCustomer?.paymentMethodId && (
-                          <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
-                        )}
-                      </button>
-                    )}
+                    {userProfile?.stripeCustomer?.id &&
+                      userProfile.stripeCustomer.paymentMethod.id && (
+                        <button
+                          type="button"
+                          onClick={handleConnectCard}
+                          className="flex items-center justify-between w-full custom-shadow py-4 px-4 rounded-xl"
+                        >
+                          <div className="flex items-center gap-2">
+                            <img
+                              src="/mastercard-icon.png"
+                              alt="master card icon"
+                              className="w-[24.79px] h-[15.33px]"
+                            />
+                            <span className="text-sm text-[#5C5C5C]">
+                              **** **** ****{" "}
+                              {
+                                userProfile?.stripeCustomer?.paymentMethod
+                                  ?.last4
+                              }
+                            </span>
+                          </div>
+                          {userProfile?.stripeCustomer?.paymentMethodId && (
+                            <MdOutlineKeyboardArrowRight className="text-xl light-blue-text" />
+                          )}
+                        </button>
+                      )}
                   </div>
 
-                  {userProfile?.stripeCustomer?.id ? (
+                  {userProfile?.stripeCustomer?.id &&
+                  userProfile.stripeCustomer.paymentMethod.id ? (
                     <></>
                   ) : (
                     <>

@@ -1,8 +1,12 @@
 import React from "react";
 
-const Loader = () => {
+const Loader = ({ w = "full" }) => {
   return (
-    <div className="w-full h-screen z-50 flex items-center justify-center">
+    <div
+      className={`w-full ${
+        w === "full" ? "h-screen" : "h-fit"
+      } z-50 flex items-center justify-center`}
+    >
       <div role="status">
         <svg
           aria-hidden="true"

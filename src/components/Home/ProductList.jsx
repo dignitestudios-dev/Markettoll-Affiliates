@@ -195,7 +195,7 @@ const ProductList = () => {
     if (searchQuery == "") {
       fetchProducts();
     }
-  }, [searchQuery, paginationNum]);
+  }, [paginationNum]);
 
   const handleFilterModal = () => {
     setFilterModal(!FilterModal);

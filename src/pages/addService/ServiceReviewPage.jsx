@@ -38,6 +38,8 @@ const ServiceReviewPage = () => {
     }
   }, [serviceData]);
 
+  console.log("serviceData: ", serviceData);
+
   const uploadService = async () => {
     setLoading(true);
     try {
@@ -49,10 +51,14 @@ const ServiceReviewPage = () => {
 
       formData.append("displayImageIndex", serviceData?.coverImageIndex);
       formData.append("name", serviceData?.serviceName);
-      formData.append("description", serviceData?.description);
+      formData.append("description", serviceData?.description?.trim());
       formData.append("country", "United States");
       formData.append("state", serviceData?.selectedState);
       formData.append("city", serviceData?.selectedCity);
+      formData.append("zipCode", serviceData?.zipCode);
+      formData.append("website", serviceData?.website);
+      formData.append("telephone", serviceData?.telephone);
+      formData.append("email", serviceData?.email);
 
       formData.append("price", serviceData?.price);
 
@@ -119,7 +125,7 @@ const ServiceReviewPage = () => {
                 <img
                   src={URL.createObjectURL(displayImage)}
                   alt="Service Image"
-                  className="w-full h-auto lg:h-[336px] rounded-[20px]"
+                  className="w-full h-auto lg:h-[336px] rounded-[20px] object-contain bg-gray-100"
                 />
               )}
               {/* Display the thumbnail images */}
@@ -159,6 +165,44 @@ const ServiceReviewPage = () => {
                   </p>
                   <p className="text-[13px] font-medium">
                     {serviceData?.selectedState}
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                <div className="flex items-center gap-4 lg:gap-10 gap-y-3">
+                  <p className="text-[13px] text-[#7C7C7C] font-medium">
+                    Zip Code
+                  </p>
+                  <p className="text-[13px] font-medium">
+                    {serviceData?.zipCode}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 lg:gap-10 gap-y-3">
+                  <p className="text-[13px] text-[#7C7C7C] font-medium">
+                    Website
+                  </p>
+                  <p className="text-[13px] font-medium">
+                    {serviceData?.website}
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                <div className="flex items-center gap-4 lg:gap-10 gap-y-3">
+                  <p className="text-[13px] text-[#7C7C7C] font-medium">
+                    Telephone
+                  </p>
+                  <p className="text-[13px] font-medium">
+                    {serviceData?.telephone}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 lg:gap-10 gap-y-3">
+                  <p className="text-[13px] text-[#7C7C7C] font-medium">
+                    Email
+                  </p>
+                  <p className="text-[13px] font-medium">
+                    {serviceData?.email}
                   </p>
                 </div>
               </div>
