@@ -157,9 +157,9 @@ const ProductList = () => {
       setPage(1);
       setServices([]);
       setHasMore(true);
-      fetchServices(1); // load first page
     } else {
       setShowServices(false);
+      setPage(1);
     }
   };
 
@@ -192,7 +192,7 @@ const ProductList = () => {
 
   useEffect(() => {
     // when page increments and services tab is active, fetch next page
-    if (showServices && page > 1) {
+    if (showServices) {
       fetchServices(page);
     }
   }, [page, showServices]);
