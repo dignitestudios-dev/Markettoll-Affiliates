@@ -13,13 +13,17 @@ import Pagination from "../Global/Pagination";
 
 const ProductList = () => {
   const [showServices, setShowServices] = useState(false);
+  // Services infinite scroll states
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [services, setServices] = useState([]);
+
   const [FilterModal, setFilterModal] = useState(false);
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [services, setServices] = useState([]);
   const { user, setUserProfile } = useContext(AuthContext);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const { searchResults, searchQuery } = useContext(SearchedProductContext);
   const [categories, setCategories] = useState([]);
@@ -79,25 +83,32 @@ const ProductList = () => {
     }
   };
 
-  const fetchServices = async () => {
+  // Fetch services (paginated)
+  const fetchServices = async (pageNum) => {
+    if (!hasMore || loadingServices) return; // <-- use loadingServices here
+
     const options = user?.token
-      ? {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
+      ? { headers: { Authorization: `Bearer ${user?.token}` } }
       : {};
-    setLoading(true);
+
     try {
+      setLoadingServices(true);
       const res = await axios.get(
-        `${BASE_URL}/users/home-screen-services?page=${page}`,
+        `${BASE_URL}/users/home-screen-services?page=${pageNum}`,
         options
       );
-      setServices(res?.data?.data);
+
+      const newServices = res?.data?.data || [];
+      setServices((prev) => [...prev, ...newServices]);
+
+      // If API returned empty array, stop further fetching
+      if (!newServices || newServices.length === 0) {
+        setHasMore(false);
+      }
     } catch (error) {
       console.log("services error >>>>", error);
     } finally {
-      setLoading(false);
+      setLoadingServices(false);
     }
   };
 
@@ -136,18 +147,55 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts();
-    fetchServices();
     fetchCategories();
     fetchUserProfile();
   }, [applyFilter]);
 
   const handleShowServices = (category) => {
-    if (category == "services") {
+    if (category === "services") {
       setShowServices(true);
+      setPage(1);
+      setServices([]);
+      setHasMore(true);
+      fetchServices(1); // load first page
     } else {
       setShowServices(false);
     }
   };
+
+  useEffect(() => {
+    if (!showServices) return;
+
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+
+      requestAnimationFrame(() => {
+        // preload earlier: buffer 1000px (adjust as needed)
+        if (
+          window.innerHeight + document.documentElement.scrollTop + 600 >=
+            document.documentElement.scrollHeight &&
+          !loadingServices && // <-- correct variable
+          hasMore
+        ) {
+          setPage((prev) => prev + 1);
+        }
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [showServices, loadingServices, hasMore]);
+
+  useEffect(() => {
+    // when page increments and services tab is active, fetch next page
+    if (showServices && page > 1) {
+      fetchServices(page);
+    }
+  }, [page, showServices]);
 
   const filterProducts = (categoryName) => {
     if (categoryName === "All") {
@@ -341,16 +389,34 @@ const ProductList = () => {
           </div>
 
           <div className="w-full mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services && services?.length > 0 ? (
-              <>
-                {services?.map((service, index) => {
-                  return <ServiceCard service={service} key={index} />;
-                })}
-              </>
+            {services && services.length > 0 ? (
+              services.map((service, index) => (
+                <ServiceCard service={service} key={index} />
+              ))
+            ) : loadingServices ? (
+              ""
             ) : (
               <p>No services found</p>
             )}
           </div>
+
+          {loadingServices && services.length ? (
+            <div className="flex justify-center my-12">
+              <Loader w="fit" />
+            </div>
+          ) : loadingServices ? (
+            <div className="flex justify-center my-20">
+              <Loader w="fit" />
+            </div>
+          ) : (
+            ""
+          )}
+
+          {!hasMore && services.length > 0 && (
+            <div className="flex justify-center my-6 text-gray-500">
+              <p>No more services to load</p>
+            </div>
+          )}
         </>
       ) : (
         <>
