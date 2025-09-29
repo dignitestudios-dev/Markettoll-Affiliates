@@ -98,7 +98,7 @@ const ProductList = () => {
         options
       );
 
-      const newServices = res?.data?.data || [];
+      const newServices = res?.data?.data?.services || [];
       setServices((prev) => [...prev, ...newServices]);
 
       // If API returned empty array, stop further fetching
