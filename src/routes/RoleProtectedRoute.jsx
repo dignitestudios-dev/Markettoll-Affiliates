@@ -25,7 +25,9 @@ const allowedPathsForRoles = {
     "/product-review",
     "/would-you-boost-your-product",
     "/add-service",
+    "/add-job",
     "/service-review",
+    "/job-review",
     "/boost-service",
     "/choose-package-to-boost-service",
     "/boost-post",
@@ -76,7 +78,7 @@ const RoleProtectedRoute = ({ children }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  console.log("currentPath: ", currentPath)
+  console.log("currentPath: ", currentPath);
 
   if (!user && !currentPath.includes("services")) {
     return <Navigate to="/" replace />;
@@ -87,7 +89,6 @@ const RoleProtectedRoute = ({ children }) => {
   const isAllowed = allowedPaths?.some((pattern) =>
     pathMatches(pattern, currentPath)
   );
-
 
   if (!isAllowed && !currentPath.includes("services")) {
     return user?.role === "influencer" ? (

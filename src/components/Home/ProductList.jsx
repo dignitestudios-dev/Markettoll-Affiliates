@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import ProductCard from "../Global/ProductCard";
 import { Link, useNavigate } from "react-router-dom";
 import ServiceCard from "../Global/ServiceCard";
+import JobCard from "../Global/JobCard";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
@@ -9,15 +10,22 @@ import Loader from "../Global/Loader";
 import { SearchedProductContext } from "../../context/searchedProductContext";
 import { CiFilter } from "react-icons/ci";
 import FilterProductModal from "./FiltetProducts";
-import Pagination from "../Global/Pagination";
 
 const ProductList = () => {
   const [showServices, setShowServices] = useState(false);
+  const [showJobs, setShowJobs] = useState(false);
+
   // Services infinite scroll states
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
   const [services, setServices] = useState([]);
+
+  // Jobs infinite scroll states
+  const [jobPage, setJobPage] = useState(1);
+  const [jobHasMore, setJobHasMore] = useState(true);
+  const [loadingJobs, setLoadingJobs] = useState(false);
+  const [jobs, setJobs] = useState([]);
 
   const [FilterModal, setFilterModal] = useState(false);
   const navigate = useNavigate();
@@ -86,7 +94,7 @@ const ProductList = () => {
 
   // Fetch services (paginated)
   const fetchServices = async (pageNum) => {
-    if (!hasMore || loadingServices) return; // <-- use loadingServices here
+    if (!hasMore || loadingServices) return;
 
     const options = user?.token
       ? { headers: { Authorization: `Bearer ${user?.token}` } }
@@ -102,7 +110,6 @@ const ProductList = () => {
       const newServices = res?.data?.data?.services || [];
       setServices((prev) => [...prev, ...newServices]);
 
-      // If API returned empty array, stop further fetching
       if (!newServices || newServices.length === 0) {
         setHasMore(false);
       }
@@ -110,6 +117,56 @@ const ProductList = () => {
       console.log("services error >>>>", error);
     } finally {
       setLoadingServices(false);
+    }
+  };
+
+  // Fetch jobs (paginated) - Dummy API for now
+  const fetchJobs = async (pageNum) => {
+    if (!jobHasMore || loadingJobs) return;
+
+    try {
+      setLoadingJobs(true);
+
+      const res = await axios.get(
+        `${BASE_URL}/users/get-jobs?page=${pageNum}`,
+        {
+          headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OGRlNmVjZmU1MTc1N2RhMzYwMTUyZjUiLCJpYXQiOjE3NTk0MDk3MDd9.Fph6T8sZOTQTszjYbJxyQncMGbDRIzKgKY2IiyvaOmU` },
+        }
+      );
+
+      console.log("res of jobs: ",res)
+
+      const newJobs = res?.data?.jobs || [];
+      setJobs((prev) => [...prev, ...newJobs]);
+
+      if (!newJobs || newJobs.length === 0) {
+        setJobHasMore(false);
+      }
+    } catch (error) {
+      console.log("jobs error >>>>", error);
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
+
+  // Handle job like/unlike - Dummy API for now
+  const handleJobLike = async (jobId) => {
+    try {
+      // Dummy API call for liking job - replace with actual endpoint
+      const res = await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ data: { success: true } });
+        }, 300);
+      });
+
+      // Update job liked status in state
+      setJobs((prev) =>
+        prev.map((job) =>
+          job.id === jobId ? { ...job, isLiked: !job.isLiked } : job
+        )
+      );
+    } catch (error) {
+      console.log("job like error >>>>", error);
     }
   };
 
@@ -122,7 +179,6 @@ const ProductList = () => {
         },
       });
       setCategories(res?.data?.data);
-      // console.log("setCategories >>>", res?.data?.data);
     } catch (error) {
       console.log("home screen products err >>>>", error);
     } finally {
@@ -132,7 +188,6 @@ const ProductList = () => {
 
   const fetchUserProfile = async () => {
     if (user?.token) {
-      // Only fetch if user is logged in and profile is not fetched
       try {
         const res = await axios.get(`${BASE_URL}/users/profile`, {
           headers: {
@@ -154,17 +209,26 @@ const ProductList = () => {
   const handleShowServices = (category) => {
     if (category === "services") {
       setShowServices(true);
+      setShowJobs(false);
       setPage(1);
       setServices([]);
       setHasMore(true);
+    } else if (category === "jobs") {
+      setShowJobs(true);
+      setShowServices(false);
+      setJobPage(1);
+      setJobs([]);
+      setJobHasMore(true);
     } else {
       setShowServices(false);
+      setShowJobs(false);
       setPage(1);
+      setJobPage(1);
     }
   };
 
   useEffect(() => {
-    if (!showServices) return;
+    if (!showServices && !showJobs) return;
 
     let ticking = false;
 
@@ -173,14 +237,17 @@ const ProductList = () => {
       ticking = true;
 
       requestAnimationFrame(() => {
-        // preload earlier: buffer 1000px (adjust as needed)
         if (
           window.innerHeight + document.documentElement.scrollTop + 600 >=
             document.documentElement.scrollHeight &&
-          !loadingServices && // <-- correct variable
-          hasMore
+          ((showServices && !loadingServices && hasMore) ||
+            (showJobs && !loadingJobs && jobHasMore))
         ) {
-          setPage((prev) => prev + 1);
+          if (showServices) {
+            setPage((prev) => prev + 1);
+          } else if (showJobs) {
+            setJobPage((prev) => prev + 1);
+          }
         }
         ticking = false;
       });
@@ -188,14 +255,26 @@ const ProductList = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [showServices, loadingServices, hasMore]);
+  }, [
+    showServices,
+    showJobs,
+    loadingServices,
+    loadingJobs,
+    hasMore,
+    jobHasMore,
+  ]);
 
   useEffect(() => {
-    // when page increments and services tab is active, fetch next page
     if (showServices) {
       fetchServices(page);
     }
   }, [page, showServices]);
+
+  useEffect(() => {
+    if (showJobs) {
+      fetchJobs(jobPage);
+    }
+  }, [jobPage, showJobs]);
 
   const filterProducts = (categoryName) => {
     if (categoryName === "All") {
@@ -245,7 +324,7 @@ const ProductList = () => {
   return (
     <div className="w-full min-h-[70vh]">
       <div className="w-full flex items-center justify-between mt-6">
-        {!showServices && (
+        {!showServices && !showJobs && (
           <div className="flex items-center gap-2 category-buttons flex-wrap">
             <button
               type="button"
@@ -274,61 +353,6 @@ const ProductList = () => {
                 </button>
               );
             })}
-            {/* <button
-              type="button"
-              onClick={() => filterProducts("Electronics")}
-              className={`${
-                productCategory === "Electronics"
-                  ? "blue-bg text-white"
-                  : "bg-[#F7F7F7] text-black"
-              } text-[13px] font-medium rounded-lg px-3 py-2`}
-            >
-              Electronics
-            </button>
-            <button
-              type="button"
-              onClick={() => filterProducts("Home Appliances")}
-              className={`${
-                productCategory == "Home Appliances"
-                  ? "blue-bg text-white"
-                  : "bg-[#F7F7F7] text-black"
-              } text-[13px] font-medium rounded-lg px-3 py-2`}
-            >
-              Home Appliances
-            </button>
-            <button
-              type="button"
-              onClick={() => filterProducts("Home & Furniture")}
-              className={`${
-                productCategory == "Home & Furniture"
-                  ? "blue-bg text-white"
-                  : "bg-[#F7F7F7] text-black"
-              } text-[13px] font-medium rounded-lg px-3 py-2`}
-            >
-              Home Decor & Interiors
-            </button>
-            <button
-              type="button"
-              onClick={() => filterProducts("Phone & Tablet")}
-              className={`${
-                productCategory == "Phone & Tablet"
-                  ? "blue-bg text-white"
-                  : "bg-[#F7F7F7] text-black"
-              } text-[13px] font-medium rounded-lg px-3 py-2`}
-            >
-              Phone & Tablet
-            </button>
-            <button
-              type="button"
-              onClick={() => filterProducts("Fashion")}
-              className={`${
-                productCategory == "Fashion"
-                  ? "blue-bg text-white"
-                  : "bg-[#F7F7F7] text-black"
-              } text-[13px] font-medium rounded-lg px-3 py-2`}
-            >
-              Clothing
-            </button> */}
             <Link
               to={`/home/categories/`}
               className={`bg-[#F7F7F7] text-black text-[13px] font-medium rounded-lg px-3 py-2`}
@@ -337,14 +361,16 @@ const ProductList = () => {
             </Link>
           </div>
         )}
-        {showServices && <div></div>}
+        {(showServices || showJobs) && <div></div>}
         <div className="hidden lg:flex items-center justify-end">
           <button
             type="button"
             onClick={() => handleFilterModal()}
             className={`py-3 ${
-              !showServices ? "blue-bg text-white" : "bg-[#F7F7F7] text-black"
-            } text-base flex items-center  gap-1 font-bold px-5 mr-4 rounded-2xl`}
+              !showServices && !showJobs
+                ? "blue-bg text-white"
+                : "bg-[#F7F7F7] text-black"
+            } text-base flex items-center  gap-1 font-bold px-5 mr-4 rounded-2xl text-nowrap`}
           >
             Apply Filters <CiFilter size={25} />
           </button>
@@ -352,7 +378,9 @@ const ProductList = () => {
             type="button"
             onClick={() => handleShowServices("products")}
             className={`py-3 ${
-              !showServices ? "blue-bg text-white" : "bg-[#F7F7F7] text-black"
+              !showServices && !showJobs
+                ? "blue-bg text-white"
+                : "bg-[#F7F7F7] text-black"
             } text-base font-bold px-5 rounded-l-2xl`}
           >
             Products
@@ -362,9 +390,18 @@ const ProductList = () => {
             onClick={() => handleShowServices("services")}
             className={`py-3 ${
               showServices ? "blue-bg text-white" : "bg-[#F7F7F7] text-black"
-            } text-base font-bold px-5 rounded-r-2xl`}
+            } text-base font-bold px-5`}
           >
             Services
+          </button>
+          <button
+            type="button"
+            onClick={() => handleShowServices("jobs")}
+            className={`py-3 ${
+              showJobs ? "blue-bg text-white" : "bg-[#F7F7F7] text-black"
+            } text-base font-bold px-5 rounded-r-2xl`}
+          >
+            Jobs
           </button>
         </div>
       </div>
@@ -407,6 +444,44 @@ const ProductList = () => {
             </div>
           )}
         </>
+      ) : showJobs ? (
+        <>
+          <div className="w-full flex items-center justify-between mt-10">
+            <h3 className="text-2xl lg:text-[28px] font-bold blue-text">
+              Jobs
+            </h3>
+          </div>
+
+          <div className="w-full mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {jobs && jobs.length > 0 ? (
+              jobs.map((job, index) => (
+                <JobCard job={job} key={index} onLike={handleJobLike} />
+              ))
+            ) : loadingJobs ? (
+              ""
+            ) : (
+              <p>No jobs found</p>
+            )}
+          </div>
+
+          {loadingJobs && jobs.length ? (
+            <div className="flex justify-center my-12">
+              <Loader w="fit" />
+            </div>
+          ) : loadingJobs ? (
+            <div className="flex justify-center my-20">
+              <Loader w="fit" />
+            </div>
+          ) : (
+            ""
+          )}
+
+          {!jobHasMore && jobs.length > 0 && (
+            <div className="flex justify-center my-6 text-gray-500">
+              <p>No more jobs to load</p>
+            </div>
+          )}
+        </>
       ) : (
         <>
           {loading ? (
@@ -441,10 +516,6 @@ const ProductList = () => {
                       </div>
                     );
                   })}
-                  {/* <Pagination
-                    setPaginationNum={setPaginationNum}
-                    paginationNum={paginationNum}
-                  /> */}
                 </>
               ) : (
                 <p className="mt-5 text-sm blue-text">No product found.</p>
