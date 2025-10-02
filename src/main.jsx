@@ -11,7 +11,7 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  // <StrictMode>
     <BrowserRouter>
       <AuthContextProvider>
         <AddProductProvider>
@@ -23,5 +23,5 @@ createRoot(document.getElementById("root")).render(
         </AddProductProvider>
       </AuthContextProvider>
     </BrowserRouter>
-  </StrictMode>
+  // </StrictMode>
 );

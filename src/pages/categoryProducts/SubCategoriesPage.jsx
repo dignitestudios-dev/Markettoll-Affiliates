@@ -19,12 +19,7 @@ const SubCategoriesPage = () => {
       const res = await axios.get(
         `${BASE_URL}/users/home-screen-searched-products?name=o&category=${encodeURIComponent(
           category
-        )}&subCategory=${encodeURIComponent(subCategory)}&page=1`,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
+        )}&subCategory=${encodeURIComponent(subCategory)}&page=1`
       );
       // console.log("sub-category products >>>", res?.data);
       setProducts(res?.data?.data);

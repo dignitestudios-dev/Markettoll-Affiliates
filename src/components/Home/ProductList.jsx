@@ -25,6 +25,7 @@ const ProductList = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const { user, setUserProfile } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(false);
   const { searchResults, searchQuery } = useContext(SearchedProductContext);
   const [categories, setCategories] = useState([]);
   const [currentAddress, setCurrentAddress] = useState(true);
@@ -114,7 +115,7 @@ const ProductList = () => {
 
   const fetchCategories = async () => {
     try {
-      setLoading(true);
+      setLoadingCategories(true);
       const res = await axios.get(`${BASE_URL}/users/product-categories`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
@@ -125,7 +126,7 @@ const ProductList = () => {
     } catch (error) {
       console.log("home screen products err >>>>", error);
     } finally {
-      setLoading(false);
+      setLoadingCategories(false);
     }
   };
 
@@ -146,10 +147,9 @@ const ProductList = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
     fetchCategories();
     fetchUserProfile();
-  }, [applyFilter]);
+  }, []);
 
   const handleShowServices = (category) => {
     if (category === "services") {
@@ -212,18 +212,10 @@ const ProductList = () => {
 
   const handleSearchProduct = async () => {
     setLoading(true);
-    const options = user?.token
-      ? {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      : {};
 
     try {
       const res = await axios.get(
-        `${BASE_URL}/users/home-screen-searched-products?name=${searchQuery}&category=&subCategory=&page=${paginationNum}  `,
-        options
+        `${BASE_URL}/users/home-screen-searched-products?name=${searchQuery}&category=&subCategory=&page=${paginationNum}`
       );
       setLoading(false);
       setFilterModal(false);
@@ -238,18 +230,15 @@ const ProductList = () => {
   };
 
   useEffect(() => {
-    handleSearchProduct();
     console.log(searchQuery, "searchQuery");
-    if (searchQuery == "") {
-      fetchProducts();
-    }
-  }, [paginationNum]);
+    fetchProducts();
+  }, [paginationNum, applyFilter]);
 
   const handleFilterModal = () => {
     setFilterModal(!FilterModal);
   };
 
-  if (loading) {
+  if (loading || loadingCategories) {
     return <Loader />;
   }
 
@@ -458,7 +447,7 @@ const ProductList = () => {
                   /> */}
                 </>
               ) : (
-                <p className="mt-5 text-sm blue-text">No products found.</p>
+                <p className="mt-5 text-sm blue-text">No product found.</p>
               )}
             </>
           )}
