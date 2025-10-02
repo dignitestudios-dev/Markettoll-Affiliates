@@ -59,8 +59,11 @@ const MyWallet = () => {
 
       if (error) {
         console.error(error);
-        setIsProcessing(false);
-        toast.error("Error processing payment method: " + error.message);
+        if (error?.decline_code === "live_mode_test_card") {
+          toast.error("Please provide a valid card details");
+        } else {
+          toast.error("Error processing payment method: " + error.message);
+        }
         return;
       }
 
@@ -95,6 +98,7 @@ const MyWallet = () => {
       }
     } catch (error) {
       console.log("err while adding card >>>", error);
+      toast.error(error.message || "Something went wrong");
     }
   };
 

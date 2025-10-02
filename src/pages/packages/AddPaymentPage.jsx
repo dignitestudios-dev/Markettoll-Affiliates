@@ -98,7 +98,7 @@ const AddPaymentPage = () => {
         }
       }
     } catch (error) {
-      // console.log("err while adding card >>>", error?.response?.data);
+      console.log("err while adding card >>>", error?.response?.data);
       toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
