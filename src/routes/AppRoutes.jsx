@@ -73,6 +73,9 @@ import EmailSupportPage from "../pages/settings/EmailSupportPage";
 import LiveChatPage from "../pages/settings/LiveChatPage";
 import SettingsDeleteAccountPage from "../pages/settings/SettingsDeleteAccountPage";
 import Affiliate from "../pages/affiliate/Affiliate";
+import AddJobPage from "../pages/addJob/AddJobPage";
+import JobReviewPage from "../pages/addJob/JobReviewPage";
+import JobDetailsPage from "../pages/jobs/JobDetailsPage";
 
 const AppRoutes = () => {
   return (
@@ -227,10 +230,27 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/add-job"
+          element={
+            <RoleProtectedRoute>
+              <Layout page={<AddJobPage />} />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route path="/job/:jobId" element={<Layout page={<JobDetailsPage />} />} />
+        <Route
           path="/service-review"
           element={
             <RoleProtectedRoute>
               <Layout page={<ServiceReviewPage />} />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/job-review"
+          element={
+            <RoleProtectedRoute>
+              <Layout page={<JobReviewPage />} />
             </RoleProtectedRoute>
           }
         />
