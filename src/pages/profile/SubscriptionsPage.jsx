@@ -13,7 +13,7 @@ import { IoClose } from "react-icons/io5";
 import ButtonLoader from "../../components/Global/ButtonLoader";
 
 const stripePromise = loadStripe(
-  "pk_test_51OsZBgRuyqVfnlHK0Z5w3pTL7ncHPcC75EwkxqQX9BAlmcXeKappekueIzmpWzWYK9L9HEGH3Y2Py2hC7KyVY0Al00przQczPf"
+  "pk_live_51OsZBgRuyqVfnlHKwXGmkKnnY60o2JjCdepf5hLJdEeMcoOK1n3pgrfQRVL7JZ1Rb4bwvgHtb2KbRdFssovm7W0500OHyXWtgn"
 );
 
 const SubscriptionsPage = () => {
