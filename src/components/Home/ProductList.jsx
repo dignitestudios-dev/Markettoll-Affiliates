@@ -130,7 +130,7 @@ const ProductList = () => {
       const res = await axios.get(
         `${BASE_URL}/users/get-jobs?page=${pageNum}`,
         {
-          headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OGRlNmVjZmU1MTc1N2RhMzYwMTUyZjUiLCJpYXQiOjE3NTk0MDk3MDd9.Fph6T8sZOTQTszjYbJxyQncMGbDRIzKgKY2IiyvaOmU` },
+          headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OGQyN2I4NTA0ODY1M2E1ODg2NDVhZjUiLCJpYXQiOjE3NTk0MjY3MTZ9.jEU4xlkUTZwDLpL3rn5O-qJe4d5Id5fN2vIPIS2ZcNk` },
         }
       );
 
