@@ -197,14 +197,14 @@ const JobDetailsPage = () => {
             )}
 
             {/* Apply Button */}
-            <button
+            {/* <button
               className="text-white text-base font-medium py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg"
               style={{ backgroundColor: "#0098EA" }}
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#0087D1")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#0098EA")}
             >
               Apply Now
-            </button>
+            </button> */}
           </div>
 
           {/* Job Details Sections */}
@@ -222,16 +222,14 @@ const JobDetailsPage = () => {
             )}
 
             {/* Bottom Apply Button */}
-            <div className="flex justify-center pt-4">
+            {/* <div className="flex justify-center pt-4">
               <button
                 className="text-white text-base font-medium py-3 px-12 rounded-lg transition-all duration-200 hover:shadow-lg"
                 style={{ backgroundColor: "#0098EA" }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#0087D1")}
-                onMouseLeave={(e) => (e.target.style.backgroundColor = "#0098EA")}
               >
                 Apply for this Position
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
