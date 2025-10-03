@@ -2,9 +2,10 @@ import React from "react";
 import AddPaymentDetails from "../../components/profile/AddPaymentDetails";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { STRIPE_PUBLISHABLE_KEY } from "../../api/api";
 
 const stripePromise = loadStripe(
-  "pk_live_51OsZBgRuyqVfnlHKwXGmkKnnY60o2JjCdepf5hLJdEeMcoOK1n3pgrfQRVL7JZ1Rb4bwvgHtb2KbRdFssovm7W0500OHyXWtgn"
+  STRIPE_PUBLISHABLE_KEY
 );
 
 const AddPaymentDetailsPage = () => {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useContext, useState } from "react";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
-import { BASE_URL } from "../../api/api";
+import { BASE_URL, STRIPE_PUBLISHABLE_KEY } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
 const stripePromise = loadStripe(
-  "pk_live_51OsZBgRuyqVfnlHKwXGmkKnnY60o2JjCdepf5hLJdEeMcoOK1n3pgrfQRVL7JZ1Rb4bwvgHtb2KbRdFssovm7W0500OHyXWtgn"
+  STRIPE_PUBLISHABLE_KEY
 );
 
 const validate = (values) => {

@@ -6,7 +6,7 @@ import SelectPaymentMethod from "../../components/Cart/SelectPaymentMethod";
 import OrderReview from "../../components/Cart/OrderReview";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
-import { BASE_URL } from "../../api/api";
+import { BASE_URL, STRIPE_PUBLISHABLE_KEY } from "../../api/api";
 import Loader from "../../components/Global/Loader";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -14,7 +14,7 @@ import { CartProductContext } from "../../context/cartProductContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const stripePromise = loadStripe(
-  "pk_live_51OsZBgRuyqVfnlHKwXGmkKnnY60o2JjCdepf5hLJdEeMcoOK1n3pgrfQRVL7JZ1Rb4bwvgHtb2KbRdFssovm7W0500OHyXWtgn"
+  STRIPE_PUBLISHABLE_KEY
 );
 
 const CartPage = () => {

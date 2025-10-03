@@ -16,8 +16,6 @@ import {
 import { BASE_URL } from "../../api/api";
 import Loader from "../Global/Loader";
 
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OGQyN2I4NTA0ODY1M2E1ODg2NDVhZjUiLCJpYXQiOjE3NTk0MjY3MTZ9.jEU4xlkUTZwDLpL3rn5O-qJe4d5Id5fN2vIPIS2ZcNk";
-
 const JobDetailsPage = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
@@ -37,12 +35,7 @@ const JobDetailsPage = () => {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get(
-        `${BASE_URL}/users/get-jobs/${jobId}`,
-        {
-          headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
-        }
-      );
+      const res = await axios.get(`${BASE_URL}/users/get-jobs/${jobId}`);
 
       console.log("Job details response:", res);
       setJob(res?.data?.job || res?.data);
@@ -173,7 +166,9 @@ const JobDetailsPage = () => {
                 <div className="flex items-center gap-2 text-gray-600">
                   <FaMapMarkerAlt className="text-sm" />
                   <span className="text-sm">
-                    {[job.city, job.state, job.zipCode].filter(Boolean).join(", ")}
+                    {[job.city, job.state, job.zipCode]
+                      .filter(Boolean)
+                      .join(", ")}
                   </span>
                 </div>
               )}
@@ -190,7 +185,10 @@ const JobDetailsPage = () => {
             {/* Salary */}
             {job.pay && (
               <div className="flex items-center gap-2 mb-6">
-                <span className="text-xl font-semibold" style={{ color: "#0098EA" }}>
+                <span
+                  className="text-xl font-semibold"
+                  style={{ color: "#0098EA" }}
+                >
                   {job.pay}
                 </span>
               </div>
