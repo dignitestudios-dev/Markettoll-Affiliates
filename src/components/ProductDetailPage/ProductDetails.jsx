@@ -364,7 +364,10 @@ const ProductDetails = () => {
 
                 <div className="flex items-center justify-end gap-4">
                   <h3 className="text-[24px] font-bold">
-                    ${product?.price}.00
+                    $
+                    {String(product?.price)?.includes(".")
+                      ? product?.price
+                      : `${product?.price}.00`}
                   </h3>
                   {product?.seller === userProfile?._id && (
                     <>
@@ -447,59 +450,61 @@ const ProductDetails = () => {
               <div className="w-full border" />
 
               {/* quantity buttons */}
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-center justify-center">
-                  <button
-                    type="button"
-                    disabled={product?.quantity == 0}
-                    onClick={() => handleIncrementQuantity("decrement")}
-                    className={`py-3.5 px-6 rounded-l-[20px] text-center blue-bg disabled:cursor-not-allowed`}
-                  >
-                    <FaMinus className="text-lg text-white" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled
-                    className="py-[9px] px-10 w-full border-t border-b text-center bg-white text-black text-[18px] font-medium cursor-default"
-                  >
-                    {product?.quantity == 0 ? 0 : quantity}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={product?.quantity == 0}
-                    onClick={() => handleIncrementQuantity("increment")}
-                    className={`py-3.5 px-6 rounded-r-[20px] text-center blue-bg disabled:cursor-not-allowed`}
-                  >
-                    <FaPlus className="text-lg text-white" />
-                  </button>
-                </div>
-                <div>
-                  {addToCart ? (
-                    <Link
-                      to="/cart"
-                      className="blue-bg text-white font-bold text-sm py-3.5 rounded-[20px] text-center w-full block"
-                    >
-                      View Cart
-                    </Link>
-                  ) : (
+              {product?.seller !== userProfile?._id && (
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex items-center justify-center">
                     <button
                       type="button"
                       disabled={product?.quantity == 0}
-                      onClick={handleShowPopup}
-                      className={`blue-bg text-white font-bold text-sm py-3.5 rounded-[20px] text-center w-full ${
-                        product?.quantity == 0 && "cursor-not-allowed"
-                      }`}
+                      onClick={() => handleIncrementQuantity("decrement")}
+                      className={`py-3.5 px-6 rounded-l-[20px] text-center blue-bg disabled:cursor-not-allowed`}
                     >
-                      {product?.quantity == 0
-                        ? "Out of Stock"
-                        : addToCart
-                        ? "View Cart"
-                        : " Add To Cart"}
-                      {/* {addToCart ? "View Cart" : " Add To Cart"} */}
+                      <FaMinus className="text-lg text-white" />
                     </button>
-                  )}
+                    <button
+                      type="button"
+                      disabled
+                      className="py-[9px] px-10 w-full border-t border-b text-center bg-white text-black text-[18px] font-medium cursor-default"
+                    >
+                      {product?.quantity == 0 ? 0 : quantity}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={product?.quantity == 0}
+                      onClick={() => handleIncrementQuantity("increment")}
+                      className={`py-3.5 px-6 rounded-r-[20px] text-center blue-bg disabled:cursor-not-allowed`}
+                    >
+                      <FaPlus className="text-lg text-white" />
+                    </button>
+                  </div>
+                  <div>
+                    {addToCart ? (
+                      <Link
+                        to="/cart"
+                        className="blue-bg text-white font-bold text-sm py-3.5 rounded-[20px] text-center w-full block"
+                      >
+                        View Cart
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={product?.quantity == 0}
+                        onClick={handleShowPopup}
+                        className={`blue-bg text-white font-bold text-sm py-3.5 rounded-[20px] text-center w-full ${
+                          product?.quantity == 0 && "cursor-not-allowed"
+                        }`}
+                      >
+                        {product?.quantity == 0
+                          ? "Out of Stock"
+                          : addToCart
+                          ? "View Cart"
+                          : " Add To Cart"}
+                        {/* {addToCart ? "View Cart" : " Add To Cart"} */}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
           <div className="mt-16 lg:hidden">

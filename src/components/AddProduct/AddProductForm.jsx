@@ -212,7 +212,7 @@ const AddProductForm = () => {
       state: {
         productData: {
           productName,
-          description,
+          description: description.trim(),
           productCategory,
           productSubCategory,
           selectedState: stateFullName,
@@ -398,11 +398,13 @@ const AddProductForm = () => {
                 type="text"
                 placeholder="$199.00"
                 value={price}
+                inputMode="decimal"
                 onChange={(e) => {
-                  const newValue = e.target.value;
-                  const filteredValue = newValue.replace(/[^0-9]/g, "");
-                  if (filteredValue === "" || Number(filteredValue) >= 1) {
-                    setPrice(filteredValue);
+                  const value = e.target.value;
+
+                  // Allow only digits and one decimal point
+                  if (/^\d*\.?\d{0,2}$/.test(value) || value === "") {
+                    setPrice(value);
                   }
                 }}
                 className="w-full py-4 px-5 outline-none border border-[#d9d9d9] text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
