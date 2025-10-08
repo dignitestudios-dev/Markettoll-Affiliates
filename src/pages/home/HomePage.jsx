@@ -55,6 +55,42 @@ const HomePage = () => {
     setOpenModal(!openModal);
   };
 
+  // useEffect(() => {
+  //   const requestLocation = () => {
+  //     if ("geolocation" in navigator) {
+  //       navigator.geolocation.getCurrentPosition(
+  //         (position) => {
+  //           console.log("User allowed location access ✅");
+  //           console.log("Latitude:", position.coords.latitude);
+  //           console.log("Longitude:", position.coords.longitude);
+  //         },
+  //         (error) => {
+  //           console.warn("Location access denied or unavailable ❌", error);
+
+  //           // If denied, try asking again after a short delay
+  //           if (error.code === error.PERMISSION_DENIED) {
+  //             // Clear the permission state by reloading
+  //             // so the browser asks again next time
+  //             localStorage.setItem("locationDenied", "true");
+  //           }
+  //         }
+  //       );
+  //     } else {
+  //       console.error("Geolocation not supported by this browser.");
+  //     }
+  //   };
+
+  //   // If user denied before, reload should trigger another request
+  //   const deniedBefore = localStorage.getItem("locationDenied");
+  //   if (deniedBefore) {
+  //     localStorage.removeItem("locationDenied");
+  //     // Try again after reload
+  //     requestLocation();
+  //   } else {
+  //     requestLocation();
+  //   }
+  // }, []);
+
   return (
     <div className="padding-x py-6 z-0">
       <div className="w-full flex items-center justify-between z-0">

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import ProductCard from "../Global/ProductCard";
 import { Link, useNavigate } from "react-router-dom";
 import ServiceCard from "../Global/ServiceCard";
@@ -27,6 +27,11 @@ const ProductList = () => {
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [jobs, setJobs] = useState([]);
 
+  // Products infinite scroll states
+  const [productPages, setProductPages] = useState({});
+  const [productHasMore, setProductHasMore] = useState({});
+  const [loadingMoreProducts, setLoadingMoreProducts] = useState({});
+
   const [FilterModal, setFilterModal] = useState(false);
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -47,6 +52,9 @@ const ProductList = () => {
   });
   const [applyFilter, setApplyFilter] = useState(false);
   const [productCategory, setProductCategory] = useState("All");
+
+  // Refs to track category sections
+  const categoryRefs = useRef({});
 
   const fetchProducts = async () => {
     const options = user?.token
@@ -85,10 +93,83 @@ const ProductList = () => {
       setFilterModal(false);
       setProducts(res?.data?.data);
       setFilteredProducts(res?.data?.data);
+
+      // Initialize pagination states for each category
+      const initialPages = {};
+      const initialHasMore = {};
+      const initialLoading = {};
+
+      res?.data?.data?.forEach((categoryData) => {
+        initialPages[categoryData.category] = 2; // Start from page 2
+        initialHasMore[categoryData.category] = true;
+        initialLoading[categoryData.category] = false;
+      });
+
+      setProductPages(initialPages);
+      setProductHasMore(initialHasMore);
+      setLoadingMoreProducts(initialLoading);
     } catch (error) {
       console.log("home screen products err >>>>", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch more products for a specific category
+  const fetchMoreProducts = async (categoryName) => {
+    if (!productHasMore[categoryName] || loadingMoreProducts[categoryName]) {
+      return;
+    }
+
+    setLoadingMoreProducts((prev) => ({
+      ...prev,
+      [categoryName]: true,
+    }));
+
+    try {
+      const currentPage = productPages[categoryName] || 2;
+      const res = await axios.get(
+        `${BASE_URL}/users/home-screen-searched-products?name=&category=${encodeURIComponent(
+          categoryName
+        )}&subCategory=&page=${currentPage}&limit=8`
+      );
+
+      const newProducts = res?.data?.data?.products || [];
+      const totalPages = res?.data?.data?.totalPages || 0;
+
+      // Check if we've reached the last page
+      if (currentPage >= totalPages || newProducts.length === 0) {
+        setProductHasMore((prev) => ({
+          ...prev,
+          [categoryName]: false,
+        }));
+      }
+
+      if (newProducts.length > 0) {
+        setFilteredProducts((prev) =>
+          prev.map((categoryData) => {
+            if (categoryData.category === categoryName) {
+              return {
+                ...categoryData,
+                products: [...categoryData.products, ...newProducts],
+              };
+            }
+            return categoryData;
+          })
+        );
+
+        setProductPages((prev) => ({
+          ...prev,
+          [categoryName]: currentPage + 1,
+        }));
+      }
+    } catch (error) {
+      console.log("fetch more products error >>>>", error);
+    } finally {
+      setLoadingMoreProducts((prev) => ({
+        ...prev,
+        [categoryName]: false,
+      }));
     }
   };
 
@@ -120,18 +201,14 @@ const ProductList = () => {
     }
   };
 
-  // Fetch jobs (paginated) - Dummy API for now
+  // Fetch jobs (paginated)
   const fetchJobs = async (pageNum) => {
     if (!jobHasMore || loadingJobs) return;
 
     try {
       setLoadingJobs(true);
 
-      const res = await axios.get(
-        `${BASE_URL}/users/get-jobs?page=${pageNum}`
-      );
-
-      console.log("res of jobs: ",res)
+      const res = await axios.get(`${BASE_URL}/users/get-jobs?page=${pageNum}`);
 
       const newJobs = res?.data?.jobs || [];
       setJobs((prev) => [...prev, ...newJobs]);
@@ -146,17 +223,15 @@ const ProductList = () => {
     }
   };
 
-  // Handle job like/unlike - Dummy API for now
+  // Handle job like/unlike
   const handleJobLike = async (jobId) => {
     try {
-      // Dummy API call for liking job - replace with actual endpoint
       const res = await new Promise((resolve) => {
         setTimeout(() => {
           resolve({ data: { success: true } });
         }, 300);
       });
 
-      // Update job liked status in state
       setJobs((prev) =>
         prev.map((job) =>
           job.id === jobId ? { ...job, isLiked: !job.isLiked } : job
@@ -224,6 +299,7 @@ const ProductList = () => {
     }
   };
 
+  // Infinite scroll for services and jobs
   useEffect(() => {
     if (!showServices && !showJobs) return;
 
@@ -261,6 +337,49 @@ const ProductList = () => {
     jobHasMore,
   ]);
 
+  // Infinite scroll for products by category
+  useEffect(() => {
+    if (showServices || showJobs || filteredProducts.length === 0) return;
+
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+
+      requestAnimationFrame(() => {
+        filteredProducts.forEach((categoryData) => {
+          const categoryRef = categoryRefs.current[categoryData.category];
+          if (!categoryRef) return;
+
+          const rect = categoryRef.getBoundingClientRect();
+          const threshold = 800; // Trigger when 800px away from bottom of category section
+
+          // Check if we're near the bottom of this category section
+          if (
+            rect.bottom <= window.innerHeight + threshold &&
+            rect.bottom > 0 &&
+            productHasMore[categoryData.category] &&
+            !loadingMoreProducts[categoryData.category]
+          ) {
+            fetchMoreProducts(categoryData.category);
+          }
+        });
+
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [
+    showServices,
+    showJobs,
+    filteredProducts,
+    productHasMore,
+    loadingMoreProducts,
+  ]);
+
   useEffect(() => {
     if (showServices) {
       fetchServices(page);
@@ -295,7 +414,6 @@ const ProductList = () => {
       );
       setLoading(false);
       setFilterModal(false);
-      console.log(res.data.data, "response");
       setProducts(res?.data?.data);
       setFilteredProducts(res?.data?.data);
     } catch (error) {
@@ -306,7 +424,6 @@ const ProductList = () => {
   };
 
   useEffect(() => {
-    console.log(searchQuery, "searchQuery");
     fetchProducts();
   }, [paginationNum, applyFilter]);
 
@@ -489,7 +606,13 @@ const ProductList = () => {
                 <>
                   {filteredProducts?.map((productList, index) => {
                     return (
-                      <div key={index} className="mt-10">
+                      <div
+                        key={index}
+                        className="mt-10"
+                        ref={(el) =>
+                          (categoryRefs.current[productList?.category] = el)
+                        }
+                      >
                         <div className="w-full flex items-center justify-between">
                           <h3 className="text-2xl lg:text-[28px] font-bold blue-text">
                             {productList?.category}
@@ -504,12 +627,28 @@ const ProductList = () => {
 
                         <div className="w-full mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                           {productList?.products?.length > 0 &&
-                            productList?.products
-                              ?.slice(0, 4)
-                              ?.map((product, i) => (
-                                <ProductCard product={product} key={i} />
-                              ))}
+                            productList?.products?.map((product, i) => (
+                              <ProductCard product={product} key={i} />
+                            ))}
                         </div>
+
+                        {/* Loading indicator for this category */}
+                        {loadingMoreProducts[productList?.category] && (
+                          <div className="flex justify-center my-8">
+                            <Loader w="fit" />
+                          </div>
+                        )}
+
+                        {/* End message for this category */}
+                        {!productHasMore[productList?.category] &&
+                          productList?.products?.length > 0 && (
+                            <div className="flex justify-center my-8">
+                              <p className="text-gray-500 text-sm">
+                                You've explored all products in{" "}
+                                {productList?.category}
+                              </p>
+                            </div>
+                          )}
                       </div>
                     );
                   })}
