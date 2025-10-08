@@ -31,6 +31,9 @@ const ProductList = () => {
   const [productPages, setProductPages] = useState({});
   const [productHasMore, setProductHasMore] = useState({});
   const [loadingMoreProducts, setLoadingMoreProducts] = useState({});
+  
+  // Ref to track ongoing fetch requests per category
+  const fetchingRef = useRef({});
 
   const [FilterModal, setFilterModal] = useState(false);
   const navigate = useNavigate();
@@ -91,23 +94,28 @@ const ProductList = () => {
         options
       );
       setFilterModal(false);
-      setProducts(res?.data?.data);
-      setFilteredProducts(res?.data?.data);
-
+      const productsData = res?.data?.data || [];
+      setProducts(productsData);
+      setFilteredProducts(productsData);
+      
       // Initialize pagination states for each category
       const initialPages = {};
       const initialHasMore = {};
       const initialLoading = {};
-
-      res?.data?.data?.forEach((categoryData) => {
-        initialPages[categoryData.category] = 2; // Start from page 2
-        initialHasMore[categoryData.category] = true;
-        initialLoading[categoryData.category] = false;
+      
+      productsData.forEach((categoryData) => {
+        const categoryName = categoryData.category;
+        initialPages[categoryName] = 2; // Start from page 2
+        initialHasMore[categoryName] = true; // Initially assume there are more products
+        initialLoading[categoryName] = false;
       });
-
+      
       setProductPages(initialPages);
       setProductHasMore(initialHasMore);
       setLoadingMoreProducts(initialLoading);
+      
+      // Clear any previous fetching refs
+      fetchingRef.current = {};
     } catch (error) {
       console.log("home screen products err >>>>", error);
     } finally {
@@ -118,8 +126,14 @@ const ProductList = () => {
   // Fetch more products for a specific category
   const fetchMoreProducts = async (categoryName) => {
     if (!productHasMore[categoryName] || loadingMoreProducts[categoryName]) {
+      console.log(`Skipping fetch for ${categoryName}:`, {
+        hasMore: productHasMore[categoryName],
+        loading: loadingMoreProducts[categoryName]
+      });
       return;
     }
+
+    console.log(`Fetching more products for ${categoryName}, page:`, productPages[categoryName]);
 
     setLoadingMoreProducts((prev) => ({
       ...prev,
@@ -134,11 +148,16 @@ const ProductList = () => {
         )}&subCategory=&page=${currentPage}&limit=8`
       );
 
+      console.log(`Response for ${categoryName}:`, res.data);
+
       const newProducts = res?.data?.data?.products || [];
       const totalPages = res?.data?.data?.totalPages || 0;
 
+      console.log(`Got ${newProducts.length} products, currentPage: ${currentPage}, totalPages: ${totalPages}`);
+
       // Check if we've reached the last page
       if (currentPage >= totalPages || newProducts.length === 0) {
+        console.log(`No more products for ${categoryName}`);
         setProductHasMore((prev) => ({
           ...prev,
           [categoryName]: false,
@@ -149,6 +168,7 @@ const ProductList = () => {
         setFilteredProducts((prev) =>
           prev.map((categoryData) => {
             if (categoryData.category === categoryName) {
+              console.log(`Adding ${newProducts.length} products to ${categoryName}`);
               return {
                 ...categoryData,
                 products: [...categoryData.products, ...newProducts],
@@ -342,36 +362,49 @@ const ProductList = () => {
     if (showServices || showJobs || filteredProducts.length === 0) return;
 
     let ticking = false;
+    let debounceTimer = null;
 
     const handleScroll = () => {
       if (ticking) return;
       ticking = true;
 
+      // Clear any existing debounce timer
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+
       requestAnimationFrame(() => {
-        filteredProducts.forEach((categoryData) => {
-          const categoryRef = categoryRefs.current[categoryData.category];
-          if (!categoryRef) return;
+        // Add debounce to prevent rapid-fire calls
+          filteredProducts.forEach((categoryData) => {
+            const categoryRef = categoryRefs.current[categoryData.category];
+            if (!categoryRef) return;
 
-          const rect = categoryRef.getBoundingClientRect();
-          const threshold = 800; // Trigger when 800px away from bottom of category section
+            const rect = categoryRef.getBoundingClientRect();
+            const threshold = 800; // Trigger when 800px away from bottom of category section
 
-          // Check if we're near the bottom of this category section
-          if (
-            rect.bottom <= window.innerHeight + threshold &&
-            rect.bottom > 0 &&
-            productHasMore[categoryData.category] &&
-            !loadingMoreProducts[categoryData.category]
-          ) {
-            fetchMoreProducts(categoryData.category);
-          }
-        });
+            // Check if we're near the bottom of this category section
+            if (
+              rect.bottom <= window.innerHeight + threshold &&
+              rect.bottom > 0 &&
+              productHasMore[categoryData.category] &&
+              !loadingMoreProducts[categoryData.category] &&
+              !fetchingRef.current[categoryData.category]
+            ) {
+              fetchMoreProducts(categoryData.category);
+            }
+          });
 
         ticking = false;
       });
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
   }, [
     showServices,
     showJobs,
@@ -644,7 +677,7 @@ const ProductList = () => {
                           productList?.products?.length > 0 && (
                             <div className="flex justify-center my-8">
                               <p className="text-gray-500 text-sm">
-                                You've explored all products in{" "}
+                                🎉 You've explored all products in{" "}
                                 {productList?.category}
                               </p>
                             </div>
