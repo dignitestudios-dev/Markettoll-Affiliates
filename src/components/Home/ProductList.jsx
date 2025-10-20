@@ -229,7 +229,7 @@ const ProductList = () => {
       setLoadingJobs(true);
 
       const res = await axios.get(`${BASE_URL}/users/get-jobs?page=${pageNum}`);
-
+console.log(res,"resresresresres")
       const newJobs = res?.data?.jobs || [];
       setJobs((prev) => [...prev, ...newJobs]);
 

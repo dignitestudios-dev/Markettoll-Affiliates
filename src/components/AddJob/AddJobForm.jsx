@@ -42,6 +42,8 @@ const AddJobForm = () => {
     location?.state?.jobData?.shiftType || ""
   );
   const [pay, setPay] = useState(location?.state?.jobData?.pay || "");
+  const [contactOption, setContactOption] = useState("Application Link");
+  const [contactValue, setContactValue] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -90,6 +92,34 @@ const AddJobForm = () => {
       toast.error("Please select employment type");
       return;
     }
+    if (!contactValue) {
+      toast.error(`Please enter ${contactOption}`);
+      return;
+    }
+
+    let applicationLink = "";
+    let applicationPhone = "";
+    let applicationEmail = "";
+
+    if (contactOption === "Application Link") {
+      if (!/^https?:\/\//.test(contactValue)) {
+        toast.error("Please enter a valid link starting with https://");
+        return;
+      }
+      applicationLink = contactValue;
+    } else if (contactOption === "Phone") {
+      if (!/^\(\d{3}\)\s\d{3}\s\d{4}$/.test(contactValue)) {
+        toast.error("Please enter a valid phone number");
+        return;
+      }
+      applicationPhone = contactValue;
+    } else if (contactOption === "Email") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactValue)) {
+        toast.error("Please enter a valid email address");
+        return;
+      }
+      applicationEmail = contactValue;
+    }
 
     // Save job data in context
     const jobData = {
@@ -103,6 +133,8 @@ const AddJobForm = () => {
       employmentType,
       shiftType: shiftType || null, // Optional field
       pay: pay || null, // Optional field
+      applicationTypeValue:applicationLink || applicationPhone || applicationEmail,
+      applicationType:contactOption
     };
 
     setServiceData(jobData);
@@ -297,7 +329,103 @@ const AddJobForm = () => {
               className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C]"
             />
           </div>
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="w-full">
+              <label htmlFor="contactOption" className="text-sm font-semibold">
+                Contact Option
+              </label>
+              <select
+                id="contactOption"
+                value={contactOption}
+                onChange={(e) => {
+                  setContactOption(e.target.value);
+                  setContactValue("");
+                }}
+                className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C]"
+              >
+                <option>Application Link</option>
+                <option>Phone</option>
+                <option>Email</option>
+              </select>
+            </div>
 
+            {/* Conditional Field Based on Selected Option */}
+            <div className="w-full">
+              {contactOption === "Application Link" && (
+                <>
+                  <label
+                    htmlFor="applicationLink"
+                    className="text-sm font-semibold"
+                  >
+                    Application Link
+                  </label>
+                  <input
+                    type="url"
+                    id="applicationLink"
+                    placeholder="https://example.com"
+                    value={contactValue}
+                    onChange={(e) => setContactValue(e.target.value)}
+                    className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C]"
+                  />
+                </>
+              )}
+              {contactOption === "Phone" && (
+                <>
+                  <label
+                    htmlFor="contactPhone"
+                    className="text-sm font-semibold"
+                  >
+                    Contact Phone
+                  </label>
+                  <input
+                    type="tel"
+                    id="contactPhone"
+                    placeholder="(123) 456 7890"
+                    value={contactValue}
+                    onChange={(e) => {
+                      const digits = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
+                      let formatted = digits;
+                      if (digits.length > 6) {
+                        formatted = `(${digits.slice(0, 3)}) ${digits.slice(
+                          3,
+                          6
+                        )} ${digits.slice(6, 10)}`;
+                      } else if (digits.length > 3) {
+                        formatted = `(${digits.slice(0, 3)}) ${digits.slice(
+                          3,
+                          6
+                        )}`;
+                      } else if (digits.length > 0) {
+                        formatted = `(${digits}`;
+                      }
+                      setContactValue(formatted);
+                    }}
+                    className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C]"
+                  />
+                </>
+              )}
+              {contactOption === "Email" && (
+                <>
+                  <label
+                    htmlFor="contactEmail"
+                    className="text-sm font-semibold"
+                  >
+                    Contact Email
+                  </label>
+                  <input
+                    type="email"
+                    id="contactEmail"
+                    placeholder="you@example.com"
+                    value={contactValue}
+                    onChange={(e) => setContactValue(e.target.value)}
+                    className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C]"
+                  />
+                </>
+              )}
+            </div>
+          </div>
           {/* Buttons */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
             <Link

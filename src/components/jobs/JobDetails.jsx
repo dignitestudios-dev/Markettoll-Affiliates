@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { BASE_URL } from "../../api/api";
 import Loader from "../Global/Loader";
+import { toast } from "react-toastify";
 
 const JobDetailsPage = () => {
   const { jobId } = useParams();
@@ -90,6 +91,25 @@ const JobDetailsPage = () => {
 
   const handleBack = () => {
     navigate(-1); // Go back to previous page
+  };
+  const handleApplyNow = () => {
+    if (!job?.applicationType || !job?.applicationTypeValue) {
+      toast.error("No application contact available for this job.");
+      return;
+    }
+
+    const type = job.applicationType.toLowerCase();
+    const value = job.applicationTypeValue.trim();
+
+    if (type === "application link") {
+      window.open(value, "_blank"); // Open link in new tab
+    } else if (type === "email") {
+      window.location.href = `mailto:${value}`;
+    } else if (type === "phone") {
+      window.location.href = `tel:${value}`;
+    } else {
+      alert("Invalid application type.");
+    }
   };
 
   return (
@@ -195,14 +215,15 @@ const JobDetailsPage = () => {
             )}
 
             {/* Apply Button */}
-            {/* <button
+            <button
+              onClick={handleApplyNow}
               className="text-white text-base font-medium py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg"
               style={{ backgroundColor: "#0098EA" }}
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#0087D1")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#0098EA")}
             >
               Apply Now
-            </button> */}
+            </button>
           </div>
 
           {/* Job Details Sections */}
