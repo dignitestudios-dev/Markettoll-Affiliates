@@ -286,13 +286,26 @@ const AddServiceForm = () => {
                 type="text"
                 placeholder="$199.00"
                 value={price}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  const filteredValue = newValue.replace(/[^0-9]/g, "");
-                  if (filteredValue === "" || Number(filteredValue) >= 1) {
-                    setPrice(filteredValue);
-                  }
-                }}
+               onChange={(e) => {
+  let newValue = e.target.value;
+
+  // allow only digits and dot
+  newValue = newValue.replace(/[^0-9.]/g, "");
+
+  // prevent multiple dots (.)
+  const parts = newValue.split(".");
+  if (parts.length > 2) {
+    newValue = parts[0] + "." + parts[1];
+  }
+
+  // optional: limit to 2 decimal places
+  if (parts[1]?.length > 2) {
+    newValue = parts[0] + "." + parts[1].slice(0, 2);
+  }
+
+  setPrice(newValue);
+}}
+
                 className="w-full py-4 px-5 border border-[#d9d9d9] outline-none text-sm rounded-[20px] bg-white text-[#5C5C5C] placeholder:text-[#5C5C5C]"
               />
             </div>

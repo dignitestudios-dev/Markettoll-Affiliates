@@ -183,7 +183,7 @@ const ProductCard = ({ product, fetchMyProducts }) => {
         <div className="w-full flex items-center justify-between">
           <ProductRating productAvgRating={safeAvgRating} />
           <p className="text-[18px] font-bold blue-text">
-            ${product?.price}.00
+            ${product?.price || '0.0'}
           </p>
         </div>
       </div>
