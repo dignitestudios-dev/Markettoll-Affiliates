@@ -19,7 +19,7 @@ const Navbar = () => {
   const [openNotifications, setOpenNotifications] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
   const loc = useLocation("");
-  console.log(loc?.pathname == "/login");
+  
 
   const navigate = useNavigate();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);

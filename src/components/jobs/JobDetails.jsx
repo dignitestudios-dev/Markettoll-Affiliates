@@ -240,6 +240,7 @@ const JobDetailsPage = () => {
                 </p>
               </section>
             )}
+{job?.applicationType && job.applicationTypeValue && (
 
             <div className="mb-6 mt-6">
               <h3 className="text-lg font-semibold mb-2">How to Apply</h3>
@@ -259,10 +260,10 @@ const JobDetailsPage = () => {
 
                   {job.applicationType.toLowerCase() === "phone" && (
                     <>
-                      <FaPhone className="text-green-500" />
+                      <FaPhone className="text-[#0098EA]" />
                       <a
                         href={`tel:${job.applicationTypeValue}`}
-                        className="text-green-700 font-medium hover:underline"
+                        className="text-[#0098EA] font-medium hover:underline"
                       >
                         {job.applicationTypeValue}
                       </a>
@@ -271,12 +272,12 @@ const JobDetailsPage = () => {
 
                   {job.applicationType.toLowerCase() === "application link" && (
                     <>
-                      <FaLink className="text-purple-500" />
+                      <FaLink className="text-[#0098EA]" />
                       <a
                         href={job.applicationTypeValue}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-purple-700 font-medium hover:underline"
+                        className="text-[#0098EA] font-medium hover:underline"
                       >
                         {job.applicationTypeValue}
                       </a>
@@ -285,7 +286,7 @@ const JobDetailsPage = () => {
                 </div>
               )}
             </div>
-
+)}
             {/* Bottom Apply Button */}
             {/* <div className="flex justify-center pt-4">
               <button
