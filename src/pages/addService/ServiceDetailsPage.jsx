@@ -237,7 +237,7 @@ const ServiceDetailsPage = () => {
                 </h2>
                 <div className="flex items-center justify-end gap-4 relative">
                   <h3 className="text-[24px] font-bold">
-                    ${service?.price}.00
+                    ${service?.price}
                   </h3>
                   {service?.seller === user?._id && (
                     <button type="button" onClick={toggleDropdown}>

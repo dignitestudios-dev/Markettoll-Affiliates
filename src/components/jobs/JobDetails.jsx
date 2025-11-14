@@ -214,32 +214,6 @@ const JobDetailsPage = () => {
                 </span>
               </div>
             )}
-
-            {/* Apply Button */}
-            <button
-              onClick={handleApplyNow}
-              className="text-white text-base font-medium py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg"
-              style={{ backgroundColor: "#0098EA" }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#0087D1")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#0098EA")}
-            >
-              Apply Now
-            </button>
-          </div>
-
-          {/* Job Details Sections */}
-          <div className="p-8">
-            {/* Job Description */}
-            {job.description && (
-              <section className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Job Description
-                </h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {job.description}
-                </p>
-              </section>
-            )}
 {job?.applicationType && job.applicationTypeValue && (
 
             <div className="mb-6 mt-6">
@@ -287,6 +261,32 @@ const JobDetailsPage = () => {
               )}
             </div>
 )}
+            {/* Apply Button */}
+            {/* <button
+              onClick={handleApplyNow}
+              className="text-white text-base font-medium py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg"
+              style={{ backgroundColor: "#0098EA" }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#0087D1")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#0098EA")}
+            >
+              Apply Now
+            </button> */}
+          </div>
+
+          {/* Job Details Sections */}
+          <div className="p-8">
+            {/* Job Description */}
+            {job.description && (
+              <section className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  Job Description
+                </h2>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {job.description}
+                </p>
+              </section>
+            )}
+
             {/* Bottom Apply Button */}
             {/* <div className="flex justify-center pt-4">
               <button
