@@ -31,7 +31,7 @@ const MyProductsList = ({ postType }) => {
       setLoading(false);
     }
   };
-
+  console.log(myProducts, "myProducts");
   useEffect(() => {
     fetchMyProducts();
   }, [postType]);

@@ -12,7 +12,7 @@ const MyProductsAndServices = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [state, setState] = useState(false);
   const [postType, setPostType] = useState("post");
-  console.log("postType >>>", postType);
+  
 
   const handleShowPopup = () => {
     setShowPopup(!showPopup);

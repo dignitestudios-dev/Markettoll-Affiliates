@@ -236,9 +236,7 @@ const ServiceDetailsPage = () => {
                   {service?.name}
                 </h2>
                 <div className="flex items-center justify-end gap-4 relative">
-                  <h3 className="text-[24px] font-bold">
-                    ${service?.price}
-                  </h3>
+                  <h3 className="text-[24px] font-bold">${service?.price}</h3>
                   {service?.seller === user?._id && (
                     <button type="button" onClick={toggleDropdown}>
                       <HiOutlineDotsVertical className="text-xl text-gray-700" />
@@ -283,6 +281,52 @@ const ServiceDetailsPage = () => {
                     State
                   </p>
                   <p className="text-[13px] font-medium">{service?.state}</p>
+                </div>
+              </div>
+              <div className="border w-full" />
+              <div className="w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {service?.website && (
+                    <div className="flex flex-col">
+                      <span className="text-[13px] text-[#7C7C7C] font-medium">
+                        Website
+                      </span>
+                      <a
+                        // href={service.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[14px] text-blue-600 "
+                      >
+                        {service.website}
+                      </a>
+                    </div>
+                  )}
+                  {service?.email && (
+                    <div className="flex flex-col">
+                      <span className="text-[13px] text-[#7C7C7C] font-medium">
+                        Email
+                      </span>
+                      <a
+                        // href={`mailto:${service.email}`}
+                        className="text-[14px] text-blue-600 "
+                      >
+                        {service.email}
+                      </a>
+                    </div>
+                  )}
+                  {service?.telephone && (
+                    <div className="flex flex-col">
+                      <span className="text-[13px] text-[#7C7C7C] font-medium">
+                        Phone
+                      </span>
+                      <a
+                        // href={`tel:${service.telephone}`}
+                        className="text-[14px] text-blue-600 "
+                      >
+                        {service.telephone}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="border w-full" />
@@ -356,5 +400,3 @@ const ServiceDetailsPage = () => {
 };
 
 export default ServiceDetailsPage;
-
-

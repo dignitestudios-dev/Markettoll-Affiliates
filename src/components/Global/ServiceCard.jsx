@@ -76,7 +76,7 @@ const ServiceCard = ({ service }) => {
           </p>
         </div>
 
-        <p className="text-lg font-bold text-blue-600">${service?.price}.00</p>
+        <p className="text-lg font-bold text-blue-600">${service?.price}</p>
 
         {/* Rating and Price */}
         <div className="w-full flex items-center justify-end">

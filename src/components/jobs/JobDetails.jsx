@@ -214,53 +214,53 @@ const JobDetailsPage = () => {
                 </span>
               </div>
             )}
-{job?.applicationType && job.applicationTypeValue && (
+            {job?.applicationType && job.applicationTypeValue && (
+              <div className="mb-6 mt-6">
+                <h3 className="text-lg font-semibold mb-2">How to Apply</h3>
+                {job?.applicationType && job.applicationTypeValue && (
+                  <div className="flex items-center gap-3">
+                    {job.applicationType.toLowerCase() === "email" && (
+                      <>
+                        <FaEnvelope className="text-[#0098EA]" />
+                        <a
+                          // href={`mailto:${job.applicationTypeValue}`}
+                          className="text-[#0098EA] font-medium "
+                        >
+                          {job.applicationTypeValue}
+                        </a>
+                      </>
+                    )}
 
-            <div className="mb-6 mt-6">
-              <h3 className="text-lg font-semibold mb-2">How to Apply</h3>
-              {job?.applicationType && job.applicationTypeValue && (
-                <div className="flex items-center gap-3">
-                  {job.applicationType.toLowerCase() === "email" && (
-                    <>
-                      <FaEnvelope className="text-[#0098EA]" />
-                      <a
-                        href={`mailto:${job.applicationTypeValue}`}
-                        className="text-[#0098EA] font-medium hover:underline"
-                      >
-                        {job.applicationTypeValue}
-                      </a>
-                    </>
-                  )}
+                    {job.applicationType.toLowerCase() === "phone" && (
+                      <>
+                        <FaPhone className="text-[#0098EA]" />
+                        <a
+                          // href={`tel:${job.applicationTypeValue}`}
+                          className="text-[#0098EA] font-medium "
+                        >
+                          {job.applicationTypeValue}
+                        </a>
+                      </>
+                    )}
 
-                  {job.applicationType.toLowerCase() === "phone" && (
-                    <>
-                      <FaPhone className="text-[#0098EA]" />
-                      <a
-                        href={`tel:${job.applicationTypeValue}`}
-                        className="text-[#0098EA] font-medium hover:underline"
-                      >
-                        {job.applicationTypeValue}
-                      </a>
-                    </>
-                  )}
-
-                  {job.applicationType.toLowerCase() === "application link" && (
-                    <>
-                      <FaLink className="text-[#0098EA]" />
-                      <a
-                        href={job.applicationTypeValue}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#0098EA] font-medium hover:underline"
-                      >
-                        {job.applicationTypeValue}
-                      </a>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-)}
+                    {job.applicationType.toLowerCase() ===
+                      "application link" && (
+                      <>
+                        <FaLink className="text-[#0098EA]" />
+                        <a
+                          // href={job.applicationTypeValue}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0098EA] font-medium "
+                        >
+                          {job.applicationTypeValue}
+                        </a>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             {/* Apply Button */}
             {/* <button
               onClick={handleApplyNow}
