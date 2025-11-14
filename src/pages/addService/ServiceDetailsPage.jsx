@@ -14,7 +14,7 @@ import Loader from "../../components/Global/Loader";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import DeleteServiceModal from "./DeleteServiceModal";
 
-const ServiceDetailsPage = () => {
+const   ServiceDetailsPage = () => {
   const [service, setService] = useState(null);
   const navigate = useNavigate();
   const { serviceId } = useParams();
@@ -236,7 +236,9 @@ const ServiceDetailsPage = () => {
                   {service?.name}
                 </h2>
                 <div className="flex items-center justify-end gap-4 relative">
-                  <h3 className="text-[24px] font-bold">${service?.price}</h3>
+<h3 className="text-[24px] font-bold">
+  ${Number(service?.price).toFixed(2)}
+</h3>
                   {service?.seller === user?._id && (
                     <button type="button" onClick={toggleDropdown}>
                       <HiOutlineDotsVertical className="text-xl text-gray-700" />
