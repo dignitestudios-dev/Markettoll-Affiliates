@@ -241,6 +241,15 @@ const ProductDetails = () => {
     }
   };
 
+  const handleBoostProduct = async () => {
+    navigate("/choose-package-to-boost-service", {
+      state: {
+        from: window.location.href,
+        id: product?._id,
+        type: "product",
+      },
+    });
+  };
   if (loading) {
     return <Loader />;
   }
