@@ -4,6 +4,9 @@ import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
 import { Airplane } from "../../assets/export";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { FaHeart } from "react-icons/fa6";
+import { FiHeart } from "react-icons/fi";
 
 export default function BoostedProducts() {
   const sliderRef = useRef();
@@ -80,6 +83,58 @@ export default function BoostedProducts() {
         totalReviews
       ).toFixed(1)
     : 0;
+  const handleAddToFavorite = async (item) => {
+    if (user?.token) {
+      try {
+        const res = await axios.post(
+          `${BASE_URL}/users/wishlist-product/${item?._id}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        if (res?.status === 201) {
+          fetchMyProducts();
+          toast.success(res?.data?.message);
+        }
+      } catch (error) {
+        if (error?.status === 409) {
+          toast.error(error?.response?.data?.message);
+        }
+      }
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const handleRemoveFromFavorite = async (item) => {
+    if (user?.token) {
+      try {
+        const res = await axios.delete(
+          `${BASE_URL}/users/wishlist-product/${item?._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        if (res?.status === 200) {
+          fetchMyProducts();
+          toast.success(res?.data?.message);
+        }
+      } catch (error) {
+        if (error?.status === 409) {
+          toast.error(error?.response?.data?.message);
+        }
+      }
+    } else {
+      navigate("/login");
+    }
+  };
 
   const ProductSkeleton = () => (
     <div className="bg-gray-200 rounded-3xl p-4 min-w-[280px] max-w-[280px] flex-shrink-0 animate-pulse">
@@ -130,7 +185,6 @@ export default function BoostedProducts() {
                 <div
                   key={item.id}
                   className="bg-white cursor-pointer text-black rounded-3xl p-4 min-w-[280px] max-w-[280px] flex-shrink-0"
-                  onClick={() => navigate(`/products/${item?._id}`)}
                 >
                   <div className="relative">
                     <img
@@ -146,26 +200,40 @@ export default function BoostedProducts() {
                         alt=""
                       />
                     </span>
-                    <button className="absolute top-3 right-3 text-2xl text-white">
-                      🤍
+                    <button
+                      type="button"
+                      className="absolute z-10 top-4 right-4"
+                      onClick={() =>
+                        item?.isWishListed
+                          ? handleRemoveFromFavorite(item)
+                          : handleAddToFavorite(item)
+                      }
+                    >
+                      {item?.isWishListed ? (
+                        <FaHeart className="text-white text-2xl" />
+                      ) : (
+                        <FiHeart className="text-white text-2xl" />
+                      )}
                     </button>
                   </div>
+                  <div onClick={() => navigate(`/products/${item?._id}`)}>
+                    <h2 className="mt-3 text-[16px] font-semibold">
+                      {item?.name}
+                    </h2>
+                    <p className="text-gray-500 text-sm">
+                      {item?.fulfillmentMethod?.selfPickup && "Self Pickup"}
+                      {item?.fulfillmentMethod?.delivery && "Delivery"}
+                    </p>
 
-                  <h2 className="mt-3 text-[16px] font-semibold">
-                    {item?.name}
-                  </h2>
-                  <p className="text-gray-500 text-sm">
-                    {item?.fulfillmentMethod?.selfPickup && "Self Pickup"}
-                    {item?.fulfillmentMethod?.delivery && "Delivery"}
-                  </p>
-
-                  <div className="flex justify-between items-center mt-3">
-                    <span className="text-[#606060] font-bold text-lg">
-                      <span className="text-yellow-300">★</span> {averageRating}
-                    </span>
-                    <span className="text-[#003DAC] font-bold text-lg">
-                      ${item.price.toFixed(2)}
-                    </span>
+                    <div className="flex justify-between items-center mt-3">
+                      <span className="text-[#606060] font-bold text-lg">
+                        <span className="text-yellow-300">★</span>{" "}
+                        {averageRating}
+                      </span>
+                      <span className="text-[#003DAC] font-bold text-lg">
+                        ${item.price.toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
