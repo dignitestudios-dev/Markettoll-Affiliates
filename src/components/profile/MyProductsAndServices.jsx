@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ProductCard from "../Global/ProductCard";
 import { IoClose } from "react-icons/io5";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
@@ -11,8 +11,9 @@ import MyProductsList from "./MyProductsList";
 const MyProductsAndServices = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [state, setState] = useState(false);
-  const [postType, setPostType] = useState("post");
-  
+  const location = useLocation();
+  const statusForHome = location?.state?.postType;
+  const [postType, setPostType] = useState(statusForHome || "post");
 
   const handleShowPopup = () => {
     setShowPopup(!showPopup);

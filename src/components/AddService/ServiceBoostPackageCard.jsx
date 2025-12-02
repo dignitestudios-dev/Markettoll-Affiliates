@@ -3,10 +3,11 @@ import { FaCheck } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
-import { BASE_URL } from "../../api/api";
+import { BASE_URL, STRIPE_PUBLISHABLE_KEY } from "../../api/api";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import ButtonLoader from "../Global/ButtonLoader";
+import { loadStripe } from "@stripe/stripe-js";
 
 const ServiceBoostPackageCard = ({
   index,
@@ -23,6 +24,91 @@ const ServiceBoostPackageCard = ({
   const [showSuccessMoal, setShowSuccessModal] = useState(false);
   const location = useLocation();
 
+  // const handleNavigate = async () => {
+  //   if (
+  //     userProfile?.stripeCustomer?.id === null ||
+  //     userProfile?.stripeCustomer?.id === undefined
+  //   ) {
+  //     navigate("/boost-post", {
+  //       state: {
+  //         plan: {
+  //           title,
+  //           duration,
+
+  //           features,
+  //           index,
+  //         },
+  //       },
+  //     });
+  //   } else {
+  //     setLoading(true);
+  //     let URL;
+  //     if (
+  //       location?.state?.type === "service" ||
+  //       location?.state?.type === "edit-service"
+  //     ) {
+  //       URL = `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${location?.state?.id}`;
+  //     } else if (location?.state?.type === "product") {
+  //       URL = `${BASE_URL}/stripe/product-boost-paid-plan-stripe/${location?.state?.id}`;
+  //     }
+  //     try {
+  //       const res = await axios.post(
+  //         URL,
+  //         {
+  //           boostName,
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${user?.token}`,
+  //           },
+  //         }
+  //       );
+  //       console.log("servide boost res >>>", res);
+  //       if (res?.status == 201) {
+  //         setShowPlanModal(true);
+  //         setTimeout(() => {
+  //           setShowPlanModal(false);
+  //           setShowSuccessModal(true);
+  //         }, 2000);
+  //       }
+  //     } catch (error) {
+  //       console.log("error while boosting service 1 >>>>", error);
+  //       toast.error(error?.response?.data?.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //     if (location?.state?.from === "/my-listings") {
+  //       try {
+  //         const res = await axios.post(
+  //           URL,
+  //           {
+  //             boostName,
+  //           },
+  //           {
+  //             headers: {
+  //               Authorization: `Bearer ${user?.token}`,
+  //             },
+  //           }
+  //         );
+  //         console.log("servide boost res >>>", res);
+  //         if (res?.status == 201) {
+  //           setShowPlanModal(true);
+  //           setTimeout(() => {
+  //             setShowPlanModal(false);
+  //             setShowSuccessModal(true);
+  //           }, 2000);
+  //         }
+  //       } catch (error) {
+  //         console.log("error while boosting service 2 >>>>", error);
+  //         toast.error(error?.response?.data?.message);
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     } else {
+  //     }
+  //   }
+  // };
+
   const handleNavigate = async () => {
     if (
       userProfile?.stripeCustomer?.id === null ||
@@ -33,78 +119,80 @@ const ServiceBoostPackageCard = ({
           plan: {
             title,
             duration,
-
             features,
             index,
           },
         },
       });
-    } else {
-      setLoading(true);
-      let URL;
-      if (
-        location?.state?.type === "service" ||
-        location?.state?.type === "edit-service"
-      ) {
-        URL = `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${location?.state?.id}`;
-      } else if (location?.state?.type === "product") {
-        URL = `${BASE_URL}/stripe/product-boost-paid-plan-stripe/${location?.state?.id}`;
-      }
-      try {
-        const res = await axios.post(
-          URL,
-          {
-            boostName,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token}`,
-            },
-          }
-        );
-        console.log("servide boost res >>>", res);
-        if (res?.status == 201) {
+      return;
+    }
+
+    setLoading(true);
+
+    let URL;
+    if (
+      location?.state?.type === "service" ||
+      location?.state?.type === "edit-service"
+    ) {
+      URL = `${BASE_URL}/stripe/service-boost-paid-plan-stripe/${location?.state?.id}`;
+    } else if (location?.state?.type === "product") {
+      URL = `${BASE_URL}/stripe/product-boost-paid-plan-stripe/${location?.state?.id}`;
+    }
+
+    try {
+      const res = await axios.post(
+        URL,
+        { boostName },
+        { headers: { Authorization: `Bearer ${user?.token}` } }
+      );
+
+      console.log("Boost Response >>>", res);
+
+      // ----------------------------
+      // 🔵 STRIPE 3D-SECURE HANDLING
+      // ----------------------------
+      const clientSecret = res?.data?.data?.clientSecret;
+      const paymentMethodId = res?.data?.data?.paymentMethodId;
+      const status = res?.data?.data?.status;
+
+      if (status === "requires_action") {
+        const stripe = await loadStripe(STRIPE_PUBLISHABLE_KEY);
+
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: paymentMethodId,
+        });
+
+        if (result.error) {
+          toast.error(result.error.message);
+          return;
+        }
+
+        if (result.paymentIntent.status === "succeeded") {
           setShowPlanModal(true);
           setTimeout(() => {
             setShowPlanModal(false);
             setShowSuccessModal(true);
           }, 2000);
         }
-      } catch (error) {
-        console.log("error while boosting service 1 >>>>", error);
-        toast.error(error?.response?.data?.message);
-      } finally {
-        setLoading(false);
+
+        return;
       }
-      if (location?.state?.from === "/my-listings") {
-        try {
-          const res = await axios.post(
-            URL,
-            {
-              boostName,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${user?.token}`,
-              },
-            }
-          );
-          console.log("servide boost res >>>", res);
-          if (res?.status == 201) {
-            setShowPlanModal(true);
-            setTimeout(() => {
-              setShowPlanModal(false);
-              setShowSuccessModal(true);
-            }, 2000);
-          }
-        } catch (error) {
-          console.log("error while boosting service 2 >>>>", error);
-          toast.error(error?.response?.data?.message);
-        } finally {
-          setLoading(false);
-        }
-      } else {
+
+      // ----------------------------
+      // IF PAYMENT ALREADY SUCCESS
+      // ----------------------------
+      if (status === "succeeded") {
+        setShowPlanModal(true);
+        setTimeout(() => {
+          setShowPlanModal(false);
+          setShowSuccessModal(true);
+        }, 2000);
       }
+    } catch (error) {
+      console.log("error while boosting >>>>", error);
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 

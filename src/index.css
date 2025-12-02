@@ -298,3 +298,14 @@ input[type="number"]::-ms-clear {
 .increas-child-width>div {
   width: 100% !important;
 }
+
+
+/* Hide scrollbar for elements with the no-scrollbar class boosted products */
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

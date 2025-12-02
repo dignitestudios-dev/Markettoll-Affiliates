@@ -9,10 +9,12 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import { CartProductContext } from "../../context/cartProductContext";
+import BoostedProducts from "../../components/Home/BoostedProductsCard";
 
 const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
-  const { userProfile, setUserProfile,setVerificationStatus } = useContext(AuthContext);
+  const { userProfile, setUserProfile, setVerificationStatus } =
+    useContext(AuthContext);
   const userCookie = localStorage.getItem("user");
   const user2 = userCookie ? JSON.parse(userCookie) : null;
   const { setData } = useContext(CartProductContext);
@@ -25,7 +27,6 @@ const HomePage = () => {
     });
   }, []);
 
-
   const fetchUserProfile = async () => {
     if (user2?.token) {
       try {
@@ -35,8 +36,7 @@ const HomePage = () => {
           },
         });
         setUserProfile(res?.data?.data);
-        console.log(res?.data," ");
-
+        console.log(res?.data, " ");
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
@@ -93,7 +93,9 @@ const HomePage = () => {
 
   return (
     <div className="padding-x py-6 z-0">
-      <div className="w-full flex items-center justify-between z-0">
+      <BoostedProducts />
+
+      <div className="w-full flex items-center justify-between z-0 mt-10">
         <h2 className="text-2xl lg:text-[36px] font-bold">
           <span className="blue-text">
             Welcome {userProfile?.name ? `${userProfile?.name},` : ""}
@@ -108,7 +110,6 @@ const HomePage = () => {
           Sell <FiPlus className="text-lg" />
         </button>
       </div>
-
       <Popup openModal={openModal} onclick={handleOpenModal} />
       <ProductList />
     </div>

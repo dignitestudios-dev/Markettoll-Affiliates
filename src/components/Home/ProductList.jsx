@@ -31,7 +31,7 @@ const ProductList = () => {
   const [productPages, setProductPages] = useState({});
   const [productHasMore, setProductHasMore] = useState({});
   const [loadingMoreProducts, setLoadingMoreProducts] = useState({});
-  
+
   // Ref to track ongoing fetch requests per category
   const fetchingRef = useRef({});
 
@@ -97,23 +97,23 @@ const ProductList = () => {
       const productsData = res?.data?.data || [];
       setProducts(productsData);
       setFilteredProducts(productsData);
-      
+
       // Initialize pagination states for each category
       const initialPages = {};
       const initialHasMore = {};
       const initialLoading = {};
-      
+
       productsData.forEach((categoryData) => {
         const categoryName = categoryData.category;
         initialPages[categoryName] = 2; // Start from page 2
         initialHasMore[categoryName] = true; // Initially assume there are more products
         initialLoading[categoryName] = false;
       });
-      
+
       setProductPages(initialPages);
       setProductHasMore(initialHasMore);
       setLoadingMoreProducts(initialLoading);
-      
+
       // Clear any previous fetching refs
       fetchingRef.current = {};
     } catch (error) {
@@ -128,12 +128,15 @@ const ProductList = () => {
     if (!productHasMore[categoryName] || loadingMoreProducts[categoryName]) {
       console.log(`Skipping fetch for ${categoryName}:`, {
         hasMore: productHasMore[categoryName],
-        loading: loadingMoreProducts[categoryName]
+        loading: loadingMoreProducts[categoryName],
       });
       return;
     }
 
-    console.log(`Fetching more products for ${categoryName}, page:`, productPages[categoryName]);
+    console.log(
+      `Fetching more products for ${categoryName}, page:`,
+      productPages[categoryName]
+    );
 
     setLoadingMoreProducts((prev) => ({
       ...prev,
@@ -153,7 +156,9 @@ const ProductList = () => {
       const newProducts = res?.data?.data?.products || [];
       const totalPages = res?.data?.data?.totalPages || 0;
 
-      console.log(`Got ${newProducts.length} products, currentPage: ${currentPage}, totalPages: ${totalPages}`);
+      console.log(
+        `Got ${newProducts.length} products, currentPage: ${currentPage}, totalPages: ${totalPages}`
+      );
 
       // Check if we've reached the last page
       if (currentPage >= totalPages || newProducts.length === 0) {
@@ -168,7 +173,9 @@ const ProductList = () => {
         setFilteredProducts((prev) =>
           prev.map((categoryData) => {
             if (categoryData.category === categoryName) {
-              console.log(`Adding ${newProducts.length} products to ${categoryName}`);
+              console.log(
+                `Adding ${newProducts.length} products to ${categoryName}`
+              );
               return {
                 ...categoryData,
                 products: [...categoryData.products, ...newProducts],
@@ -229,7 +236,7 @@ const ProductList = () => {
       setLoadingJobs(true);
 
       const res = await axios.get(`${BASE_URL}/users/get-jobs?page=${pageNum}`);
-console.log(res,"resresresresres")
+      console.log(res, "resresresresres");
       const newJobs = res?.data?.jobs || [];
       setJobs((prev) => [...prev, ...newJobs]);
 
@@ -375,24 +382,24 @@ console.log(res,"resresresresres")
 
       requestAnimationFrame(() => {
         // Add debounce to prevent rapid-fire calls
-          filteredProducts.forEach((categoryData) => {
-            const categoryRef = categoryRefs.current[categoryData.category];
-            if (!categoryRef) return;
+        filteredProducts.forEach((categoryData) => {
+          const categoryRef = categoryRefs.current[categoryData.category];
+          if (!categoryRef) return;
 
-            const rect = categoryRef.getBoundingClientRect();
-            const threshold = 800; // Trigger when 800px away from bottom of category section
+          const rect = categoryRef.getBoundingClientRect();
+          const threshold = 800; // Trigger when 800px away from bottom of category section
 
-            // Check if we're near the bottom of this category section
-            if (
-              rect.bottom <= window.innerHeight + threshold &&
-              rect.bottom > 0 &&
-              productHasMore[categoryData.category] &&
-              !loadingMoreProducts[categoryData.category] &&
-              !fetchingRef.current[categoryData.category]
-            ) {
-              fetchMoreProducts(categoryData.category);
-            }
-          });
+          // Check if we're near the bottom of this category section
+          if (
+            rect.bottom <= window.innerHeight + threshold &&
+            rect.bottom > 0 &&
+            productHasMore[categoryData.category] &&
+            !loadingMoreProducts[categoryData.category] &&
+            !fetchingRef.current[categoryData.category]
+          ) {
+            fetchMoreProducts(categoryData.category);
+          }
+        });
 
         ticking = false;
       });

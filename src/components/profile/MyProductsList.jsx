@@ -4,18 +4,19 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { AuthContext } from "../../context/authContext";
 import Loader from "../Global/Loader";
+import { useLocation } from "react-router-dom";
 
 const MyProductsList = ({ postType }) => {
   const [myProducts, setMyProducts] = useState([]);
   const { user } = useContext(AuthContext);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-
+  
   const fetchMyProducts = async () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        postType === "post"
+        postType  === "post"
           ? `${BASE_URL}/users/seller-products/${user?._id}?page=${page}`
           : `${BASE_URL}/users/products-boosted?page=${page}`,
         {
@@ -31,7 +32,6 @@ const MyProductsList = ({ postType }) => {
       setLoading(false);
     }
   };
-  console.log(myProducts, "myProducts");
   useEffect(() => {
     fetchMyProducts();
   }, [postType]);
