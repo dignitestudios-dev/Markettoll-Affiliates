@@ -174,13 +174,13 @@ const AddProductForm = () => {
       toast.error("Please choose a product sub category");
       return;
     }
-    if (!description) {
-      toast.error("Please write some description for the product");
-      return;
-    } else if (description.length < 100) {
-      toast.error("Description can not be less than 100 characters");
-      return;
-    }
+    // if (!description) {
+    //   toast.error("Please write some description for the product");
+    //   return;
+    // } else if (description.length < 100) {
+    //   toast.error("Description can not be less than 100 characters");
+    //   return;
+    // }
     if (!price) {
       toast.error("Please enter price");
       return;
