@@ -36,14 +36,21 @@ export default function BoostedProducts() {
   }, []);
   // Slider auto-scroll
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (sliderRef.current) {
-        sliderRef.current.scrollBy({
-          left: sliderRef.current.clientWidth,
-          behavior: "smooth",
-        });
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const scrollSpeed = 2; // smooth speed (lower = smoother)
+
+    const scroll = () => {
+      slider.scrollLeft += scrollSpeed;
+
+      if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth) {
+        slider.scrollLeft = 0;
       }
-    }, 3000);
+    };
+
+    const interval = setInterval(scroll, 26); // ~60 FPS smooth scroll
+
     return () => clearInterval(interval);
   }, []);
 
@@ -181,62 +188,66 @@ export default function BoostedProducts() {
             ? Array(4)
                 .fill(0)
                 .map((_, idx) => <ProductSkeleton key={idx} />)
-            : myProducts.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white cursor-pointer text-black rounded-3xl p-4 min-w-[280px] max-w-[280px] flex-shrink-0"
-                >
-                  <div className="relative">
-                    <img
-                      src={item?.images?.[0]?.url}
-                      alt="product"
-                      className="w-[266px] h-[276px] object-contain border border-gray-100 rounded-2xl"
-                    />
-                    <span className="absolute top-3 left-3 h-[40px] w-[121px] bg-[#00AAD5] text-white px-3 py-1 rounded-[12px] text-[16px] font-semibold flex items-center gap-1">
-                      Boosted{" "}
+            : (() => {
+                return myProducts?.map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-white cursor-pointer text-black rounded-3xl p-4 min-w-[280px] max-w-[280px] flex-shrink-0"
+                  >
+                    <div className="relative">
                       <img
-                        src={Airplane}
-                        className="w-[24px] h-[24px]"
-                        alt=""
+                        src={item?.images?.[0]?.url}
+                        alt="product"
+                        className="w-[266px] h-[276px] object-contain border border-gray-100 rounded-2xl"
                       />
-                    </span>
-                    <button
-                      type="button"
-                      className="absolute z-10 top-4 right-4"
-                      onClick={() =>
-                        item?.isWishListed
-                          ? handleRemoveFromFavorite(item)
-                          : handleAddToFavorite(item)
-                      }
-                    >
-                      {item?.isWishListed ? (
-                        <FaHeart className="text-white text-2xl" />
-                      ) : (
-                        <FiHeart className="text-white text-2xl" />
-                      )}
-                    </button>
-                  </div>
-                  <div onClick={() => navigate(`/products/${item?._id}`)}>
-                    <h2 className="mt-3 text-[16px] font-semibold">
-                      {item?.name}
-                    </h2>
-                    <p className="text-gray-500 text-sm">
-                      {item?.fulfillmentMethod?.selfPickup && "Self Pickup"}
-                      {item?.fulfillmentMethod?.delivery && "Delivery"}
-                    </p>
+                      <span className="absolute top-3 left-3 h-[40px] w-[121px] bg-[#00AAD5] text-white px-3 py-1 rounded-[12px] text-[16px] font-semibold flex items-center gap-1">
+                        Boosted{" "}
+                        <img
+                          src={Airplane}
+                          className="w-[24px] h-[24px]"
+                          alt=""
+                        />
+                      </span>
 
-                    <div className="flex justify-between items-center mt-3">
-                      <span className="text-[#606060] font-bold text-lg">
-                        <span className="text-yellow-300">★</span>{" "}
-                        {averageRating}
-                      </span>
-                      <span className="text-[#003DAC] font-bold text-lg">
-                        ${item.price.toFixed(2)}
-                      </span>
+                      <button
+                        type="button"
+                        className="absolute z-10 top-4 right-4"
+                        onClick={() =>
+                          item?.isWishListed
+                            ? handleRemoveFromFavorite(item)
+                            : handleAddToFavorite(item)
+                        }
+                      >
+                        {item?.isWishListed ? (
+                          <FaHeart className="text-white text-2xl" />
+                        ) : (
+                          <FiHeart className="text-white text-2xl" />
+                        )}
+                      </button>
+                    </div>
+
+                    <div onClick={() => navigate(`/products/${item?._id}`)}>
+                      <h2 className="mt-3 text-[16px] font-semibold">
+                        {item?.name}
+                      </h2>
+                      <p className="text-gray-500 text-sm">
+                        {item?.fulfillmentMethod?.selfPickup && "Self Pickup"}
+                        {item?.fulfillmentMethod?.delivery && "Delivery"}
+                      </p>
+
+                      <div className="flex justify-between items-center mt-3">
+                        <span className="text-[#606060] font-bold text-lg">
+                          <span className="text-yellow-300">★</span>{" "}
+                          {averageRating}
+                        </span>
+                        <span className="text-[#003DAC] font-bold text-lg">
+                          ${item.price.toFixed(2)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ));
+              })()}
         </div>
 
         <button
