@@ -35,24 +35,25 @@ export default function BoostedProducts() {
     fetchMyProducts();
   }, []);
   // Slider auto-scroll
-  useEffect(() => {
-    const slider = sliderRef.current;
-    if (!slider) return;
+useEffect(() => {
+  const slider = sliderRef.current;
+  if (!slider) return;
 
-    const scrollSpeed = 2; // smooth speed (lower = smoother)
+  const scrollSpeed = 1; // adjust smoothness
 
-    const scroll = () => {
-      slider.scrollLeft += scrollSpeed;
+  const scroll = () => {
+    slider.scrollLeft += scrollSpeed;
 
-      if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth) {
-        slider.scrollLeft = 0;
-      }
-    };
+    // reset seamlessly when we reach the middle (since duplicated)
+    if (slider.scrollLeft >= slider.scrollWidth / 2) {
+      slider.scrollLeft = 0;
+    }
+  };
 
-    const interval = setInterval(scroll, 26); // ~60 FPS smooth scroll
+  const interval = setInterval(scroll, 16); // ~60 FPS
 
-    return () => clearInterval(interval);
-  }, []);
+  return () => clearInterval(interval);
+}, []);
 
   const scrollLeft = () => {
     sliderRef.current.scrollBy({
