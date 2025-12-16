@@ -2,12 +2,13 @@ import React, { useContext, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa6";
 import axios from "axios";
-import { BASE_URL } from "../../api/api";
+import { BASE_URL, STRIPE_PUBLISHABLE_KEY } from "../../api/api";
 import { CartProductContext } from "../../context/cartProductContext";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ButtonLoader from "../Global/ButtonLoader";
+import { loadStripe } from "@stripe/stripe-js";
 
 const CartSummary = ({
   onclick,
@@ -26,61 +27,83 @@ const CartSummary = ({
   const [orderId, setOrderId] = useState(null);
   const [orderData, setOrderData] = useState(null);
 
-  const handlePlaceOrder = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.post(
-        `${BASE_URL}/users/order-product-transient`,
-        {
-          deliveryAddress: data?.deliveryAddress,
-          paymentMethod: data?.paymentMethod,
+const handlePlaceOrder = async () => {
+  setLoading(true);
+
+  try {
+    // 1️⃣ First API — transient
+    const transientRes = await axios.post(
+      `${BASE_URL}/users/order-product-transient`,
+      {
+        deliveryAddress: data?.deliveryAddress,
+        paymentMethod: data?.paymentMethod,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
-      if (res?.status == 201) {
-        try {
-          const response = await axios.post(
-            `${BASE_URL}/users/order-product-purchased`,
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${user?.token}`,
-              },
-            }
-          );
-          // console.log("order placed >>>", response);
-          setOrderId(response?.data?.data?._id);
-          setOrderData(response?.data?.data);
-          if (response?.status == 201) {
-            setIsOrderPlaced(!isOrderPlaced);
-            setCartCount(0);
-            // fetchCartProducts();
-          }
-        } catch (error) {
-          if (error?.response?.data?.message == "Not enough funds in wallet.") {
-            toast.error(error?.response?.data?.message);
-            setCount(2);
-          }
-        }
       }
-    } catch (error) {
-      console.log("place order err >>>", error?.response?.data?.message);
-      toast.error(error?.response?.data?.message);
-    } finally {
-      setLoading(false);
+    );
+
+    if (transientRes?.status !== 201) {
+      toast.error("Failed to initialize payment");
+      return;
     }
-  };
+
+    // 2️⃣ Second API — purchased
+    const purchasedRes = await axios.post(
+      `${BASE_URL}/users/order-product-purchased`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      }
+    );
+
+    const { paymentIntent } = purchasedRes.data.data;
+
+    // 3️⃣ Handle 3D Secure AFTER purchased API
+    if (paymentIntent?.status === "requires_action") {
+      const stripe = await loadStripe(STRIPE_PUBLISHABLE_KEY);
+
+      const result = await stripe.confirmCardPayment(
+        paymentIntent.clientSecret
+      );
+
+      if (result.error) {
+        toast.error(result.error.message);
+        return;
+      }
+
+      if (result.paymentIntent.status !== "succeeded") {
+        toast.error("Payment authentication failed");
+        return;
+      }
+    }
+
+    // 4️⃣ Success
+    setOrderId(purchasedRes.data.data._id);
+    setOrderData(purchasedRes.data.data);
+    setIsOrderPlaced(true);
+    setCartCount(0);
+
+  } catch (error) {
+    console.log(error)
+    toast.error(
+      error?.response?.data?.message || "Something went wrong"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleCloseModal = () => {
     setIsOrderPlaced(!isOrderPlaced);
     // navigate(`/`);
     navigate(`/order-details/${orderId}`, { state: { orderData } });
   };
-
+  console.log(count, "countcount");
   return (
     <div className="bg-white rounded-[20px] p-6">
       <h3 className="font-bold text-[28px] blue-text">Order Summary</h3>
