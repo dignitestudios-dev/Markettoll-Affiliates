@@ -38,7 +38,7 @@ export default function BoostedProducts() {
   const startAutoScroll = () => {
     if (!sliderRef.current) return;
     const slider = sliderRef.current;
-    const speed = 1;
+    const speed = 1.5;
 
     stopAutoScroll(); // clear any existing interval
 
