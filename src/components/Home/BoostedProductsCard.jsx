@@ -9,19 +9,22 @@ import { FaHeart } from "react-icons/fa6";
 import { FiHeart } from "react-icons/fi";
 
 export default function BoostedProducts() {
-  const sliderRef = useRef();
+  const sliderRef = useRef(null);
+  const autoScrollRef = useRef(null);
   const navigate = useNavigate();
-  const [myProducts, setMyProducts] = useState([]);
   const { user } = useContext(AuthContext);
+
+  const [myProducts, setMyProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Fetch boosted products
   const fetchMyProducts = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/users/get-boosted-products`);
       setMyProducts(res?.data?.data || []);
     } catch (error) {
-      console.log("my products err >>>>", error);
+      console.error("Error fetching boosted products:", error);
     } finally {
       setLoading(false);
     }
@@ -31,45 +34,47 @@ export default function BoostedProducts() {
     fetchMyProducts();
   }, []);
 
-  // Infinite auto-scroll
-  useEffect(() => {
+  // Auto-scroll functions
+  const startAutoScroll = () => {
+    if (!sliderRef.current) return;
     const slider = sliderRef.current;
-    if (!slider) return;
-    const scrollSpeed = 1;
+    const speed = 1;
 
-    const scroll = () => {
-      slider.scrollLeft += scrollSpeed;
+    stopAutoScroll(); // clear any existing interval
+
+    autoScrollRef.current = setInterval(() => {
+      slider.scrollLeft += speed;
       if (slider.scrollLeft >= slider.scrollWidth / 2) {
-        slider.scrollLeft = 0; // reset seamlessly
+        slider.scrollLeft = 0; // seamless reset
       }
-    };
+    }, 16);
+  };
 
-    const interval = setInterval(scroll, 16); // ~60 FPS
-    return () => clearInterval(interval);
+  const stopAutoScroll = () => {
+    if (autoScrollRef.current) clearInterval(autoScrollRef.current);
+  };
+
+  // Start auto-scroll when products are loaded
+  useEffect(() => {
+    if (myProducts.length) startAutoScroll();
+    return () => stopAutoScroll();
   }, [myProducts]);
 
+  // Manual scroll buttons
   const scrollLeft = () => {
-    sliderRef.current.scrollBy({
-      left: -sliderRef.current.clientWidth,
-      behavior: "smooth",
-    });
+    sliderRef.current.scrollBy({ left: -sliderRef.current.clientWidth, behavior: "smooth" });
   };
   const scrollRight = () => {
-    sliderRef.current.scrollBy({
-      left: sliderRef.current.clientWidth,
-      behavior: "smooth",
-    });
+    sliderRef.current.scrollBy({ left: sliderRef.current.clientWidth, behavior: "smooth" });
   };
 
+  // Wishlist handlers
   const handleAddToFavorite = async (item) => {
     if (!user?.token) return navigate("/login");
-
     try {
-      const res = await axios.post(
-        `${BASE_URL}/users/wishlist-product/${item?._id}`,
-        {},
-        { headers: { Authorization: `Bearer ${user?.token}` } }
-      );
+      const res = await axios.post(`${BASE_URL}/users/wishlist-product/${item?._id}`, {}, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
       if (res?.status === 201) {
         fetchMyProducts();
         toast.success(res?.data?.message);
@@ -81,7 +86,6 @@ export default function BoostedProducts() {
 
   const handleRemoveFromFavorite = async (item) => {
     if (!user?.token) return navigate("/login");
-
     try {
       const res = await axios.delete(`${BASE_URL}/users/wishlist-product/${item?._id}`, {
         headers: { Authorization: `Bearer ${user?.token}` },
@@ -95,6 +99,7 @@ export default function BoostedProducts() {
     }
   };
 
+  // Skeleton for loading state
   const ProductSkeleton = () => (
     <div className="bg-gray-200 rounded-3xl p-4 min-w-[280px] max-w-[280px] flex-shrink-0 animate-pulse">
       <div className="w-full h-56 bg-gray-300 rounded-2xl mb-3" />
@@ -107,9 +112,9 @@ export default function BoostedProducts() {
     </div>
   );
 
-  if (!myProducts?.length) return null;
+  if (!myProducts.length) return null;
 
-  // Duplicate products for infinite scroll
+  // Duplicate products for seamless infinite scroll
   const allProducts = [...myProducts, ...myProducts];
 
   return (
@@ -117,6 +122,7 @@ export default function BoostedProducts() {
       <h1 className="text-[40px] font-[700] text-center">Boosted Products!</h1>
 
       <div className="relative mt-6">
+        {/* Left scroll button */}
         <button
           onClick={scrollLeft}
           className="absolute z-20 -left-8 top-1/2 -translate-y-1/2 bg-[#F1F1F1CC] text-black w-10 h-10 rounded-full shadow-lg hidden md:flex items-center justify-center"
@@ -124,8 +130,11 @@ export default function BoostedProducts() {
           ‹
         </button>
 
+        {/* Slider */}
         <div
           ref={sliderRef}
+          onMouseEnter={stopAutoScroll} // pause on hover
+          onMouseLeave={startAutoScroll} // resume on leave
           className="flex gap-6 overflow-x-scroll scroll-smooth no-scrollbar py-4"
         >
           {loading
@@ -138,12 +147,13 @@ export default function BoostedProducts() {
                   <div className="relative">
                     <img
                       src={item?.images?.[0]?.url}
-                      alt="product"
+                      alt={item?.name}
                       className="w-[266px] h-[276px] object-contain border border-gray-100 rounded-2xl"
                     />
                     <span className="absolute top-3 left-3 h-[40px] w-[121px] bg-[#00AAD5] text-white px-3 py-1 rounded-[12px] text-[16px] font-semibold flex items-center gap-1">
                       Boosted <img src={Airplane} className="w-[24px] h-[24px]" alt="" />
                     </span>
+
                     <button
                       type="button"
                       className="absolute z-10 top-4 right-4"
@@ -180,6 +190,7 @@ export default function BoostedProducts() {
               ))}
         </div>
 
+        {/* Right scroll button */}
         <button
           onClick={scrollRight}
           className="absolute -right-8 top-1/2 -translate-y-1/2 bg-[#F1F1F1CC] text-black w-10 h-10 rounded-full shadow-lg hidden md:flex items-center justify-center"
