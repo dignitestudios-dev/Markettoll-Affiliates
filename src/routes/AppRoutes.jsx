@@ -76,6 +76,7 @@ import Affiliate from "../pages/affiliate/Affiliate";
 import AddJobPage from "../pages/addJob/AddJobPage";
 import JobReviewPage from "../pages/addJob/JobReviewPage";
 import JobDetailsPage from "../pages/jobs/JobDetailsPage";
+import AllBoostedProducts from "../components/Home/AllBoostedProducts";
 
 const AppRoutes = () => {
   return (
@@ -85,6 +86,10 @@ const AppRoutes = () => {
         <Route path="/" element={<Layout page={<HomePage />} />} />
         <Route path="/login" element={<Layout page={<LoginPage />} />} />
         <Route path="/sign-up" element={<Layout page={<SignUpPage />} />} />
+        <Route
+          path="/all-boosted"
+          element={<Layout page={<AllBoostedProducts />} />}
+        />
         <Route
           path="/forgot-password"
           element={<Layout page={<ForgotPasswordPage />} />}
@@ -237,7 +242,10 @@ const AppRoutes = () => {
             </RoleProtectedRoute>
           }
         />
-        <Route path="/job/:jobId" element={<Layout page={<JobDetailsPage />} />} />
+        <Route
+          path="/job/:jobId"
+          element={<Layout page={<JobDetailsPage />} />}
+        />
         <Route
           path="/service-review"
           element={
@@ -382,6 +390,7 @@ const AppRoutes = () => {
             </RoleProtectedRoute>
           }
         />
+
         <Route
           path="/order-history/order-details/:orderId"
           element={

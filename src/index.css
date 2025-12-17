@@ -309,3 +309,31 @@ input[type="number"]::-ms-clear {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.marquee-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+/* optional: hover pe bhi na ruke */
+.marquee:hover {
+  animation-play-state: running;
+}
+

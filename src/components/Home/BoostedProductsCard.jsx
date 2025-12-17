@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
 import { BASE_URL } from "../../api/api";
@@ -9,22 +9,19 @@ import { FaHeart } from "react-icons/fa6";
 import { FiHeart } from "react-icons/fi";
 
 export default function BoostedProducts() {
-  const sliderRef = useRef(null);
-  const autoScrollRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
   const [myProducts, setMyProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch boosted products
   const fetchMyProducts = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/users/get-boosted-products`);
       setMyProducts(res?.data?.data || []);
     } catch (error) {
-      console.error("Error fetching boosted products:", error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -34,72 +31,34 @@ export default function BoostedProducts() {
     fetchMyProducts();
   }, []);
 
-  // Auto-scroll functions
-  const startAutoScroll = () => {
-    if (!sliderRef.current) return;
-    const slider = sliderRef.current;
-    const speed = 1.5;
-
-    stopAutoScroll(); // clear any existing interval
-
-    autoScrollRef.current = setInterval(() => {
-      slider.scrollLeft += speed;
-      if (slider.scrollLeft >= slider.scrollWidth / 2) {
-        slider.scrollLeft = 0; // seamless reset
-      }
-    }, 16);
-  };
-
-  const stopAutoScroll = () => {
-    if (autoScrollRef.current) clearInterval(autoScrollRef.current);
-  };
-
-  // Start auto-scroll when products are loaded
-  useEffect(() => {
-    if (myProducts.length) startAutoScroll();
-    return () => stopAutoScroll();
-  }, [myProducts]);
-
-  // Manual scroll buttons
-  const scrollLeft = () => {
-    sliderRef.current.scrollBy({ left: -sliderRef.current.clientWidth, behavior: "smooth" });
-  };
-  const scrollRight = () => {
-    sliderRef.current.scrollBy({ left: sliderRef.current.clientWidth, behavior: "smooth" });
-  };
-
-  // Wishlist handlers
   const handleAddToFavorite = async (item) => {
     if (!user?.token) return navigate("/login");
     try {
-      const res = await axios.post(`${BASE_URL}/users/wishlist-product/${item?._id}`, {}, {
-        headers: { Authorization: `Bearer ${user?.token}` },
-      });
-      if (res?.status === 201) {
-        fetchMyProducts();
-        toast.success(res?.data?.message);
-      }
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Error adding favorite");
+      await axios.post(
+        `${BASE_URL}/users/wishlist-product/${item?._id}`,
+        {},
+        { headers: { Authorization: `Bearer ${user?.token}` } }
+      );
+      fetchMyProducts();
+      toast.success("Added to wishlist");
+    } catch {
+      toast.error("Error adding favorite");
     }
   };
 
   const handleRemoveFromFavorite = async (item) => {
     if (!user?.token) return navigate("/login");
     try {
-      const res = await axios.delete(`${BASE_URL}/users/wishlist-product/${item?._id}`, {
+      await axios.delete(`${BASE_URL}/users/wishlist-product/${item?._id}`, {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
-      if (res?.status === 200) {
-        fetchMyProducts();
-        toast.success(res?.data?.message);
-      }
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Error removing favorite");
+      fetchMyProducts();
+      toast.success("Removed from wishlist");
+    } catch {
+      toast.error("Error removing favorite");
     }
   };
 
-  // Skeleton for loading state
   const ProductSkeleton = () => (
     <div className="bg-gray-200 rounded-3xl p-4 min-w-[280px] max-w-[280px] flex-shrink-0 animate-pulse">
       <div className="w-full h-56 bg-gray-300 rounded-2xl mb-3" />
@@ -114,44 +73,70 @@ export default function BoostedProducts() {
 
   if (!myProducts.length) return null;
 
-  // Duplicate products for seamless infinite scroll
-  const allProducts = [...myProducts, ...myProducts];
-
   return (
     <div className="bg-[#0098EA] rounded-3xl p-6 md:p-10 text-white">
-      <h1 className="text-[40px] font-[700] text-center">Boosted Products!</h1>
+      <div className="flex  items-center justify-between">
+        <h1 className="text-[40px] font-[700] text-center">
+          Boosted Products!
+        </h1>
+        <p
+          className="text-[18px] font-[500] underline cursor-pointer "
+          onClick={() => navigate("/all-boosted")}
+        >
+          See All
+        </p>
+      </div>
 
       <div className="relative mt-6">
-        {/* Left scroll button */}
+        {/* UI arrows (decorative only) */}
         <button
-          onClick={scrollLeft}
-          className="absolute z-20 -left-8 top-1/2 -translate-y-1/2 bg-[#F1F1F1CC] text-black w-10 h-10 rounded-full shadow-lg hidden md:flex items-center justify-center"
+          disabled
+          className="absolute z-20 -left-6 top-1/2 -translate-y-1/2
+                     bg-white/80 text-black w-10 h-10 rounded-full shadow-lg
+                     hidden md:flex items-center justify-center
+                     cursor-default pointer-events-none"
         >
           ‹
         </button>
 
-        {/* Slider */}
-        <div
-          ref={sliderRef}
-          onMouseEnter={stopAutoScroll} // pause on hover
-          onMouseLeave={startAutoScroll} // resume on leave
-          className="flex gap-6 overflow-x-scroll scroll-smooth no-scrollbar py-4"
+        <button
+          disabled
+          className="absolute z-20 -right-6 top-1/2 -translate-y-1/2
+                     bg-white/80 text-black w-10 h-10 rounded-full shadow-lg
+                     hidden md:flex items-center justify-center
+                     cursor-default pointer-events-none"
         >
-          {loading
-            ? Array(4).fill(0).map((_, idx) => <ProductSkeleton key={idx} />)
-            : allProducts.map((item, index) => (
+          ›
+        </button>
+
+        {/* Marquee */}
+        {loading ? (
+          <ProductSkeleton />
+        ) : (
+          <div className="marquee-wrapper">
+            <div className="marquee">
+              {[...myProducts, ...myProducts].map((item, index) => (
                 <div
                   key={index}
-                  className="bg-white cursor-pointer text-black rounded-3xl p-4 min-w-[280px] max-w-[280px] flex-shrink-0"
+                  className="bg-white text-black rounded-3xl p-4
+                           min-w-[280px] max-w-[280px] flex-shrink-0 mx-3"
                 >
                   <div className="relative">
                     <img
                       src={item?.images?.[0]?.url}
                       alt={item?.name}
-                      className="w-[266px] h-[276px] object-contain border border-gray-100 rounded-2xl"
+                      className="w-[266px] h-[276px] object-contain
+                               border border-gray-100 rounded-2xl"
                     />
-                    <span className="absolute top-3 left-3 h-[40px] w-[121px] bg-[#00AAD5] text-white px-3 py-1 rounded-[12px] text-[16px] font-semibold flex items-center gap-1">
-                      Boosted <img src={Airplane} className="w-[24px] h-[24px]" alt="" />
+
+                    <span
+                      className="absolute top-3 left-3 h-[40px] w-[121px]
+                                   bg-[#00AAD5] text-white px-3 py-1
+                                   rounded-[12px] text-[16px] font-semibold
+                                   flex items-center gap-1"
+                    >
+                      Boosted
+                      <img src={Airplane} className="w-6 h-6" alt="" />
                     </span>
 
                     <button
@@ -172,14 +157,17 @@ export default function BoostedProducts() {
                   </div>
 
                   <div onClick={() => navigate(`/products/${item?._id}`)}>
-                    <h2 className="mt-3 text-[16px] font-semibold">{item?.name}</h2>
+                    <h2 className="mt-3 text-[16px] font-semibold">
+                      {item?.name}
+                    </h2>
                     <p className="text-gray-500 text-sm">
-                      {item?.fulfillmentMethod?.selfPickup && "Self Pickup"}
+                      {item?.fulfillmentMethod?.selfPickup && "Self Pickup "}
                       {item?.fulfillmentMethod?.delivery && "Delivery"}
                     </p>
+
                     <div className="flex justify-between items-center mt-3">
                       <span className="text-[#606060] font-bold text-lg">
-                        <span className="text-yellow-300">★</span> 0
+                        ★ 0
                       </span>
                       <span className="text-[#003DAC] font-bold text-lg">
                         ${item.price.toFixed(2)}
@@ -188,15 +176,9 @@ export default function BoostedProducts() {
                   </div>
                 </div>
               ))}
-        </div>
-
-        {/* Right scroll button */}
-        <button
-          onClick={scrollRight}
-          className="absolute -right-8 top-1/2 -translate-y-1/2 bg-[#F1F1F1CC] text-black w-10 h-10 rounded-full shadow-lg hidden md:flex items-center justify-center"
-        >
-          ›
-        </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
