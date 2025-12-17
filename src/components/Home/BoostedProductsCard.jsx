@@ -114,11 +114,12 @@ export default function BoostedProducts() {
           <ProductSkeleton />
         ) : (
           <div className="marquee-wrapper">
-            <div className="marquee">
+            <div className="marquee  cursor-pointer">
               {[...myProducts, ...myProducts].map((item, index) => (
                 <div
+                  onClick={() => navigate(`/products/${item?._id}`)}
                   key={index}
-                  className="bg-white text-black rounded-3xl p-4
+                  className="bg-white cursor-pointer text-black rounded-3xl p-4
                            min-w-[280px] max-w-[280px] flex-shrink-0 mx-3"
                 >
                   <div className="relative">
@@ -156,7 +157,7 @@ export default function BoostedProducts() {
                     </button>
                   </div>
 
-                  <div onClick={() => navigate(`/products/${item?._id}`)}>
+                  <div>
                     <h2 className="mt-3 text-[16px] font-semibold">
                       {item?.name}
                     </h2>
