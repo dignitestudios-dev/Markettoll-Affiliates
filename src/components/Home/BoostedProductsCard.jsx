@@ -140,7 +140,7 @@ export default function BoostedProducts() {
                       <img src={Airplane} className="w-6 h-6" alt="" />
                     </span>
 
-                    <button
+                    {/* <button
                       type="button"
                       className="absolute z-10 top-4 right-4"
                       onClick={() =>
@@ -154,7 +154,7 @@ export default function BoostedProducts() {
                       ) : (
                         <FiHeart className="text-white text-2xl" />
                       )}
-                    </button>
+                    </button> */}
                   </div>
 
                   <div>
