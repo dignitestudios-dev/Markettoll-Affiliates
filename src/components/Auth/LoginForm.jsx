@@ -10,8 +10,7 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import SocialLogin from "./SocialLogin";
 import ButtonLoader from "../Global/ButtonLoader";
-import { getFcmToken } from "../../firebase/getFCMToken";
-
+import { getFcmToken } from "../../firebase/getFcmToken";
 
 const validate = (values) => {
   const errors = {};
