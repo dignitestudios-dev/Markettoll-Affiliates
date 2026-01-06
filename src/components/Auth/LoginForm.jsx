@@ -10,7 +10,7 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import SocialLogin from "./SocialLogin";
 import ButtonLoader from "../Global/ButtonLoader";
-import { getToken, messaging } from "../../firebase/firebase";
+import { getFCMToken } from "../../firebase/getFCMToken";
 
 const validate = (values) => {
   const errors = {};
@@ -38,48 +38,41 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const [fcmToken, setFcmToken] = useState("");
 
-  // Request notification permission and retrieve FCM token
-  const requestNotificationPermission = async () => {
+  const getFcm = async () => {
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        const fcmToken = await getToken(messaging, {
-          vapidKey:
-            "BHduyiO2b203CE8_q-deJ6nzjawReezy16LF-1hi_CQKELLF-y4Jqnevt7wjhLZRPhnCiZ4SY1V8Co7GHfIfF-o",
-        });
-        // console.log("fcmToken >>>", fcmToken);
-        setFcmToken(fcmToken);
-        localStorage.setItem("fcmTokenMarkettoll", JSON.stringify(fcmToken));
-        // return fcmToken;
-      } else {
-        throw new Error("Notification permission not granted");
-      }
+      const fcmTokenResponse = await getFCMToken();
+      setFcmToken(fcmTokenResponse);
     } catch (err) {
-      console.error("Error getting FCM token", err);
+      console.log("🚀 ~ getFcm ~ err:", err);
     }
   };
-
   useEffect(() => {
-    requestNotificationPermission();
+    getFcm();
   }, []);
 
-  const sendFcmToken = async (token) => {
+  console.log("fcmToken in state >>>", fcmToken);
+
+  const sendFcmToken = async (fcmToken, jwtToken) => {
+    if (!fcmToken) {
+      console.warn("No FCM token available. Skipping sending to backend.");
+      return;
+    }
     try {
       const res = await axios.post(
         `${BASE_URL}/users/push-notification-token`,
         {
           platform: "web",
-          token: fcmToken,
+          token: fcmToken, // <-- ye Firebase ka token hai
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${jwtToken}`, // <-- ye JWT hai
           },
         }
       );
-      console.log("fcmToken res >>>", res?.data);
-    } catch (error) {
-      console.log("err while posting fcmToken >>>", error);
+      console.log("FCM token sent successfully:", res?.data);
+    } catch (err) {
+      console.error("Error sending FCM token to backend:", err);
     }
   };
 
@@ -105,19 +98,22 @@ const LoginForm = () => {
         );
         // console.log("login response >>>>", response);
         if (response.data.success) {
-          await sendFcmToken(response?.data?.data?.token);
+          const jwtToken = response.data.data.token; // <-- JWT from backend
+          if (fcmToken) {
+            await sendFcmToken(fcmToken, jwtToken); // <-- FCM token + JWT
+          } else {
+            console.warn("FCM token not available. Skipping send to backend.");
+          }
           Cookies.set("user", JSON.stringify(response?.data?.data));
           localStorage.setItem("user", JSON.stringify(response?.data?.data));
           resetForm();
 
-          
-          if (response?.data?.data?.role=="client") {
+          if (response?.data?.data?.role == "client") {
             fetchUserProfile();
-            navigate("/");            
-          }
-          else{
+            navigate("/");
+          } else {
             fetchUserProfile();
-            navigate("/affiliate");            
+            navigate("/affiliate");
           }
           return response.data;
         } else {

@@ -16,7 +16,8 @@ export default function Affiliate() {
   const [BioMessage, setBioMessage] = useState("");
   const [refrals, setRefrals] = useState([]);
   const [showAffiliate, setShowAffliate] = useState([]);
-  
+  const [linkType, setLinkType] = useState(""); // "referral" | "affiliate"
+
   const fetchRefrals = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/influencer/my-referrals`, {
@@ -36,6 +37,7 @@ export default function Affiliate() {
           Authorization: `Bearer ${user?.token}`,
         },
       });
+
       setShowAffliate(res?.data?.data);
     } catch (error) {
       console.log("Error fetching referrals:", error?.response?.data);
@@ -72,7 +74,9 @@ export default function Affiliate() {
         <>
           <div className="w-full flex items-center justify-between z-0">
             <h2 className="text-2xl lg:text-[36px] font-bold">
-              <span className="blue-text text-nowrap ">Welcome {userProfile?.name}!</span>
+              <span className="blue-text text-nowrap ">
+                Welcome {userProfile?.name}!
+              </span>
             </h2>
             <div className="flex gap-2 justify-end w-full">
               <button
@@ -90,6 +94,7 @@ export default function Affiliate() {
                     setBioMessage(
                       "Share a unique link to refer users. Earn a commission percentage each time a referred user subscribes to a paid plan."
                     );
+                    setLinkType("referral");
                   } catch (error) {
                     console.log(error);
                   }
@@ -113,6 +118,7 @@ export default function Affiliate() {
                     setBioMessage(
                       "Invite other affiliates to join. After referring a set number of affiliates, you become eligible for a bonus commission, which adds on top of your existing commission percentage."
                     );
+                    setLinkType("affiliate");
                     setOpenModal(true);
                   } catch (error) {
                     console.log(error);
@@ -143,13 +149,15 @@ export default function Affiliate() {
         openModal={openModal}
         RefralLink={RefralLink}
         BioMessage={BioMessage}
+        setLinkType={setLinkType}
+        linkType={linkType}
         onclick={() => setOpenModal(false)}
       />
     </div>
   );
 }
 
-const Popup = ({ openModal, onclick, RefralLink, BioMessage }) => {
+const Popup = ({ openModal, onclick, RefralLink, BioMessage, linkType }) => {
   return (
     openModal && (
       <div className="w-full h-screen bg-[rgba(0,0,0,0.5)] fixed inset-0 z-50 flex items-center justify-center">
@@ -187,7 +195,11 @@ const Popup = ({ openModal, onclick, RefralLink, BioMessage }) => {
           </div>
 
           <div className="w-full bg-[#F2F2F2] rounded-[14px] p-2">
-            <h2 className="text-[14px]">How your affiliate link works</h2>
+            <h2 className="text-[14px]">
+              How your {linkType === "affiliate" ? "affiliate" : "referral"}{" "}
+              link works
+            </h2>
+
             <p className="text-[#18181899] text-[14px]">{BioMessage}</p>
           </div>
         </div>
