@@ -19,7 +19,6 @@ const Navbar = () => {
   const [openNotifications, setOpenNotifications] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
   const loc = useLocation("");
-  
 
   const navigate = useNavigate();
   const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
@@ -40,7 +39,8 @@ const Navbar = () => {
     }
   };
   const deleteFcmToken = async () => {
-    const fcmToken = JSON.parse(localStorage.getItem("fcmTokenMarkettoll"));
+    const fcmToken = localStorage.getItem("fcmToken"); // <- JSON.parse hata diya
+
     try {
       const res = await axios.delete(
         `${BASE_URL}/users/push-notification-token?platform=web&token=${fcmToken}`,
@@ -51,22 +51,22 @@ const Navbar = () => {
         }
       );
       // console.log("fcmToken deleted >>>", res?.data);
-      localStorage.removeItem("fcmTokenMarkettoll");
+      localStorage.removeItem("fcmToken");
     } catch (error) {
       // console.log("err while deleting fcmToken >>>", error);
     }
   };
 
   const handleLogout = () => {
-    navigate("/login");
+    deleteFcmToken();
     Cookies.remove("market-signup");
     Cookies.remove("user");
     localStorage.removeItem("user");
     localStorage.removeItem("market-signup");
     setShowProfileDropdown(!showProfileDropdown);
-    deleteFcmToken();
     fetchUserProfile();
     setOpenSidebar(false);
+    navigate("/login");
   };
 
   const handleShowProfileDropdown = () => {

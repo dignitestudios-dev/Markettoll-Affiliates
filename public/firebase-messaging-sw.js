@@ -16,7 +16,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-const messaging = firebase.messaging();
+let messaging = firebase.messaging();
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker

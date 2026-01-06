@@ -71,6 +71,7 @@ const LoginForm = () => {
         }
       );
       console.log("FCM token sent successfully:", res?.data);
+      localStorage.setItem("fcmToken", fcmToken);
     } catch (err) {
       console.error("Error sending FCM token to backend:", err);
     }
