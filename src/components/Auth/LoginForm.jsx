@@ -10,8 +10,7 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import SocialLogin from "./SocialLogin";
 import ButtonLoader from "../Global/ButtonLoader";
-import { getFCMToken } from "../../firebase/getFCMToken";
-
+import { getFcmToken } from "../../firebase/getFCMToken";
 
 const validate = (values) => {
   const errors = {};
@@ -41,7 +40,7 @@ const LoginForm = () => {
 
   const getFcm = async () => {
     try {
-      const fcmTokenResponse = await getFCMToken();
+      const fcmTokenResponse = await getFcmToken();
       setFcmToken(fcmTokenResponse);
     } catch (err) {
       console.log("🚀 ~ getFcm ~ err:", err);
