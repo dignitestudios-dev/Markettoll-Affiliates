@@ -1,7 +1,7 @@
 import { getToken } from "firebase/messaging";
 import { messaging } from "./firebase";
 
-export const getFcmToken = async () => {
+ const getFcmToken = async () => {
   try {
     // Request notification permission
     const permission = await Notification.requestPermission();
@@ -21,3 +21,5 @@ export const getFcmToken = async () => {
     return null;
   }
 };
+
+export { getFcmToken };

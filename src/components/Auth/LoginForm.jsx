@@ -12,6 +12,7 @@ import SocialLogin from "./SocialLogin";
 import ButtonLoader from "../Global/ButtonLoader";
 import { getFcmToken } from "../../firebase/getFCMToken";
 
+
 const validate = (values) => {
   const errors = {};
 
