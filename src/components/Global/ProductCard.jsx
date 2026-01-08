@@ -113,6 +113,7 @@ const ProductCard = ({ product, fetchMyProducts }) => {
       },
     });
   };
+  
 
   return (
     <div className="bg-white rounded-[20px] p-3 relative w-full custom-shadow cursor-pointer">
@@ -127,7 +128,7 @@ const ProductCard = ({ product, fetchMyProducts }) => {
               <HiOutlineDotsVertical className="text-xl" />
             </button>
             {openDropdown && (
-              <div className="w-[151px] h-[122px] bg-white border absolute top-14 rounded-xl right-4 flex flex-col items-start justify-center p-5 gap-1">
+              <div className="w-[151px]  bg-white border absolute top-14 rounded-xl right-4 flex flex-col items-start justify-center p-5 gap-1">
                 <Link
                   to={`/edit-product/${product?._id}`}
                   className="font-medium"
@@ -141,13 +142,16 @@ const ProductCard = ({ product, fetchMyProducts }) => {
                 >
                   Delete
                 </button>
-                <button
-                  type="button"
-                  className="font-medium"
-                  onClick={() => handleBoostProduct()}
-                >
-                  Boost Post
-                </button>
+
+                {product?.boostPlan?.name === "No Plan" && (
+                  <button
+                    type="button"
+                    className="font-medium"
+                    onClick={handleBoostProduct}
+                  >
+                    Boost Post
+                  </button>
+                )}
               </div>
             )}
           </>
@@ -183,7 +187,7 @@ const ProductCard = ({ product, fetchMyProducts }) => {
         <div className="w-full flex items-center justify-between">
           <ProductRating productAvgRating={safeAvgRating} />
           <p className="text-[18px] font-bold blue-text">
-            ${product?.price || '0.0'}
+            ${product?.price || "0.0"}
           </p>
         </div>
       </div>
