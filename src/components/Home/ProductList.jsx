@@ -291,6 +291,7 @@ const ProductList = () => {
         const res = await axios.get(`${BASE_URL}/users/profile`, {
           headers: {
             Authorization: `Bearer ${user.token}`,
+            
           },
         });
         setUserProfile(res?.data?.data);

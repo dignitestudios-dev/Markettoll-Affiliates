@@ -78,7 +78,7 @@ const AddPaymentDetails = () => {
 
       console.log("PaymentMethod Created:", paymentMethod.id);
       setPaymentMethodId(paymentMethod?.id);
-      if (paymentMethod?.id) {
+      
         if (paymentMethodId) {
           try {
             const response = await axios.post(
@@ -103,7 +103,7 @@ const AddPaymentDetails = () => {
             console.log("error while adding payment method id >>", error);
             toast.error(error?.response?.data?.message);
           }
-        }
+        
       } else {
         console.log("paymentMethodId not found >>>>");
         toast.error("Something wrong while adding card.");

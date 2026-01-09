@@ -51,36 +51,35 @@ const SettingsAddCard = () => {
       }
 
       //   console.log("PaymentMethod Created:", paymentMethod.id);
-      setPaymentMethodId(paymentMethod?.id);
-      if (paymentMethod?.id) {
-        if (paymentMethodId) {
-          try {
-            const response = await axios.post(
-              `${BASE_URL}/stripe/customer-card`,
-              {
-                paymentMethodId: paymentMethodId,
+      const paymentMethodId = paymentMethod.id;
+      setPaymentMethodId(paymentMethodId);
+      if (paymentMethodId) {
+        try {
+          const response = await axios.post(
+            `${BASE_URL}/stripe/customer-card`,
+            {
+              paymentMethodId: paymentMethodId,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
               },
-              {
-                headers: {
-                  Authorization: `Bearer ${user?.token}`,
-                },
-              }
-            );
-
-            // console.log("subscription purchased >>>", response);
-            if (response?.data?.success) {
-              fetchUserProfile();
-              handleOpenForm();
-              toast.success("Card added successfully");
-              navigate(-1);
             }
-          } catch (error) {
-            // console.log("error while adding payment method id >>", error);
-            toast.error(error?.response?.data?.message);
+          );
+
+          // console.log("subscription purchased >>>", response);
+          if (response?.data?.success) {
+            fetchUserProfile();
+            handleOpenForm();
+            toast.success("Card added successfully");
+            navigate(-1);
           }
-        } else {
-          toast.error("Something went wrong");
+        } catch (error) {
+          // console.log("error while adding payment method id >>", error);
+          toast.error(error?.response?.data?.message);
         }
+      } else {
+        toast.error("Something went wrong");
       }
     } catch (error) {
       //   console.log("err while adding card >>>", error?.response?.data);
@@ -90,6 +89,7 @@ const SettingsAddCard = () => {
       setLoading(false);
     }
   };
+  const savedCard = userProfile?.stripeCustomer?.paymentMethod;
 
   return (
     <div>
@@ -123,24 +123,55 @@ const SettingsAddCard = () => {
           </button>
         </form>
       ) : (
-        <button
-          type="button"
-          onClick={handleOpenForm}
-          disabled={userProfile?.stripeCustomer?.id}
-          className="mt-4 flex items-center justify-between custom-shadow py-4 px-5 rounded-2xl w-full"
-        >
-          <div className="flex items-center gap-2">
-            <img
-              src="/mastercard-icon.png"
-              alt="mastercard-icon"
-              className="w-[24.79px] h-[15.33px]"
-            />
-            <span className="text-sm text-[#5C5C5C]">
-              Add Credit/Debit Card
-            </span>
-          </div>
-          <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />
-        </button>
+        <>
+          <button
+            type="button"
+            onClick={handleOpenForm}
+            disabled={savedCard?.id}
+            className="mt-4 flex items-center justify-between custom-shadow py-4 px-5 rounded-2xl w-full"
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                {savedCard?.id ? (
+                  <>
+                    <img
+                      src="/mastercard-icon.png"
+                      alt="mastercard-icon"
+                      className="w-[24.79px] h-[15.33px]"
+                    />
+                    <span className="text-sm font-normal text-[#5C5C5C]">
+                      {savedCard
+                        ? `**** **** **** ${savedCard?.last4 || ""}`
+                        : "Add Debit / Credit Card"}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <img
+                      src="/mastercard-icon.png"
+                      alt="mastercard-icon"
+                      className="w-[24.79px] h-[15.33px]"
+                    />
+                    <span className="text-sm text-[#5C5C5C]">
+                      Add Credit/Debit Card
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+            <MdOutlineKeyboardArrowRight className="light-blue-text text-2xl" />
+          </button>
+          {savedCard?.id && (
+            <div className="flex justify-end">
+              <button
+                onClick={handleOpenForm}
+                className="underline mt-2 text-[14px] me-2"
+              >
+                Add Card
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

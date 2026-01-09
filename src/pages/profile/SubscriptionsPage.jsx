@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaCheck } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
@@ -12,9 +12,7 @@ import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import ButtonLoader from "../../components/Global/ButtonLoader";
 
-const stripePromise = loadStripe(
-  STRIPE_PUBLISHABLE_KEY
-);
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 const SubscriptionsPage = () => {
   return (
@@ -62,11 +60,11 @@ const PackageCard = ({
   endpoint,
   planType,
 }) => {
-  const { user, fetchUserProfile, userProfile } = useContext(AuthContext);
+  const { user, userProfile, fetchUserProfile } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
+  console.log(planType, "planType===>");
   const handleCloseModal = () => {
     setShowModal(!showModal);
   };
@@ -97,30 +95,76 @@ const PackageCard = ({
 
   const handleSubscription = async () => {
     setLoading(true);
-    if (userProfile?.subscriptionPlan?.name === "Free Plan") {
-      navigate("/account/subscriptions/upgrade-plan/add-payment-details", {
-        state: {
-          from: window.location.href,
-          plan: {
-            index,
-            title,
-            features,
-            duration,
-            endpoint,
-            planType,
+
+    try {
+      // ✅ FREE PLAN
+      if (planType === "Free Plan") {
+        const res = await axios.post(
+          `${BASE_URL}/users/subscribe-free-plan`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        if (res?.status === 201) {
+          fetchUserProfile();
+          handleCloseModal();
+          toast.success(res?.data?.message);
+          navigate("/account/subscriptions");
+        } else {
+          toast.error("Something went wrong while subscribing.");
+        }
+
+        return;
+      }
+
+      // ✅ PAID PLAN
+      if (userProfile?.subscriptionPlan?.name === "Free Plan") {
+        // Direct subscribe
+        const res = await axios.post(
+          `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
+          {
+            subscriptionName: planType,
+            paymentMethodId: user?.stripeCustomer?.paymentMethod?.id,
           },
-        },
-      });
-    } else {
-      try {
-        // Check if user has a plan
-        if (userProfile?.subscriptionPlan?.name === "No Plan") {
-          // User has no plan, directly subscribe
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        if (res?.status === 201) {
+          fetchUserProfile();
+          handleCloseModal();
+          toast.success(res?.data?.message);
+          navigate("/account/subscriptions");
+        } else {
+          toast.error("Something went wrong while subscribing.");
+        }
+      } else {
+        // Upgrade / Downgrade flow
+        const unsubscribeResponse = await axios.post(
+          `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
+          {
+            subscriptionName: userProfile?.subscriptionPlan?.name,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        if (unsubscribeResponse?.status === 200) {
           const res = await axios.post(
             `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
             {
-              subscriptionName: planType,
-              paymentMethodId: user.stripeCustomer.paymentMethod.id,
+              subscriptionName: planType, // ✅ selected plan
+              paymentMethodId: user?.stripeCustomer?.paymentMethod?.id,
             },
             {
               headers: {
@@ -128,63 +172,23 @@ const PackageCard = ({
               },
             }
           );
-          // console.log("handle Subscription (No Plan) res >>>>>", res);
+
           if (res?.status === 201) {
             fetchUserProfile();
             handleCloseModal();
             toast.success(res?.data?.message);
             navigate("/account/subscriptions");
-          } else {
-            toast.error("Something went wrong while subscribing.");
           }
         } else {
-          // User already has a plan, proceed to unsubscribe and re-subscribe
-          try {
-            const unsubscribeResponse = await axios.post(
-              `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
-              {},
-              {
-                headers: {
-                  Authorization: `Bearer ${user?.token}`,
-                },
-              }
-            );
-
-            if (unsubscribeResponse?.status === 200) {
-              const res = await axios.post(
-                `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
-                {
-                  subscriptionName: planType,
-                  paymentMethodId: user.stripeCustomer.paymentMethod.id,
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${user?.token}`,
-                  },
-                }
-              );
-              console.log("handle Upgrade subscription res >>>>>", res);
-              if (res?.status === 201) {
-                fetchUserProfile();
-                handleCloseModal();
-              }
-            } else {
-              toast.error("Something went wrong during unsubscribe.");
-            }
-          } catch (error) {
-            console.log(
-              "error while unsubscribing plan >>>>",
-              error?.response?.data?.message
-            );
-            toast.error("Something went wrong during unsubscribing.");
-          }
+          toast.error("Something went wrong during unsubscribe.");
         }
-      } catch (error) {
-        console.error("handle Subscription error >>>>>", error);
-        toast.error(error?.response?.data?.message || "An error occurred.");
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      console.error("handleSubscription error >>>", error);
+      toast.error(error?.response?.data?.message || "An error occurred.");
+      navigate("/settings/payment");
+    } finally {
+      setLoading(false);
     }
   };
 
