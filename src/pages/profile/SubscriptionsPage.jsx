@@ -64,7 +64,7 @@ const PackageCard = ({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  console.log(planType, "planType===>");
+
   const handleCloseModal = () => {
     setShowModal(!showModal);
   };
@@ -92,6 +92,7 @@ const PackageCard = ({
       toast.error(error.response.data?.message);
     }
   };
+  
 
   const handleSubscription = async () => {
     setLoading(true);
@@ -122,13 +123,16 @@ const PackageCard = ({
       }
 
       // ✅ PAID PLAN
-      if (userProfile?.subscriptionPlan?.name === "Free Plan") {
+      if (
+        userProfile?.subscriptionPlan?.name === "Free Plan" ||
+        userProfile?.subscriptionPlan?.name === "No Plan"
+      ) {
         // Direct subscribe
         const res = await axios.post(
           `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
           {
             subscriptionName: planType,
-            paymentMethodId: user?.stripeCustomer?.paymentMethod?.id,
+            paymentMethodId: userProfile?.stripeCustomer?.paymentMethod?.id,
           },
           {
             headers: {
@@ -147,6 +151,7 @@ const PackageCard = ({
         }
       } else {
         // Upgrade / Downgrade flow
+
         const unsubscribeResponse = await axios.post(
           `${BASE_URL}/stripe/unsubscribe-paid-plan-stripe`,
           {
@@ -164,7 +169,7 @@ const PackageCard = ({
             `${BASE_URL}/stripe/subscribe-paid-plan-stripe`,
             {
               subscriptionName: planType, // ✅ selected plan
-              paymentMethodId: user?.stripeCustomer?.paymentMethod?.id,
+              paymentMethodId: userProfile?.stripeCustomer?.paymentMethod?.id,
             },
             {
               headers: {
@@ -191,7 +196,7 @@ const PackageCard = ({
       setLoading(false);
     }
   };
-
+  console.log(userProfile, "userProfile====>")
   return (
     <div className="border rounded-[30px] px-3 p-6 flex flex-col justify-between gap-1">
       <div className="w-full flex items-center justify-between">
