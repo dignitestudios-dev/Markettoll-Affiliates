@@ -133,7 +133,7 @@ export default function AllBoostedProducts() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {myProducts.map((item) => (
+        {myProducts?.map((item) => (
           <div
             key={item._id}
             className="bg-white rounded-[20px] p-3 relative w-full custom-shadow cursor-pointer"

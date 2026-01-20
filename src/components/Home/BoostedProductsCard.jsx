@@ -115,7 +115,7 @@ export default function BoostedProducts() {
         ) : (
           <div className="marquee-wrapper">
             <div className="marquee  cursor-pointer">
-              {[...myProducts, ...myProducts].map((item, index) => (
+              {[...myProducts, ...myProducts]?.map((item, index) => (
                 <div
                   onClick={() => navigate(`/products/${item?._id}`)}
                   key={index}

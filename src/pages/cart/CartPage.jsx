@@ -54,14 +54,14 @@ const CartPage = () => {
     const checkFulfillmentMethod = cartProducts?.find((p) => {
       return p?.fulfillmentMethod?.delivery === true;
     });
-    
+
     setIsAnyProductToDeliver(checkFulfillmentMethod !== undefined);
   }, [cartProducts]);
 
   const handleIncrementCount = () => {
     if (count == 1) {
       if (data?.deliveryAddress) {
-        console.log(data?.deliveryAddress,"data?.deliveryAddress")
+        console.log(data?.deliveryAddress, "data?.deliveryAddress")
         setCount(count + 1);
       }
     } else if (count === 2 && !data?.paymentMethod) {
@@ -97,8 +97,9 @@ const CartPage = () => {
       });
       console.log("remove cart prods res >>>", res);
       if (res?.status === 200) {
-        toast.success(res?.data?.message);
-        navigate("/");
+        // toast.success(res?.data?.message);
+        // navigate("/");
+        fetchCartProducts()
       }
     } catch (error) {
       console.log("err while removing cart products >>>", error);

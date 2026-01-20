@@ -92,7 +92,7 @@ const PackageCard = ({
       toast.error(error.response.data?.message);
     }
   };
-  
+
 
   const handleSubscription = async () => {
     setLoading(true);
@@ -141,6 +141,26 @@ const PackageCard = ({
           }
         );
 
+        const clientSecret = res?.data?.data?.clientSecret;
+        const paymentMethodId = res?.data?.data?.paymentMethod;
+        const status = res?.data?.data?.status;
+        
+        if (status === "requires_action") {
+          const stripe = await loadStripe(STRIPE_PUBLISHABLE_KEY);
+
+          const result = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: paymentMethodId,
+          });
+
+          if (result.error) {
+            toast.error(result.error.message);
+            return;
+          }
+
+          return;
+        }
+
+
         if (res?.status === 201) {
           fetchUserProfile();
           handleCloseModal();
@@ -177,6 +197,26 @@ const PackageCard = ({
               },
             }
           );
+
+          const clientSecret = res?.data?.data?.clientSecret;
+          const paymentMethodId = res?.data?.data?.paymentIntent;
+          const status = res?.data?.data?.status;
+          
+          if (status === "requires_action") {
+            const stripe = await loadStripe(STRIPE_PUBLISHABLE_KEY);
+
+            const result = await stripe.confirmCardPayment(clientSecret, {
+              payment_method: paymentMethodId,
+            });
+
+            if (result.error) {
+              toast.error(result.error.message);
+              return;
+            }
+
+            return;
+          }
+
 
           if (res?.status === 201) {
             fetchUserProfile();
