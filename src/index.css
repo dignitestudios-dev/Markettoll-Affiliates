@@ -332,7 +332,7 @@ input[type="number"]::-ms-clear {
   width: 100%;
 }
 
-/* optional: hover pe bhi na ruke */
+
 .marquee:hover {
   animation-play-state: running;
 }
