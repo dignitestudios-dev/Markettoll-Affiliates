@@ -237,7 +237,15 @@ const LoginForm = () => {
         >
           {loading ? <ButtonLoader /> : "Log In"}
         </button>
-
+        <div className="w-full text-center mt-3">
+          <Link
+            to="/https://form.jotform.com/officeugeai/markettoll-concept-challenge-2026"
+            target="_blank"
+            className="text-[#1E88E5] font-semibold underline hover:opacity-80"
+          >
+            Markettoll Concept Challenge 2026
+          </Link>
+        </div>
         <p className="text-center text-xs text-[#8B8B8B] mx-auto mt-2.5">OR</p>
 
         {/* <div className="w-full flex items-center justify-between">
