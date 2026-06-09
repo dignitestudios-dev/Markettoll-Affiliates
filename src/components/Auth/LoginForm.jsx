@@ -239,7 +239,7 @@ const LoginForm = () => {
         </button>
         <div className="w-full text-center mt-3">
           <Link
-            to="/https://form.jotform.com/officeugeai/markettoll-concept-challenge-2026"
+            to="https://form.jotform.com/officeugeai/markettoll-concept-challenge-2026"
             target="_blank"
             className="text-[#1E88E5] font-semibold underline hover:opacity-80"
           >
