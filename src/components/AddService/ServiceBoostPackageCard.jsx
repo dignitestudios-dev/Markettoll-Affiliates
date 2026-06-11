@@ -146,7 +146,7 @@ const ServiceBoostPackageCard = ({
         { headers: { Authorization: `Bearer ${user?.token}` } }
       );
 
-      console.log("Boost Response >>>", res);
+ 
 
       // ----------------------------
       // 🔵 STRIPE 3D-SECURE HANDLING
