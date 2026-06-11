@@ -222,9 +222,8 @@ const Navbar = () => {
                     .map((historyItem, index) => (
                       <li
                         key={index}
-                        className={`py-2 cursor-pointer flex items-center justify-between text-[16px] ${
-                          index !== 0 && "border-b-2"
-                        }`}
+                        className={`py-2 cursor-pointer flex items-center justify-between text-[16px] ${index !== 0 && "border-b-2"
+                          }`}
                         onClick={() => handleSearchHistoryClick(historyItem)}
                       >
                         <span>{historyItem}</span>
@@ -265,6 +264,7 @@ const Navbar = () => {
                     className="w-[18px] h-[18px]"
                   />
                 </button>
+
                 <button
                   type="button"
                   onClick={handleOpenNotifications}
@@ -281,6 +281,7 @@ const Navbar = () => {
                     setOpenNotifications={setOpenNotifications}
                   />
                 </button>
+
                 <button
                   type="button"
                   onClick={() => handleNavigate("/cart", "Login to see cart")}
@@ -295,7 +296,15 @@ const Navbar = () => {
                   <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-3 -end-3 dark:border-gray-900">
                     {user ? cartCount : 0}
                   </div>
+
                 </button>
+                <Link
+                  to="https://form.jotform.com/officeugeai/markettoll-concept-challenge-2026"
+                  target="_blank"
+                  className="bg-white light-blue-text px-4 py-1.5 rounded-[10px] font-semibold text-sm"
+                >
+                  Markettoll Concept Challenge 2026
+                </Link>
               </>
             )}
             <button
@@ -331,12 +340,22 @@ const Navbar = () => {
                 Become an Affiliate
               </Link>
             ) : (
-              <Link
-                to="/login"
-                className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
-              >
-                Login
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="https://form.jotform.com/officeugeai/markettoll-concept-challenge-2026"
+                  target="_blank"
+                  className="bg-white light-blue-text px-4 py-1.5 rounded-[10px] font-semibold text-sm"
+                >
+                  Markettoll Concept Challenge 2026
+                </Link>
+
+                <Link
+                  to="/login"
+                  className="bg-white px-4 py-1.5 rounded-[10px] light-blue-text font-semibold text-sm"
+                >
+                  Login
+                </Link>
+              </div>
             )}
           </>
         )}
@@ -536,9 +555,8 @@ const Navbar = () => {
       </div>
 
       <div
-        className={`w-full h-screen fixed inset-0 z-50 ${
-          openSidebar ? "-translate-x-0" : "-translate-x-full"
-        } transition-all duration-700`}
+        className={`w-full h-screen fixed inset-0 z-50 ${openSidebar ? "-translate-x-0" : "-translate-x-full"
+          } transition-all duration-700`}
       >
         <Sidebar
           user={user}
