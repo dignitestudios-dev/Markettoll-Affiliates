@@ -243,7 +243,7 @@ const LoginForm = () => {
             target="_blank"
             className="text-[#1E88E5] font-semibold underline hover:opacity-80"
           >
-            Markettoll Concept Challenge 
+            Markettoll Vision
           </Link>
         </div>
         <p className="text-center text-xs text-[#8B8B8B] mx-auto mt-2.5">OR</p>

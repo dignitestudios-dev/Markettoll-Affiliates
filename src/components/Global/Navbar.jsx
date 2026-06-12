@@ -303,7 +303,7 @@ const Navbar = () => {
                   target="_blank"
                   className="bg-white light-blue-text px-4 py-1.5 rounded-[10px] font-semibold text-sm"
                 >
-                  Markettoll Concept Challenge 
+                  Markettoll Vision 
                 </Link>
               </>
             )}
@@ -346,7 +346,7 @@ const Navbar = () => {
                   target="_blank"
                   className="bg-white light-blue-text px-4 py-1.5 rounded-[10px] font-semibold text-sm"
                 >
-                  Markettoll Concept Challenge
+                  Markettoll Vision
                 </Link>
 
                 <Link
