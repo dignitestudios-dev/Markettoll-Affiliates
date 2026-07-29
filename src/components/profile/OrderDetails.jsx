@@ -1,313 +1,601 @@
-import React, { useContext, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useContext, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
 import { IoIosStar } from "react-icons/io";
 import { FaCheck } from "react-icons/fa6";
+import { HiOutlinePhone } from "react-icons/hi";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import ButtonLoader from "../Global/ButtonLoader";
+import { resolveOrderStatus, STATUS_STYLES } from "./orderTrackingUtils";
+
+const formatDate = (isoDate) => {
+  if (!isoDate) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(isoDate));
+};
+
+const formatAddress = (address) => {
+  if (!address) return "—";
+  return [
+    address.apartment_suite,
+    address.streetAddress,
+    address.city,
+    address.state,
+    address.zipCode,
+    address.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
+};
+
+const getProductImage = (product) => {
+  const images = product?.images || [];
+  const display = images.find((img) => img?.displayImage);
+  return display?.url || images[0]?.url || "";
+};
+
+const buildSellerGroups = (order) => {
+  const groups = [];
+
+  order?.sellersProducts?.forEach((sellerProduct) => {
+    const seller = sellerProduct?.seller || {};
+    sellerProduct?.fulfillmentMethods?.forEach((fulfillment) => {
+      const products = (fulfillment?.products || []).filter(Boolean);
+      if (!products.length) return;
+
+      groups.push({
+        key: `${seller?.id || seller?._id}-${fulfillment?.method}`,
+        seller,
+        method: fulfillment?.method,
+        products,
+        pickupAddress:
+          products[0]?.product?.seller?.pickupAddress ||
+          seller?.pickupAddress,
+      });
+    });
+  });
+
+  return groups;
+};
 
 const OrderDetails = () => {
   const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
-  const location = useLocation();
-  const { userProfile } = useContext(AuthContext);
+  const [openConfirmDeliveryModal, setOpenConfirmDeliveryModal] =
+    useState(false);
   const [productId, setProductId] = useState("");
+  const [orderData, setOrderData] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const order = orderData || location?.state?.data;
+
+  const status = resolveOrderStatus(order, 0, false);
+  const statusStyle = STATUS_STYLES[status] || STATUS_STYLES.Processing;
+
+  const sellerGroups = useMemo(() => buildSellerGroups(order), [order]);
+
+  const itemCount = useMemo(() => {
+    return sellerGroups.reduce(
+      (sum, group) =>
+        sum +
+        group.products.reduce(
+          (inner, item) => inner + Number(item?.quantity || 1),
+          0
+        ),
+      0
+    );
+  }, [sellerGroups]);
+
+  const subtotal = useMemo(() => {
+    const fromProducts = sellerGroups.reduce((sum, group) => {
+      return (
+        sum +
+        group.products.reduce((inner, item) => {
+          const price = Number(item?.product?.price || 0);
+          const qty = Number(item?.quantity || 1);
+          return inner + price * qty;
+        }, 0)
+      );
+    }, 0);
+
+    return Number(order?.total ?? fromProducts);
+  }, [sellerGroups, order]);
+
+  const cardLast4 =
+    order?.stripeCustomer?.paymentMethod?.last4 ||
+    order?.paymentMethodLast4 ||
+    "";
+
+  const canMarkReceived = status === "Out for Delivery";
 
   const handleToggleFeedbackModal = (prodId) => {
-    setOpenFeedbackModal(!openFeedbackModal);
+    setOpenFeedbackModal((prev) => !prev);
     setProductId(prodId);
   };
 
-  function formatDate(isoDate) {
-    if (!isoDate) {
-      return null;
-    }
-    const date = new Date(isoDate);
-
-    const options = {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      timeZone: "UTC",
+  const handleConfirmDeliverySuccess = (payload = {}) => {
+    const updated = {
+      ...(order || {}),
+      status: payload?.status || "DELIVERED",
+      delivery: {
+        ...(order?.delivery || {}),
+        deliveryProof:
+          payload?.deliveryProof || order?.delivery?.deliveryProof,
+        deliveredAt: payload?.deliveredAt || new Date().toISOString(),
+      },
+      ...(payload?.order || {}),
     };
-    return new Intl.DateTimeFormat("en-US", options).format(date);
+
+    setOrderData(updated);
+    setOpenConfirmDeliveryModal(false);
+    navigate(location.pathname, {
+      replace: true,
+      state: {
+        ...(location.state || {}),
+        data: updated,
+        type: location?.state?.type || "current-orders",
+      },
+    });
+  };
+
+  if (!order) {
+    return (
+      <div className="w-full p-5 bg-[#F7F7F7] rounded-[30px]">
+        <div className="bg-white rounded-[18px] p-6">
+          <button
+            type="button"
+            onClick={() => navigate("/order-history")}
+            className="flex items-center gap-1 mb-4"
+          >
+            <GoArrowLeft className="text-[#0098EA] text-xl" />
+            <span className="text-sm font-medium text-[#5C5C5C]">Back</span>
+          </button>
+          <h2 className="blue-text text-xl font-bold">Order not found</h2>
+        </div>
+      </div>
+    );
   }
 
-  const extractedProducts = location?.state?.data?.sellersProducts?.reduce(
-    (acc, product) => {
-      if (Array.isArray(product.fulfillmentMethods)) {
-        product.fulfillmentMethods.forEach((fulfillment) => {
-          if (fulfillment.method === "selfPickup") {
-            acc.selfPickup = [
-              ...acc.selfPickup,
-              ...(fulfillment.products || []),
-            ];
-          } else if (fulfillment.method === "delivery") {
-            acc.delivery = [...acc.delivery, ...(fulfillment.products || [])];
-          }
-        });
-      }
-      return acc;
-    },
-    { selfPickup: [], delivery: [] }
-  );
-
   return (
-    <div className="p-5 bg-[#F7F7F7] rounded-[20px] grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="p-5 rounded-[20px] bg-white col-span-1 lg:col-span-2">
-        <Link to="/order-history" className="flex items-center gap-1 mb-4 w-16">
-          <GoArrowLeft className="text-xl light-blue-text" />
-          <span className="text-sm font-medium text-gray-500">Back</span>
-        </Link>
-        <p className="font-medium text-base">
-          Order ID:{" "}
-          <span className="text-[#808080]">
-            {location?.state?.data?._id?.substr(-7)}
-          </span>
-        </p>
-        <p className="font-medium text-base mt-2">
-          Order Placed:{" "}
-          <span className="text-[#808080]">
-            {location?.state?.data
-              ? formatDate(location?.state?.data?.createdAt)
-              : null}
-          </span>
-        </p>
-        <div className="w-full mt-3">
-          <h6 className="font-bold text-base">Delivery Address</h6>
-          <div className="bg-[#F5F5F5] p-3.5 rounded-2xl px-4 text-sm">
-            {/* Unit 500, Montford Court, Montford Street, Salford, M50 2QP - 123456 */}
-            {location?.state?.data?.deliveryAddress?.apartment_suite}{" "}
-            {location?.state?.data?.deliveryAddress?.streetAddress}{" "}
-            {location?.state?.data?.deliveryAddress?.city}{" "}
-            {location?.state?.data?.deliveryAddress?.state}{" "}
-            {location?.state?.data?.deliveryAddress?.zipCode}{" "}
+    <div className="w-full p-4 md:p-5 bg-[#F7F7F7] rounded-[30px]">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_391px] gap-4 md:gap-5 items-start">
+        {/* Left panel */}
+        <div className="bg-white rounded-[18px] p-5 md:p-7">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => navigate("/order-history")}
+              className="flex items-center gap-1"
+            >
+              <GoArrowLeft className="text-[#0098EA] text-xl" />
+              <span className="text-sm font-medium text-[#5C5C5C]">Back</span>
+            </button>
+            <span
+              className={`inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-base font-semibold ${statusStyle.bg} ${statusStyle.text}`}
+            >
+              <span>{status}</span>
+              <span
+                className="inline-block w-0 h-0 border-y-[5px] border-y-transparent border-l-[8px]"
+                style={{ borderLeftColor: "currentColor" }}
+              />
+            </span>
+          </div>
+
+          <p className="mt-5 text-base font-medium text-black tracking-tight">
+            Order ID: {String(order?._id || "").slice(-4).toUpperCase()}
+          </p>
+          <p className="mt-3 text-base font-medium text-black tracking-tight">
+            Order Placed: {formatDate(order?.createdAt)}
+          </p>
+
+          <div className="mt-5">
+            <h6 className="font-bold text-base text-black mb-2">
+              Delivery Address
+            </h6>
+            <div className="w-full bg-[#F5F5F5] rounded-[20px] px-3.5 py-3.5 text-sm text-[rgba(0,0,0,0.7)]">
+              {formatAddress(order?.deliveryAddress)}
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <h6 className="font-bold text-base text-black mb-2">
+              Payment Method
+            </h6>
+            <div className="w-full border border-[#E3E3E3] rounded-[20px] px-5 py-3.5 flex items-center gap-3">
+              {order?.paymentMethod === "Card" ? (
+                <img
+                  src="/mastercard-icon.png"
+                  alt="card"
+                  className="w-[25px] h-[15px] object-contain"
+                />
+              ) : (
+                <img
+                  src="/wallet-icon.png"
+                  alt="wallet"
+                  className="w-[25px] h-[22px] object-contain"
+                />
+              )}
+              <span className="text-sm text-[#5C5C5C]">
+                **** **** **** {cardLast4 || "----"}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-4">
+            {sellerGroups.length > 0 ? (
+              sellerGroups.map((group) => {
+                const sellerId = group.seller?.id || group.seller?._id;
+                const phone = group.seller?.phoneNumber;
+                const phoneLabel = phone?.value
+                  ? `+${phone?.code || "1"} ${phone.value}`
+                  : null;
+                const isPickup = group.method === "selfPickup";
+                const chatData = {
+                  id: sellerId,
+                  lastMessage: {
+                    profileImage:
+                      group.products[0]?.product?.seller?.profileImage,
+                    profileName: group.seller?.name,
+                    id: sellerId,
+                  },
+                };
+
+                return (
+                  <div
+                    key={group.key}
+                    className="w-full bg-[#F9FAFA] rounded-[18px] p-5 md:p-6"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                      <h4 className="text-xl font-semibold text-[#333333]">
+                        {group.seller?.name || "Seller Name"}
+                      </h4>
+                      {isPickup && phoneLabel && (
+                        <div className="flex items-center gap-2 text-[#808080]">
+                          <HiOutlinePhone className="text-lg" />
+                          <span className="text-base font-semibold tracking-tight">
+                            {phoneLabel}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                      {group.products.map((item) => {
+                        const product = item?.product || {};
+                        return (
+                          <div
+                            key={item?._id || product?._id}
+                            className="flex items-center justify-between gap-4"
+                          >
+                            <div className="flex items-center gap-4 min-w-0">
+                              {getProductImage(product) ? (
+                                <img
+                                  src={getProductImage(product)}
+                                  alt={product?.name || "product"}
+                                  className="w-20 h-20 rounded-[15px] object-cover shrink-0 bg-white"
+                                />
+                              ) : (
+                                <div className="w-20 h-20 rounded-[15px] shrink-0 bg-[#E8E8E8]" />
+                              )}
+                              <span className="text-base font-semibold text-[#333333] capitalize truncate">
+                                {product?.name || "Product name here"}
+                              </span>
+                            </div>
+                            <span className="text-xl font-semibold text-[#003DAC] shrink-0">
+                              ${Number(product?.price || 0).toFixed(2)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <p className="mt-5 text-xl font-semibold text-[#333333] capitalize">
+                      {isPickup
+                        ? `pickup address: ${formatAddress(group.pickupAddress)}`
+                        : "Delivered to your address."}
+                    </p>
+
+                    <Link
+                      to="/chats"
+                      state={{ data: chatData }}
+                      className="mt-5 w-full max-w-[329px] h-9 blue-bg text-white rounded-[14px] text-[14px] font-medium flex items-center justify-center"
+                    >
+                      Chat with Seller
+                    </Link>
+
+                    {status === "Delivered" &&
+                      group.products.map((item) =>
+                        !item?.hasReviewed ? (
+                          <button
+                            key={`fb-${item?._id}`}
+                            type="button"
+                            onClick={() =>
+                              handleToggleFeedbackModal(item?._id)
+                            }
+                            className="mt-3 text-sm font-semibold text-[#0098EA]"
+                          >
+                            Give Feedback — {item?.product?.name}
+                          </button>
+                        ) : null
+                      )}
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-[#9D9D9D]">No products in this order.</p>
+            )}
           </div>
         </div>
-        <div className="w-full mt-3">
-          <h6 className="font-bold text-base">Payment Method</h6>
-          {location?.state?.data?.paymentMethod === "Card" ? (
-            <div className="bg-[#fff] border p-3.5 rounded-2xl px-4 text-sm flex items-center justify-start gap-2">
-              <img
-                src="/mastercard-icon.png"
-                alt="master-card-icon"
-                className="w-[24.79px] h-[15.33px]"
-              />
-              <span>
-                {" "}
-                **** **** ****{" "}
-                {userProfile?.stripeCustomer?.paymentMethod?.last4}
-              </span>
-            </div>
-          ) : (
-            <div className="bg-[#fff] border p-3.5 rounded-2xl px-4 text-sm flex items-center justify-start gap-2">
-              <img
-                src="/wallet-icon.png"
-                alt="wallet-icon.png"
-                className="w-[24.79px] h-[22.33px]"
-              />
-              <span>
-                {" "}
-                **** **** ****{" "}
-                {userProfile?.stripeConnectedAccount?.external_account?.last4}
-              </span>
-            </div>
-          )}
-        </div>
 
-        {/* Delivery Orders */}
-        <div className="w-full border-b py-3 mt-5">
-          <h6 className="font-bold text-base">Delivery Orders</h6>
-          <p className="text-sm">Will be delivered to your address</p>
-        </div>
-        {extractedProducts?.delivery?.map((product) => {
-          const userDetail = {
-            id: product?.product?.seller?._id,
-            lastMessage: {
-              profileImage: product?.product?.seller?.profileImage,
-              profileName: product?.product?.seller?.name,
-              id: product?.product?.seller?._id,
-            },
-          };
-          return (
-            <div
-              key={product?._id}
-              className="w-full py-3 border-b flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={product?.product?.images[0]?.url}
-                  alt="product-img"
-                  className="w-[80px] h-[80px] rounded-[15px]"
-                />
-                <div className="flex flex-col items-start">
-                  <span className="font-semibold text-sm md:text-base">
-                    {product?.product?.name}
+        {/* Right panel */}
+        <div className="flex flex-col gap-4">
+          <div className="bg-white rounded-[18px] p-5 md:p-6">
+            <h3 className="text-[28px] leading-[35px] font-bold text-[#003DAC] tracking-tight capitalize">
+              Order Summary
+            </h3>
+
+            <div className="mt-8 flex items-center justify-between text-base text-[rgba(0,0,0,0.7)]">
+              <span>
+                Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})
+              </span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+
+            <div className="border-t border-[#D6D6D6] my-4" />
+
+            <div className="flex items-center justify-between text-base font-bold text-black">
+              <span>Total</span>
+              <span>${Number(order?.total ?? subtotal).toFixed(2)}</span>
+            </div>
+          </div>
+
+          {(order?.shipment?.trackingId ||
+            order?.shipment?.shippingProof ||
+            order?.shipment?.shipmentName) && (
+            <div className="bg-white rounded-[18px] p-5 md:p-6">
+              <h3 className="text-[28px] leading-[35px] font-bold text-[#003DAC] tracking-tight capitalize">
+                Shipment Details
+              </h3>
+
+              {order?.shipment?.shipmentName && (
+                <div className="w-full flex items-start justify-between gap-3 mt-5">
+                  <span className="text-[rgba(0,0,0,0.7)]">Shipment Name</span>
+                  <span className="font-bold text-black text-right">
+                    {order.shipment.shipmentName}
                   </span>
-                  <span className="font-normal text-sm text-[#9D9D9DDD]">
-                    Delivery
-                  </span>
-                  <Link
-                    to={`/chats`}
-                    state={{ data: userDetail }}
-                    className="font-normal text-[13px] text-[#9D9D9DDD] flex items-center gap-2"
-                  >
-                    <img
-                      src="/chat-icon.png"
-                      alt="chat-icon"
-                      className="w-[14px] md:w-[18px] h-[14px] md:h-[18px]"
-                    />
-                    Chat With Seller
-                  </Link>
                 </div>
-              </div>
-              <div className="flex flex-col  md:gap-2">
-                <span className="text-[#9D9D9DDD] text-xs md:text-[16px]">
-                  Price
-                </span>
-                <span className="font-bold blue-text text-xs md:text-[18px]">
-                  ${product?.product?.price?.toFixed(2)}
-                </span>
-                {location?.state?.type !== "current-orders" && (
-                  <button
-                    type="button"
-                    onClick={() => handleToggleFeedbackModal(product?._id)}
-                    className="px-5 md:px-8 lg:px-10 py-2 blue-bg text-white font-medium text-xs rounded-2xl"
-                  >
-                    Give Feedback
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+              )}
 
-        {/* Pickup orders */}
-        <div className="w-full border-b py-3 mt-5">
-          <h6 className="font-bold text-base">Pickup Orders</h6>
-        </div>
-        {extractedProducts?.selfPickup?.map((product) => {
-          return (
-            <div className="w-full" key={product?._id}>
-              <div className="w-full py-3 border-b flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={product?.product?.images[0]?.url}
-                    alt="product-img"
-                    className="w-[80px] h-[80px] rounded-[15px]"
-                  />
-                  <div className="flex flex-col items-start">
-                    <span className="font-semibold text-sm md:text-base">
-                      {product?.product?.name}
-                    </span>
-                    <span className="font-normal text-sm text-[#9D9D9DDD]">
-                      Delivery
-                    </span>
-                    <Link
-                      to={`/chats/${product?.product?.seller?._id}`}
-                      className="font-normal text-[13px] text-[#9D9D9DDD] flex items-center gap-2"
-                    >
-                      <img
-                        src="/chat-icon.png"
-                        alt="chat-icon"
-                        className="w-[14px] md:w-[18px] h-[14px] md:h-[18px]"
-                      />
-                      Chat With Seller
-                    </Link>
+              {order?.shipment?.trackingId && (
+                <div className="w-full flex items-start justify-between gap-3 mt-4">
+                  <span className="text-[rgba(0,0,0,0.7)]">Tracking Number</span>
+                  <span className="font-bold text-black text-right break-all">
+                    {order.shipment.trackingId}
+                  </span>
+                </div>
+              )}
+
+              {order?.shipment?.shippingProof && (
+                <div className="w-full mt-4">
+                  <span className="text-[rgba(0,0,0,0.7)]">Receipt Photo</span>
+                  <div className="mt-3 w-full max-w-[180px] ml-auto border border-[#E3E3E3] rounded-[12px] overflow-hidden bg-white">
+                    <img
+                      src={order.shipment.shippingProof}
+                      alt="shipping-proof"
+                      className="w-full h-[140px] object-cover"
+                    />
                   </div>
                 </div>
-                <div className="flex flex-col  md:gap-2">
-                  <span className="text-[#9D9D9DDD] text-xs md:text-[16px]">
-                    Price
-                  </span>
-                  <span className="font-bold blue-text text-xs md:text-[18px]">
-                    ${product?.product?.price?.toFixed(2)}
-                  </span>
-                  {location?.state?.type !== "current-orders" && (
-                    <button
-                      type="button"
-                      onClick={() => handleToggleFeedbackModal(product?._id)}
-                      className="px-5 md:px-8 lg:px-10 py-2 blue-bg text-white font-medium text-xs rounded-2xl"
-                    >
-                      Give Feedback
-                    </button>
-                  )}
-                </div>
-              </div>
-              {/* Address and phone number */}
-              <div className="w-full mt-7">
-                <div className="flex items-center justify-start gap-3">
+              )}
+            </div>
+          )}
+
+          {status === "Delivered" && order?.delivery?.deliveryProof && (
+            <div className="bg-white rounded-[18px] p-5 md:p-6">
+              <h3 className="text-[28px] leading-[35px] font-bold text-[#003DAC] tracking-tight capitalize">
+                Proof of Delivery
+              </h3>
+              <div className="mt-5 w-full flex justify-start">
+                <div className="w-[110px] h-[110px] border border-[#E3E3E3] rounded-[12px] overflow-hidden bg-white">
                   <img
-                    src="/call-icon-filled.png"
-                    alt="call-icon-filled"
-                    className="w-[19px] h-[19px]"
+                    src={order.delivery.deliveryProof}
+                    alt="delivery-proof"
+                    className="w-full h-full object-cover"
                   />
-                  <span className="text-sm">
-                    +1{product?.product?.seller?.phoneNumber?.value}
-                  </span>
-                </div>
-                <div className="flex items-center justify-start gap-3 mt-3 border-b pb-4">
-                  <img
-                    src="/location-icon.png"
-                    alt="location-icon"
-                    className="w-[17px] h-[20.1px]"
-                  />
-                  <span className="text-sm">
-                    {/* Unit 500, Montford Court, Montford Street, Salford, M50 2QP
-                    - 123456 */}
-                    {product?.product?.seller?.pickupAddress?.apartment_suite}{" "}
-                    {product?.product?.seller?.pickupAddress?.streetAddress}{" "}
-                    {product?.product?.seller?.pickupAddress?.city}{" "}
-                    {product?.product?.seller?.pickupAddress?.state}
-                    {" - "}
-                    {product?.product?.seller?.pickupAddress?.zipCode}{" "}
-                  </span>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
+          )}
 
-      {/* Order Summary */}
-      <div className=" col-span-1">
-        <div className="w-full p-5 rounded-[20px] bg-white">
-          <h3 className="blue-text font-bold text-[28px]">Order Summary</h3>
-
-          <div className="w-full flex items-center justify-between mt-5">
-            <span className="text-[#000000B2]">Subtotal (3 items)</span>
-            <span className="text-[#000000B2]">
-              ${location?.state?.data?.total}
-            </span>
-          </div>
-          <div className="w-full flex items-center justify-between mt-3">
-            <span className="text-[#000000B2]">Shipping Fee</span>
-            <span className="text-[#000000B2]">$00.00</span>
-          </div>
-          <div className="border my-4" />
-          <div className="w-full flex items-center justify-between">
-            <span className="text-[#000000B2] font-bold">Total</span>
-            <span className="text-[#000000B2] font-bold">
-              ${location?.state?.data?.total}
-            </span>
-          </div>
+          {status !== "Delivered" && (
+            <button
+              type="button"
+              disabled={!canMarkReceived}
+              onClick={() => {
+                if (canMarkReceived) setOpenConfirmDeliveryModal(true);
+              }}
+              className={`w-full h-12 rounded-[20px] text-sm font-bold text-white ${
+                canMarkReceived
+                  ? "bg-[#0098EA]"
+                  : "bg-[#B4B5B6] cursor-not-allowed"
+              }`}
+            >
+              Mark as Received
+            </button>
+          )}
         </div>
       </div>
+
       <FeedBackModal
         onclick={handleToggleFeedbackModal}
         openFeedbackModal={openFeedbackModal}
-        data={location?.state?.data}
+        data={order}
         productId={productId}
         setProductId={setProductId}
+      />
+      <ConfirmDeliveryModal
+        open={openConfirmDeliveryModal}
+        onClose={() => setOpenConfirmDeliveryModal(false)}
+        orderId={order?._id}
+        onSuccess={handleConfirmDeliverySuccess}
       />
     </div>
   );
 };
 
 export default OrderDetails;
+
+const ConfirmDeliveryModal = ({ open, onClose, orderId, onSuccess }) => {
+  const { user } = useContext(AuthContext);
+  const [deliveryProof, setDeliveryProof] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isValidType =
+      file.type === "image/jpeg" ||
+      file.type === "image/jpg" ||
+      file.type === "image/png";
+    if (!isValidType) {
+      toast.error("Only JPG and PNG images are allowed.");
+      return;
+    }
+
+    const maxSize = 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error("Image must be up to 20MB.");
+      return;
+    }
+
+    setDeliveryProof(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleClose = () => {
+    setDeliveryProof(null);
+    setPreviewUrl("");
+    onClose();
+  };
+
+  const handleSubmit = async () => {
+    if (!deliveryProof) {
+      toast.error("Please upload delivery proof image.");
+      return;
+    }
+    if (!orderId) {
+      toast.error("Order ID not found.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("deliveryProof", deliveryProof);
+
+      const res = await axios.post(
+        `${BASE_URL}/users/confirm-delivery/${orderId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      toast.success(res?.data?.message || "Delivery confirmed successfully.");
+      onSuccess?.({
+        status: res?.data?.data?.status || "DELIVERED",
+        deliveryProof:
+          res?.data?.data?.delivery?.deliveryProof ||
+          res?.data?.data?.deliveryProof ||
+          previewUrl,
+        deliveredAt: res?.data?.data?.delivery?.deliveredAt,
+        order: res?.data?.data,
+      });
+      setDeliveryProof(null);
+      setPreviewUrl("");
+      onClose();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="w-full h-screen fixed inset-0 flex items-center justify-center px-4 bg-[rgba(0,0,0,0.5)] z-50">
+      <div className="bg-white w-full max-w-[520px] rounded-xl py-7 px-6 md:px-8 relative">
+        <button
+          type="button"
+          onClick={handleClose}
+          className="w-6 h-6 bg-[#F7F7F7] rounded-full p-1 absolute top-5 right-5"
+        >
+          <IoClose className="w-full h-full" />
+        </button>
+
+        <h3 className="text-xl font-bold blue-text text-center mb-1">
+          Confirmation of Delivery
+        </h3>
+        <p className="text-sm text-[#5C5C5C] text-center mb-6">
+          Please confirm that you have received your order. This action will
+          complete the order.
+        </p>
+
+        <div className="w-full mb-6">
+          <label className="block text-sm font-semibold text-black mb-2">
+            Upload Image
+          </label>
+          <label className="w-full min-h-[140px] border border-dashed border-[#0098EA] rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer bg-[#F9FAFA] overflow-hidden">
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="delivery-proof"
+                className="w-full h-[160px] object-cover"
+              />
+            ) : (
+              <>
+                <span className="text-sm font-medium text-[#0098EA]">
+                  Upload Image
+                </span>
+                <span className="text-xs text-[#9D9D9D]">
+                  Upto 20mbs JPG, PNG
+                </span>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/jpeg,image/jpg,image/png"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="py-3 w-full text-center blue-bg text-white text-sm font-bold rounded-2xl"
+        >
+          {loading ? <ButtonLoader /> : "Confirm Delivery"}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const FeedBackModal = ({
   onclick,
@@ -328,7 +616,6 @@ const FeedBackModal = ({
   };
 
   const handleSubmitFeedback = async () => {
-    console.log("User Feedback Rating:", rating);
     if (!review) {
       toast.error("Please write a review.");
       return;
@@ -352,7 +639,6 @@ const FeedBackModal = ({
         }
       );
 
-      console.log("feedback res >>>", res);
       if (res?.status === 201) {
         setShowSuccessModal(true);
         setProductId("");
@@ -360,7 +646,6 @@ const FeedBackModal = ({
         setRating(0);
       }
     } catch (error) {
-      console.log("err while posting feedback >>>>", error);
       toast.error(error?.response?.data?.message || "Something went wrong");
       onclick();
       setProductId("");
@@ -373,7 +658,7 @@ const FeedBackModal = ({
 
   return (
     openFeedbackModal && (
-      <div className="w-full h-screen fixed inset-0 flex items-center justify-center px-4 bg-[rgba(0,0,0,0.5)]">
+      <div className="w-full h-screen fixed inset-0 flex items-center justify-center px-4 bg-[rgba(0,0,0,0.5)] z-50">
         <div className="bg-white w-full lg:w-[611px] h-[398px] rounded-xl py-7 px-10 relative flex flex-col items-center justify-center gap-3">
           <button
             type="button"
@@ -392,7 +677,7 @@ const FeedBackModal = ({
               return (
                 <IoIosStar
                   key={starValue}
-                  onClick={() => setRating(starValue)} // Set the rating
+                  onClick={() => setRating(starValue)}
                   className={`w-[26.32px] h-[25px] cursor-pointer ${
                     starValue <= rating ? "text-yellow-500" : "text-gray-300"
                   }`}
@@ -433,7 +718,7 @@ const FeedBackModal = ({
 const SuccessModal = ({ showSuccessModal, onclick }) => {
   return (
     showSuccessModal && (
-      <div className="w-full h-screen fixed inset-0 flex items-center justify-center px-4 bg-[rgba(0,0,0,0.5)]">
+      <div className="w-full h-screen fixed inset-0 flex items-center justify-center px-4 bg-[rgba(0,0,0,0.5)] z-[60]">
         <div className="bg-white w-full lg:w-[440px] h-[201px] rounded-xl py-7 px-10 relative flex flex-col items-center justify-center gap-3">
           <button
             type="button"

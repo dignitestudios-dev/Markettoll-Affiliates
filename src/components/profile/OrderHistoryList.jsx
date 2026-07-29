@@ -3,39 +3,42 @@ import OrdersReceived from "./OrdersReceived";
 import OrdersPlaced from "./OrdersPlaced";
 
 const OrderHistoryList = () => {
-  const [state, setState] = useState(false);
-
-  const handleToggleState = () => {
-    setState(!state);
-  };
+  const [showReceived, setShowReceived] = useState(false);
 
   return (
-    <div className="w-full p-5 bg-[#F7F7F7] rounded-[20px]">
-      <div className="w-full bg-white rounded-[20px] p-5 lg:p-6">
-        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between">
-          <h2 className="blue-text font-bold text-[28px]">Order History</h2>
-          <div className="flex">
+    <div className="w-full p-5 bg-[#F7F7F7] rounded-[30px]">
+      <div className="w-full bg-white rounded-[18px] p-5 lg:p-7">
+        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <h2 className="text-[#003DAC] font-bold text-[28px] leading-[35px] tracking-tight capitalize">
+            Order Tracking
+          </h2>
+          <div className="flex shrink-0">
             <button
               type="button"
-              onClick={handleToggleState}
+              onClick={() => setShowReceived(false)}
               className={`${
-                state ? "bg-[#F7F7F7] text-black" : "blue-bg text-white"
-              } px-3 py-3 rounded-l-xl text-xs md:text-sm font-bold`}
+                !showReceived
+                  ? "bg-[#0098EA] text-white font-bold"
+                  : "bg-[#F7F7F7] text-black font-medium"
+              } px-4 py-3 rounded-l-[20px] text-sm md:text-base capitalize min-w-[140px] text-center`}
             >
-              Orders Placed
+              orders placed
             </button>
             <button
               type="button"
-              onClick={handleToggleState}
+              onClick={() => setShowReceived(true)}
               className={`${
-                !state ? "bg-[#F7F7F7] text-black" : "blue-bg text-white"
-              } px-3 py-3 rounded-r-xl text-xs md:text-sm font-bold`}
+                showReceived
+                  ? "bg-[#0098EA] text-white font-bold"
+                  : "bg-[#F7F7F7] text-black font-medium"
+              } px-4 py-3 rounded-r-[20px] text-sm md:text-base capitalize min-w-[140px] text-center`}
             >
-              Orders Received
+              orders received
             </button>
           </div>
         </div>
-        {state ? <OrdersReceived /> : <OrdersPlaced />}
+
+        {showReceived ? <OrdersReceived /> : <OrdersPlaced />}
       </div>
     </div>
   );

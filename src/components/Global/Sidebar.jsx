@@ -78,7 +78,7 @@ const Sidebar = ({ setOpenSidebar, handleLogout, openSidebar, user }) => {
                   onClick={() => toggleSidebarAndNavigate("/order-history")}
                   // to="/order-history"
                 >
-                  Order History
+                  Order Tracking
                 </button>
               </li>
               <li className="w-full">
