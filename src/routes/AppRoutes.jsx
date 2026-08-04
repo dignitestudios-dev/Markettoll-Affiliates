@@ -77,6 +77,7 @@ import AddJobPage from "../pages/addJob/AddJobPage";
 import JobReviewPage from "../pages/addJob/JobReviewPage";
 import JobDetailsPage from "../pages/jobs/JobDetailsPage";
 import AllBoostedProducts from "../components/Home/AllBoostedProducts";
+import ChatV2 from "../pages/chat/ChatV2";
 
 const AppRoutes = () => {
   return (
@@ -330,7 +331,8 @@ const AppRoutes = () => {
           path="/chats"
           element={
             <RoleProtectedRoute>
-              <Layout page={<ChatPage />} />
+              {/* <Layout page={<ChatPage />} /> */}
+              <Layout page={<ChatV2 />} />
             </RoleProtectedRoute>
           }
         />

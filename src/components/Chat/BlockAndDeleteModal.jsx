@@ -2,7 +2,7 @@ import React from "react";
 import { collection, db, deleteDoc, doc, getDocs } from "../../firebase/firebase";
 import { toast } from "react-toastify";
 
-const BlockAndDeleteModal = ({ state, onclose,userId,sellerId,seller,fetchMessages }) => {
+const BlockAndDeleteModal = ({ state, onclose, userId, sellerId, seller, fetchMessages }) => {
   const deleteChat = async () => {
     try {
       const chatId = userId;
