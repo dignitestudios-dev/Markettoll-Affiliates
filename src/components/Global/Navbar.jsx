@@ -437,7 +437,7 @@ const Navbar = () => {
                       to="/order-history"
                       onClick={() => setShowProfileDropdown(false)}
                     >
-                      Order History
+                      Order Tracking
                     </Link>
                   </li>
                   <li className="text-xs font-medium py-0.5">
