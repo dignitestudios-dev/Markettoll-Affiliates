@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoArrowLeft } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
@@ -11,6 +11,16 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import ButtonLoader from "../Global/ButtonLoader";
 import { resolveOrderStatus, STATUS_STYLES } from "./orderTrackingUtils";
+import {
+  db,
+  collection,
+  doc,
+  query,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+} from "../../firebase/firebase";
+import { where } from "firebase/firestore";
 
 const formatDate = (isoDate) => {
   if (!isoDate) return "—";
@@ -67,6 +77,8 @@ const buildSellerGroups = (order) => {
 };
 
 const OrderDetails = () => {
+  const { user } = useContext(AuthContext);
+
   const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
   const [openConfirmDeliveryModal, setOpenConfirmDeliveryModal] =
     useState(false);
@@ -78,6 +90,58 @@ const OrderDetails = () => {
 
   const status = resolveOrderStatus(order, 0, false);
   const statusStyle = STATUS_STYLES[status] || STATUS_STYLES.Processing;
+
+  // Delete chat room in Firestore when order is Delivered
+  useEffect(() => {
+    const isDelivered =
+      status === "Delivered" ||
+      order?.status === "DELIVERED" ||
+      order?.status === "Delivered";
+
+    if (!isDelivered || !order) return;
+
+    const orderIdToFind = order?.orderId;
+    const orderObjIdToFind = order?._id;
+
+    const deleteChatForDeliveredOrder = async () => {
+      try {
+        const chatRef = collection(db, "chat-v2");
+        let docsToDelete = [];
+
+        if (orderIdToFind) {
+          const q1 = query(chatRef, where("order_id", "==", orderIdToFind));
+          const snap1 = await getDocs(q1);
+          docsToDelete.push(...snap1.docs);
+        }
+
+        if (orderObjIdToFind) {
+          const q2 = query(chatRef, where("order_id", "==", orderObjIdToFind));
+          const snap2 = await getDocs(q2);
+          docsToDelete.push(...snap2.docs);
+        }
+
+        const uniqueDocs = Array.from(
+          new Map(docsToDelete.map((docSnap) => [docSnap.id, docSnap])).values()
+        );
+
+        for (const docSnap of uniqueDocs) {
+          try {
+            await updateDoc(doc(db, "chat-v2", docSnap.id), {
+              chat_status: false,
+            });
+            await deleteDoc(doc(db, "chat-v2", docSnap.id));
+            console.log("Chat room deleted for delivered order:", docSnap.id);
+          } catch (err) {
+            console.error("Error updating/deleting chat doc:", err);
+          }
+        }
+      } catch (error) {
+        console.error("Error querying chat room for delivered order:", error);
+      }
+    };
+
+    deleteChatForDeliveredOrder();
+  }, [status, order?.status, order?.orderId, order?._id]);
 
   const sellerGroups = useMemo(() => buildSellerGroups(order), [order]);
 
@@ -163,6 +227,7 @@ const OrderDetails = () => {
     );
   }
 
+  console.log(order, "order====>")
   return (
     <div className="w-full p-4 md:p-5 bg-[#F7F7F7] rounded-[30px]">
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_391px] gap-4 md:gap-5 items-start">
@@ -189,7 +254,7 @@ const OrderDetails = () => {
           </div>
 
           <p className="mt-5 text-base font-medium text-black tracking-tight">
-            Order ID: {String(order?._id || "").slice(-4).toUpperCase()}
+            Order ID: {order?.orderId}
           </p>
           <p className="mt-3 text-base font-medium text-black tracking-tight">
             Order Placed: {formatDate(order?.createdAt)}
@@ -239,13 +304,17 @@ const OrderDetails = () => {
                 const isPickup = group.method === "selfPickup";
                 const chatData = {
                   id: sellerId,
+                  adminId: "admin_id",
+                  userName: user?.name,
+                  orderId: order?.orderId || "",
                   lastMessage: {
                     profileImage:
                       group.products[0]?.product?.seller?.profileImage,
-                    profileName: group.seller?.name,
+                    profileName: group.seller?.name || "Admin",
                     id: sellerId,
                   },
                 };
+
 
                 return (
                   <div
@@ -302,13 +371,18 @@ const OrderDetails = () => {
                         : "Delivered to your address."}
                     </p>
 
-                    <Link
-                      to="/chats"
-                      state={{ data: chatData }}
-                      className="mt-5 w-full max-w-[329px] h-9 blue-bg text-white rounded-[14px] text-[14px] font-medium flex items-center justify-center"
-                    >
-                      Chat with Seller
-                    </Link>
+                    {status !== "Delivered" &&
+                      status?.toLowerCase() !== "delivered" &&
+                      order?.status !== "DELIVERED" &&
+                      order?.status !== "Delivered" && (
+                        <Link
+                          to="/chats"
+                          state={{ data: chatData }}
+                          className="mt-5 w-full max-w-[329px] h-9 blue-bg text-white rounded-[14px] text-[14px] font-medium flex items-center justify-center"
+                        >
+                          Chat with Admin
+                        </Link>
+                    )}
 
                     {status === "Delivered" &&
                       group.products.map((item) =>
@@ -359,43 +433,43 @@ const OrderDetails = () => {
           {(order?.shipment?.trackingId ||
             order?.shipment?.shippingProof ||
             order?.shipment?.shipmentName) && (
-            <div className="bg-white rounded-[18px] p-5 md:p-6">
-              <h3 className="text-[28px] leading-[35px] font-bold text-[#003DAC] tracking-tight capitalize">
-                Shipment Details
-              </h3>
+              <div className="bg-white rounded-[18px] p-5 md:p-6">
+                <h3 className="text-[28px] leading-[35px] font-bold text-[#003DAC] tracking-tight capitalize">
+                  Shipment Details
+                </h3>
 
-              {order?.shipment?.shipmentName && (
-                <div className="w-full flex items-start justify-between gap-3 mt-5">
-                  <span className="text-[rgba(0,0,0,0.7)]">Shipment Name</span>
-                  <span className="font-bold text-black text-right">
-                    {order.shipment.shipmentName}
-                  </span>
-                </div>
-              )}
-
-              {order?.shipment?.trackingId && (
-                <div className="w-full flex items-start justify-between gap-3 mt-4">
-                  <span className="text-[rgba(0,0,0,0.7)]">Tracking Number</span>
-                  <span className="font-bold text-black text-right break-all">
-                    {order.shipment.trackingId}
-                  </span>
-                </div>
-              )}
-
-              {order?.shipment?.shippingProof && (
-                <div className="w-full mt-4">
-                  <span className="text-[rgba(0,0,0,0.7)]">Receipt Photo</span>
-                  <div className="mt-3 w-full max-w-[180px] ml-auto border border-[#E3E3E3] rounded-[12px] overflow-hidden bg-white">
-                    <img
-                      src={order.shipment.shippingProof}
-                      alt="shipping-proof"
-                      className="w-full h-[140px] object-cover"
-                    />
+                {order?.shipment?.shipmentName && (
+                  <div className="w-full flex items-start justify-between gap-3 mt-5">
+                    <span className="text-[rgba(0,0,0,0.7)]">Shipment Name</span>
+                    <span className="font-bold text-black text-right">
+                      {order.shipment.shipmentName}
+                    </span>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+
+                {order?.shipment?.trackingId && (
+                  <div className="w-full flex items-start justify-between gap-3 mt-4">
+                    <span className="text-[rgba(0,0,0,0.7)]">Tracking Number</span>
+                    <span className="font-bold text-black text-right break-all">
+                      {order.shipment.trackingId}
+                    </span>
+                  </div>
+                )}
+
+                {order?.shipment?.shippingProof && (
+                  <div className="w-full mt-4">
+                    <span className="text-[rgba(0,0,0,0.7)]">Receipt Photo</span>
+                    <div className="mt-3 w-full max-w-[180px] ml-auto border border-[#E3E3E3] rounded-[12px] overflow-hidden bg-white">
+                      <img
+                        src={order.shipment.shippingProof}
+                        alt="shipping-proof"
+                        className="w-full h-[140px] object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
           {status === "Delivered" && order?.delivery?.deliveryProof && (
             <div className="bg-white rounded-[18px] p-5 md:p-6">
@@ -421,11 +495,10 @@ const OrderDetails = () => {
               onClick={() => {
                 if (canMarkReceived) setOpenConfirmDeliveryModal(true);
               }}
-              className={`w-full h-12 rounded-[20px] text-sm font-bold text-white ${
-                canMarkReceived
-                  ? "bg-[#0098EA]"
-                  : "bg-[#B4B5B6] cursor-not-allowed"
-              }`}
+              className={`w-full h-12 rounded-[20px] text-sm font-bold text-white ${canMarkReceived
+                ? "bg-[#0098EA]"
+                : "bg-[#B4B5B6] cursor-not-allowed"
+                }`}
             >
               Mark as Received
             </button>
@@ -678,9 +751,8 @@ const FeedBackModal = ({
                 <IoIosStar
                   key={starValue}
                   onClick={() => setRating(starValue)}
-                  className={`w-[26.32px] h-[25px] cursor-pointer ${
-                    starValue <= rating ? "text-yellow-500" : "text-gray-300"
-                  }`}
+                  className={`w-[26.32px] h-[25px] cursor-pointer ${starValue <= rating ? "text-yellow-500" : "text-gray-300"
+                    }`}
                 />
               );
             })}

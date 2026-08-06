@@ -11,6 +11,16 @@ import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
 import ButtonLoader from "../Global/ButtonLoader";
 import { resolveOrderStatus, STATUS_STYLES } from "./orderTrackingUtils";
+import {
+  db,
+  collection,
+  doc,
+  query,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+} from "../../firebase/firebase";
+import { where } from "firebase/firestore";
 
 const normalizeOrdersResponse = (payload) => {
   if (Array.isArray(payload)) return payload;
@@ -266,12 +276,64 @@ const OrderReceivedDetails = () => {
     }
   }, []);
 
+  // Delete chat room in Firestore when order is Delivered
+  useEffect(() => {
+    const isDelivered =
+      status === "Delivered" ||
+      order?.status === "DELIVERED" ||
+      order?.status === "Delivered";
+
+    if (!isDelivered || !order) return;
+
+    const orderIdToFind = order?.orderId;
+    const orderObjIdToFind = order?._id;
+
+    const deleteChatForDeliveredOrder = async () => {
+      try {
+        const chatRef = collection(db, "chat-v2");
+        let docsToDelete = [];
+
+        if (orderIdToFind) {
+          const q1 = query(chatRef, where("order_id", "==", orderIdToFind));
+          const snap1 = await getDocs(q1);
+          docsToDelete.push(...snap1.docs);
+        }
+
+        if (orderObjIdToFind) {
+          const q2 = query(chatRef, where("order_id", "==", orderObjIdToFind));
+          const snap2 = await getDocs(q2);
+          docsToDelete.push(...snap2.docs);
+        }
+
+        const uniqueDocs = Array.from(
+          new Map(docsToDelete.map((docSnap) => [docSnap.id, docSnap])).values()
+        );
+
+        for (const docSnap of uniqueDocs) {
+          try {
+            await updateDoc(doc(db, "chat-v2", docSnap.id), {
+              chat_status: false,
+            });
+            await deleteDoc(doc(db, "chat-v2", docSnap.id));
+            console.log("Chat room deleted for delivered order:", docSnap.id);
+          } catch (err) {
+            console.error("Error updating/deleting chat doc:", err);
+          }
+        }
+      } catch (error) {
+        console.error("Error querying chat room for delivered order:", error);
+      }
+    };
+
+    deleteChatForDeliveredOrder();
+  }, [status, order?.status, order?.orderId, order?._id]);
+
   const buyer = order?.placerDetails;
   const buyerPhone = buyer?.phoneNumber;
   const buyerPhoneLabel = buyerPhone?.value
     ? `+${buyerPhone?.code || "1"} ${buyerPhone.value}`
     : null;
-
+console.log(user,"user====>>>")
   return (
     <div className="p-5 bg-[#F7F7F7] rounded-[20px] grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="p-5 rounded-[20px] bg-white col-span-1 lg:col-span-2">
@@ -284,11 +346,10 @@ const OrderReceivedDetails = () => {
             type="button"
             onClick={handleStatusClick}
             disabled={statusUpdating || !canUpdateStatus}
-            className={`inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-base font-semibold ${statusStyle.bg} ${statusStyle.text} ${
-              canUpdateStatus && !statusUpdating
-                ? "cursor-pointer"
-                : "cursor-default"
-            }`}
+            className={`inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-base font-semibold ${statusStyle.bg} ${statusStyle.text} ${canUpdateStatus && !statusUpdating
+              ? "cursor-pointer"
+              : "cursor-default"
+              }`}
           >
             <span>{statusUpdating ? "Updating..." : status}</span>
             <span
@@ -348,17 +409,22 @@ const OrderReceivedDetails = () => {
         <div className="mt-6 flex flex-col gap-4">
           {sellerGroups.length > 0 ? (
             sellerGroups.map((group) => {
+              const sellerId = group.seller?.id || group.seller?._id;
               const isPickup = group.method === "selfPickup";
               const sellerPhone = group.seller?.phoneNumber;
               const sellerPhoneLabel = sellerPhone?.value
                 ? `+${sellerPhone?.code || "1"} ${sellerPhone.value}`
                 : null;
               const chatData = {
-                id: buyer?._id || order?.placer,
+                id: sellerId || "admin_id",
+                adminId: "admin_id",
+                userName: user?.name || user?.userName || user?.first_name || user?.user?.name || "User",
+                orderId: order?.orderId || "",
                 lastMessage: {
-                  profileImage: buyer?.profileImage,
-                  profileName: buyer?.name || "Buyer",
-                  id: buyer?._id || order?.placer,
+                  profileImage:
+                    group.products[0]?.product?.seller?.profileImage,
+                  profileName: group.seller?.name || "Admin",
+                  id: sellerId || "admin_id",
                 },
               };
 
@@ -422,13 +488,18 @@ const OrderReceivedDetails = () => {
                       : "Delivered to your address."}
                   </p>
 
-                  <Link
-                    to="/chats"
-                    state={{ data: chatData }}
-                    className="mt-5 w-full max-w-[329px] h-9 blue-bg text-white rounded-[14px] text-[14px] font-medium flex items-center justify-center"
-                  >
-                    Chat with Buyer
-                  </Link>
+                  {status !== "Delivered" &&
+                    status?.toLowerCase() !== "delivered" &&
+                    order?.status !== "DELIVERED" &&
+                    order?.status !== "Delivered" && (
+                      <Link
+                        to="/chats"
+                        state={{ data: chatData }}
+                        className="mt-5 w-full max-w-[329px] h-9 blue-bg text-white rounded-[14px] text-[14px] font-medium flex items-center justify-center"
+                      >
+                        Chat with Admin
+                      </Link>
+                  )}
                 </div>
               );
             })
@@ -810,9 +881,8 @@ const FeedBackModal = ({
                 <IoIosStar
                   key={starValue}
                   onClick={() => setRating(starValue)} // Set the rating
-                  className={`w-[26.32px] h-[25px] cursor-pointer ${
-                    starValue <= rating ? "text-yellow-500" : "text-gray-300"
-                  }`}
+                  className={`w-[26.32px] h-[25px] cursor-pointer ${starValue <= rating ? "text-yellow-500" : "text-gray-300"
+                    }`}
                 />
               );
             })}

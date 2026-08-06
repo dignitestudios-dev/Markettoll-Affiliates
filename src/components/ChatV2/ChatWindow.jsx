@@ -7,10 +7,17 @@ const ChatWindow = ({
   selectedUser,
   messages = [],
   onSendMessage,
+  onSendImage,
   onBackMobile,
   currentUserId,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  if (!selectedUser) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-white rounded-2xl lg:rounded-3xl border border-gray-100 shadow-sm overflow-hidden" />
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col bg-white rounded-2xl lg:rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
@@ -28,7 +35,7 @@ const ChatWindow = ({
       </div>
 
       {/* Message Composer */}
-      <ChatInput onSendMessage={onSendMessage} />
+      <ChatInput onSendMessage={onSendMessage} onSendImage={onSendImage} />
     </div>
   );
 };

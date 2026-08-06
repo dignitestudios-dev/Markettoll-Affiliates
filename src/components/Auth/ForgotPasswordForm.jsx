@@ -4,7 +4,6 @@ import { useFormik } from "formik";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
-import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import ButtonLoader from "../Global/ButtonLoader";
 
@@ -38,7 +37,6 @@ const ForgotPasswordForm = () => {
         );
         console.log("verify email res >>>>>>", res);
         toast.success(res?.data?.message);
-        // localStorage.setItem("user-email", JSON.stringify(values.email));
         navigate("/verify-otp", {
           state: {
             from: "forgot-password",
@@ -47,7 +45,7 @@ const ForgotPasswordForm = () => {
           },
         });
       } catch (error) {
-        toast.error(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message || "Failed to send OTP");
         console.log("Verify email err >>>>", error);
       } finally {
         setLoading(false);
@@ -55,9 +53,10 @@ const ForgotPasswordForm = () => {
       resetForm();
     },
   });
+
   return (
     <div
-      className={`w-full min-h-screen relative flex items-center justify-end p-4 md:p-10`}
+      className="w-full min-h-screen relative flex items-center justify-end p-4 md:p-10"
       style={{
         backgroundImage: `url('/signup-mockup.png')`,
         backgroundPosition: "center",
@@ -69,14 +68,10 @@ const ForgotPasswordForm = () => {
         onSubmit={formik.handleSubmit}
         className="min-h-[90vh] w-full lg:w-1/2 rounded-[30px] bg-[#FFFFFFA6] p-4 md:p-8 flex flex-col items-start justify-center gap-2 relative"
       >
-        <Link to="/login" className="absolute top-5 left-4 md:left-8">
-          <img
-            src="/left-arrow-icon.png"
-            alt="left arrow icon"
-            className="w-[35px]"
-          />
+        <Link to="/login" className="absolute top-5 left-4 md:left-8 text-gray-700 hover:text-black transition-colors">
+          <FaArrowLeftLong className="w-[28px] h-[28px]" />
         </Link>
-        <h2 className={`blue-text text-[36px] font-bold`}>Forgot Password?</h2>
+        <h2 className="blue-text text-[36px] font-bold">Forgot Password?</h2>
         <p className="text-base font-medium lg:w-[80%]">
           Enter your email to reset your password and swiftly resume your
           experience.
@@ -103,14 +98,15 @@ const ForgotPasswordForm = () => {
               className="w-full bg-transparent text-[14px] font-[400] text-[#5C5C5C] outline-none"
             />
           </div>
-          {formik.errors.email ? (
+          {formik.touched.email && formik.errors.email ? (
             <div className="text-xs text-red-500">{formik.errors.email}</div>
           ) : null}
         </div>
 
         <button
           type="submit"
-          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mt-5 h-[50px]"
+          disabled={loading}
+          className="blue-bg text-white rounded-[20px] text-base font-bold py-3.5 w-full mt-5 h-[50px] flex items-center justify-center disabled:opacity-70"
         >
           {loading ? <ButtonLoader /> : "Next"}
         </button>

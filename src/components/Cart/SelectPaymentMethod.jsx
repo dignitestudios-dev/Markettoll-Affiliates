@@ -197,7 +197,7 @@ const AddPaymentMethod = ({ state, onclick }) => {
             onclick();
           }
         } catch (error) {
-          setConnectCard(false);
+          // setConnectCard(false);
           console.log(
             "error while adding paymentMethodId >>",
             error?.response?.data

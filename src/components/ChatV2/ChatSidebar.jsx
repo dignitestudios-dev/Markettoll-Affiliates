@@ -21,9 +21,9 @@ const ChatSidebar = ({
     navigate(-1);
   };
 
-  console.log(selectedUser, "selectedUser")
+
   return (
-    <div className="w-full h-full flex flex-col pr-0 lg:pr-4 border-r-0 lg:border-r border-gray-100">
+    <div className="w-full h-full flex flex-col pr-0 lg:pr-4 border-r-0 lg:border-r border-gray-100 min-h-0 overflow-hidden">
       {/* Create Chat Modal */}
       <CreateChatModal
         isOpen={isModalOpen}
@@ -32,7 +32,7 @@ const ChatSidebar = ({
       />
 
       {/* Top Header Section */}
-      <div className="pt-2 px-1 pb-3">
+      <div className="pt-2 px-1 pb-3 shrink-0">
         <button
           onClick={handleBack}
           className="flex items-center gap-1 text-[#0098EA] hover:text-blue-600 text-sm font-medium transition-colors mb-2"
@@ -47,14 +47,14 @@ const ChatSidebar = ({
           </h1>
 
           {/* New Chat Button */}
-          <button
+          {/* <button
             type="button"
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-1 bg-[#0098EA] hover:bg-blue-600 active:scale-95 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow transition-all cursor-pointer"
           >
             <IoAdd size={16} />
             <span>New Chat</span>
-          </button>
+          </button> */}
         </div>
 
         <div className="w-full border-b border-gray-200/70 my-3" />
@@ -73,7 +73,7 @@ const ChatSidebar = ({
       </div>
 
       {/* User List */}
-      <div className="flex-1 overflow-y-auto chat-list space-y-1 pr-1 mt-1">
+      <div className="flex-1 min-h-0 max-h-[480px] lg:max-h-[550px] overflow-y-auto chat-list space-y-1 pr-1 mt-1">
         {users?.length > 0 ? (
           users?.map((item, index) => (
             <ChatUserCard

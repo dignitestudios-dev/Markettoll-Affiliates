@@ -79,12 +79,8 @@ const UpdatePasswordForm = () => {
         onSubmit={formik.handleSubmit}
         className="min-h-[90vh] w-full lg:w-1/2 rounded-[30px] bg-[#FFFFFFA6] p-4 md:p-8 flex flex-col items-start justify-center gap-0 relative"
       >
-        <Link to="/forgot-password" className="absolute top-5 left-4 md:left-8">
-          <img
-            src="/left-arrow-icon.png"
-            alt="left arrow icon"
-            className="w-[35px]"
-          />
+        <Link to="/forgot-password" className="absolute top-5 left-4 md:left-8 text-gray-700 hover:text-black transition-colors">
+          <FaArrowLeftLong className="w-[28px] h-[28px]" />
         </Link>
         <h2 className={`blue-text text-[36px] font-bold`}>Update Password</h2>
       <p className="text-base font-medium lg:w-[80%] lg:leading-[19.41px] mb-10">
@@ -155,7 +151,7 @@ const UpdatePasswordForm = () => {
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              {showPassword ? (
+              {showConfirmPassword ? (
                 <LuEye className="text-[#606060]" />
               ) : (
                 <LuEyeOff className="text-[#606060]" />

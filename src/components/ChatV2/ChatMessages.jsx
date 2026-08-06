@@ -47,7 +47,7 @@ const ChatMessages = ({ messages = [], currentUserId }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   }, [messages]);
 
   // Track which date labels have already been rendered
@@ -55,8 +55,6 @@ const ChatMessages = ({ messages = [], currentUserId }) => {
 
   return (
     <div className="w-full h-[400px] overflow-y-auto chat-list p-4 lg:p-6 space-y-3">
-
-   
       {messages.map((msg, index) => {
         const senderId = msg.sender_id || msg.senderId;
         const isSentByMe = currentUserId
@@ -71,6 +69,14 @@ const ChatMessages = ({ messages = [], currentUserId }) => {
         const showDateBadge = dateLabel && !renderedDates.has(dateLabel);
         if (showDateBadge) renderedDates.add(dateLabel);
 
+        const isImage =
+          msg.contentType === "image" ||
+          (typeof msg.message === "string" &&
+            msg.message.startsWith("http") &&
+            (msg.message.match(/\.(jpeg|jpg|gif|png|webp)/i) ||
+              msg.message.includes("/user/") ||
+              msg.message.includes("upload")));
+
         return (
           <React.Fragment key={msg.id || index}>
             {/* Date Separator Badge */}
@@ -84,15 +90,26 @@ const ChatMessages = ({ messages = [], currentUserId }) => {
 
             {/* Message Row */}
             <div className={`w-full flex ${isSentByMe ? "justify-end" : "justify-start"}`}>
-              <div className={`flex flex-col max-w-[75%] sm:max-w-[65%] lg:max-w-[55%] ${isSentByMe ? "items-end" : "items-start"}`}>
+              <div className={`flex flex-col min-w-0 max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] ${isSentByMe ? "items-end" : "items-start"}`}>
                 {/* Bubble */}
                 <div
-                  className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed break-words ${isSentByMe
-                    ? "bg-[#0095FF] text-white rounded-tr-none shadow-sm"
-                    : "bg-[#F2F4F7] text-gray-800 rounded-tl-none"
-                    }`}
+                  className={`p-1.5 sm:p-2 rounded-2xl text-sm leading-relaxed break-words break-all [overflow-wrap:anywhere] whitespace-pre-wrap ${
+                    isImage ? "bg-transparent p-0" : isSentByMe
+                    ? "bg-[#0095FF] text-white rounded-tr-none shadow-sm px-4 py-2.5"
+                    : "bg-[#F2F4F7] text-gray-800 rounded-tl-none px-4 py-2.5"
+                  }`}
                 >
-                  {msg.message}
+                  {isImage ? (
+                    <a href={msg.message} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={msg.message}
+                        alt="Photo"
+                        className="max-w-[200px] max-h-[200px] sm:max-w-[260px] sm:max-h-[260px] rounded-2xl object-cover cursor-pointer shadow-sm hover:opacity-95 transition-opacity border border-gray-100"
+                      />
+                    </a>
+                  ) : (
+                    msg.message
+                  )}
                 </div>
 
                 {/* Time */}
@@ -100,12 +117,12 @@ const ChatMessages = ({ messages = [], currentUserId }) => {
                   {formatTime(msg) || msg.time || ""}
                 </span>
               </div>
-                 <div ref={messagesEndRef} />
             </div>
           </React.Fragment>
         );
       })}
-
+      {/* Scroll anchor — always at the very bottom */}
+      <div ref={messagesEndRef} />
     </div>
   );
 };

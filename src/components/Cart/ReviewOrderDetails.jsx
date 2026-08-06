@@ -8,7 +8,7 @@ import Loader from "../Global/Loader";
 
 const ReviewOrderDetails = () => {
   const location = useLocation();
-  // console.log("orderData >>>", location?.state?.orderData);
+  console.log("orderData >>>", location?.state?.orderData);
   const { user, userProfile } = useContext(AuthContext);
   const [sellerProfile, setSellerProfile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -89,15 +89,27 @@ const ReviewOrderDetails = () => {
     return <Loader />;
   }
 
-  console.log(sellerProfile, "sellterProfile");
+  console.log(location?.state?.orderData, "location?.state?.orderData?.orderId");
 
   const userDetail = {
+    // id: location?.state?.orderData?.products[0]?.seller?.id,
+    // lastMessage: {
+    //   profileImage: sellerProfile?.profileImage,
+    //   profileName: sellerProfile?.name,
+    //   id: location?.state?.orderData?.products[0]?.seller?.id,
+    // },
+
     id: location?.state?.orderData?.products[0]?.seller?.id,
+    adminId: "admin_id",
+    userName: user?.name || userProfile?.name || user?.userName || user?.first_name || user?.user?.name || "User",
+    orderId: location?.state?.orderData?.orderId || "",
     lastMessage: {
-      profileImage: sellerProfile?.profileImage,
-      profileName: sellerProfile?.name,
+      profileImage:
+        location?.state?.orderData?.products[0]?.product?.seller?.profileImage,
+      profileName: location?.state?.orderData?.products[0]?.seller?.name || "Admin",
       id: location?.state?.orderData?.products[0]?.seller?.id,
     },
+
   };
 
   return (
@@ -113,7 +125,7 @@ const ReviewOrderDetails = () => {
               <p>
                 <span className="font-medium">Order ID:</span>{" "}
                 <span className="text-[#808080]">
-                  {location?.state?.orderData?._id?.substr(-7)}
+                  {location?.state?.orderData?.orderId }
                 </span>
               </p>
               <p>
@@ -178,7 +190,7 @@ const ReviewOrderDetails = () => {
                                       alt="chat icon"
                                       className="w-[18px] h-[18px]"
                                     />
-                                    Chat With Seller
+                                    Chat With Admin
                                   </Link>
                                 </div>
                               </div>
@@ -250,7 +262,7 @@ const ReviewOrderDetails = () => {
                                       alt="chat icon"
                                       className="w-[18px] h-[18px]"
                                     />
-                                    Chat With Seller
+                                    Chat With Admin
                                   </Link>
                                 </div>
                               </div>

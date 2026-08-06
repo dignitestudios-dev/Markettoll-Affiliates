@@ -58,9 +58,10 @@ const handlePlaceOrder = async () => {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
+
       }
     );
-
+   
     const { paymentIntent } = purchasedRes.data.data;
 
     // 3️⃣ Handle 3D Secure AFTER purchased API

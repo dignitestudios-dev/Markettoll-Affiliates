@@ -5,12 +5,12 @@ const UpdatePasswordForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       navigate("/login");
     }, 1500);
 
-    return () => {};
-  }, []);
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   return (
     <div

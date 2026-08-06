@@ -1,4 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { BASE_URL } from "../../api/api";
 import ChatSidebar from "../../components/ChatV2/ChatSidebar";
 import ChatWindow from "../../components/ChatV2/ChatWindow";
 import {
@@ -45,9 +49,10 @@ export const createChatRoom = async ({
         const chatRef = collection(db, "chat-v2");
 
         // 1. If orderId provided, strictly check if a room with same order_id already exists
-        if (orderId) {
+        if (orderId && userId) {
             const orderQuery = query(
                 chatRef,
+                where("user_id", "array-contains", userId),
                 where("order_id", "==", orderId),
                 where("chat_status", "==", true)
             );
@@ -68,8 +73,9 @@ export const createChatRoom = async ({
 
         const snapshot = await getDocs(q);
         const existingRoom = snapshot.docs.find((docSnap) => {
+            const orderIds = docSnap.data()?.order_id || "";
             const userIds = docSnap.data()?.user_id || [];
-            return userIds.includes(adminId);
+            return orderIds === orderId && userIds.includes(userId);
         });
 
         // Return existing room ID if found
@@ -119,10 +125,14 @@ export const createChatRoom = async ({
 
 const ChatV2 = () => {
     const { user } = useContext(AuthContext);
-    const currentUserId = user?._id || user?.id || "";
+    const userCookie = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    const parsedUser = userCookie ? JSON.parse(userCookie) : null;
+    const currentUserId = user?._id || user?.id || user?.user?._id || user?.user?.id || parsedUser?._id || parsedUser?.id || "user_id";
+    const location = useLocation();
 
     const [usersList, setUsersList] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [autoSelectedRoomId, setAutoSelectedRoomId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [showMobileChat, setShowMobileChat] = useState(false);
@@ -149,7 +159,7 @@ const ChatV2 = () => {
 
     // Handler to create chat room from UI "+ New Chat" button
     const handleCreateChat = async ({ userName, targetUserId, orderId, initialMessage }) => {
-        const buyerId = currentUserId || "buyer_id";
+        const buyerId = currentUserId || "admin_id";
         const roomId = await createChatRoom({
             userId: buyerId,
             adminId: targetUserId || "admin_id",
@@ -157,12 +167,37 @@ const ChatV2 = () => {
             orderId: orderId,
             initialMessage: initialMessage,
         });
+        if (roomId) {
+            setAutoSelectedRoomId(roomId);
+        }
         return roomId;
+    };
+
+    const getChatTimestamp = (chat) => {
+        const lastMsgTime = chat?.last_msg?.created_at || chat?.created_at || chat?.updatedAt;
+        if (!lastMsgTime) return 0;
+        if (typeof lastMsgTime?.toMillis === "function") {
+            return lastMsgTime.toMillis();
+        }
+        if (typeof lastMsgTime?.seconds === "number") {
+            return lastMsgTime.seconds * 1000 + Math.floor((lastMsgTime.nanoseconds || 0) / 1000000);
+        }
+        if (lastMsgTime instanceof Date) {
+            return lastMsgTime.getTime();
+        }
+        if (typeof lastMsgTime === "number") {  
+            return lastMsgTime;
+        }
+        if (typeof lastMsgTime === "string") {
+            const parsed = Date.parse(lastMsgTime);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+        return 0;
     };
 
     // 1. Fetch chat rooms from "chat-v2" collection where "user_id" array contains user AND chat_status is true
     useEffect(() => {
-        const targetId = currentUserId || "buyer_id";
+        const targetId = currentUserId || "admin_id";
         const chatRef = collection(db, "chat-v2");
 
         // Query with array-contains on user_id AND chat_status == true
@@ -184,16 +219,48 @@ const ChatV2 = () => {
                     }))
                     .filter((c) => c.chat_status === true);
 
+                chats.sort((a, b) => getChatTimestamp(b) - getChatTimestamp(a));
+
                 console.log(chats, "usersList==");
                 setUsersList(chats);
 
                 if (chats.length > 0) {
                     setSelectedUser((prev) => {
-                        if (!prev) return chats[0];
-                        const found = chats.find(
-                            (c) => (c.id || c._id) === (prev.id || prev._id)
-                        );
-                        return found || chats[0];
+                        const navData = location.state?.data;
+                        const navOrderId = navData?.orderId || navData?.order_id;
+                        const navTargetId = navData?.adminId || navData?.id || navData?.lastMessage?.id;
+
+                        // 1. Priority: Match auto-created/fetched room ID
+                        if (autoSelectedRoomId) {
+                            const matchById = chats.find((c) => (c.id || c._id) === autoSelectedRoomId);
+                            if (matchById) return matchById;
+                        }
+
+                        // 2. Priority: Match strictly by order_id if navOrderId provided
+                        if (navOrderId) {
+                            const matchByOrder = chats.find(
+                                (c) => String(c.order_id || c.orderId || "") === String(navOrderId)
+                            );
+                            if (matchByOrder) return matchByOrder;
+                        }
+
+                        // 3. Priority: Match by specific target user ID if provided
+                        if (navTargetId && navTargetId !== "admin_id") {
+                            const matchByUser = chats.find(
+                                (c) => Array.isArray(c.user_id) && c.user_id.includes(navTargetId)
+                            );
+                            if (matchByUser) return matchByUser;
+                        }
+
+                        // 4. Priority: Preserve previously selected user if still present
+                        if (prev) {
+                            const found = chats.find(
+                                (c) => (c.id || c._id) === (prev.id || prev._id)
+                            );
+                            if (found) return found;
+                        }
+
+                        return chats[0];
                     });
                 } else {
                     setSelectedUser(null);
@@ -205,7 +272,37 @@ const ChatV2 = () => {
         );
 
         return () => unsubscribe();
-    }, [currentUserId]);
+    }, [currentUserId, location.state, autoSelectedRoomId]);
+
+    // Auto-create/fetch room if navigated from Chat with Admin or order details link
+    useEffect(() => {
+        const navData = location.state?.data;
+        if (!navData || !currentUserId) return;
+
+        const targetUserId = navData?.adminId || navData?.id || navData?.lastMessage?.id || "admin_id";
+        const userName = navData?.userName || navData?.name || navData?.lastMessage?.profileName || navData?.profileName || "Admin";
+        const orderId = navData?.orderId || navData?.order_id || "";
+
+        const handleAutoCreate = async () => {
+            try {
+                const roomId = await createChatRoom({
+                    userId: currentUserId,
+                    adminId: targetUserId,
+                    userName: userName,
+                    orderId: orderId,
+                });
+                if (roomId) {
+                    console.log("Auto opened/created chat room:", roomId);
+                    setAutoSelectedRoomId(roomId);
+                    setShowMobileChat(true);
+                }
+            } catch (err) {
+                console.error("Error auto creating room from location state:", err);
+            }
+        };
+
+        handleAutoCreate();
+    }, [location.state, currentUserId]);
 
     // 2. Fetch messages inside selectedUser's "messages" subcollection
     useEffect(() => {
@@ -241,7 +338,8 @@ const ChatV2 = () => {
                         if (item.createdAt?.seconds) return item.createdAt.seconds;
                         if (typeof item.created_at?.toDate === "function") return item.created_at.toDate().getTime() / 1000;
                         if (typeof item.createdAt?.toDate === "function") return item.createdAt.toDate().getTime() / 1000;
-                        return 0;
+                        // Pending serverTimestamp → sort at end, not start
+                        return Infinity;
                     };
                     return getSecs(a) - getSecs(b);
                 });
@@ -254,8 +352,8 @@ const ChatV2 = () => {
         );
 
         return () => unsubscribe();
-    }, [selectedUser?.id, selectedUser?._id]);
-
+    }, [selectedUser?.id, selectedUser?._id]); 
+    
     // 3. Handle sending message
     const handleSendMessage = async (text) => {
         const targetId = selectedUser?.id || selectedUser?._id;
@@ -282,19 +380,147 @@ const ChatV2 = () => {
                     created_at: serverTimestamp(),
                 },
             });
+
+            // Send notification for text message
+            const receiverId = Array.isArray(selectedUser?.user_id)
+                ? selectedUser.user_id.find((id) => id !== currentUserId && id !== "me")
+                : null;
+
+            if (receiverId) {
+                const token = user?.token || Cookies.get("token");
+                await axios.post(
+                    `${BASE_URL}/users/chat-message-notification/${receiverId}`,
+                    {
+                        title: "This is a chat message notification.",
+                        attachments: [],
+                        body: text,
+                        messageBody: text,
+                        senderName: user?.name || user?.userName || user?.first_name || "User",
+                    },
+                    {
+                        headers: {
+                            Authorization: token ? `Bearer ${token}` : undefined,
+                        },
+                    }
+                ).catch((err) => console.error("Error sending chat text notification:", err));
+            }
         } catch (error) {
             console.error("Error sending message to chat-v2:", error);
+        }
+    };
+
+    // 4. Handle uploading and sending image attachments
+    const handleSendImage = async (files) => {
+        const targetId = selectedUser?.id || selectedUser?._id;
+        if (!files || files.length === 0 || !targetId) return;
+
+        try {
+            const formData = new FormData();
+            Array.from(files).forEach((file) => {
+                formData.append("attachments", file);
+                formData.append("type", 'png');
+            });
+
+            const token = user?.token || Cookies.get("token");
+
+            const response = await axios.post(
+                `${BASE_URL}/users/upload-chat-attachments`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: token ? `Bearer ${token}` : undefined,
+                    },
+                }
+            );
+
+            // Extract image URLs from API response
+            let imageUrls = [];
+            const resData = response?.data;
+            if (Array.isArray(resData?.data)) {
+                imageUrls = resData.data;
+            } else if (typeof resData?.data === "string") {
+                imageUrls = [resData.data];
+            } else if (Array.isArray(resData?.urls)) {
+                imageUrls = resData.urls;
+            } else if (Array.isArray(resData)) {
+                imageUrls = resData;
+            } else if (typeof resData?.url === "string") {
+                imageUrls = [resData.url];
+            }
+
+            if (!imageUrls || imageUrls.length === 0) {
+                console.error("No image URLs returned from upload API:", response.data);
+                return;
+            }
+
+            // Create attachments array matching structure: [{ url, type: 'png' }]
+            const attachments = imageUrls.map((url) => ({
+                attachments: url,
+                type: "png",
+            }));
+
+            const userDocRef = doc(db, "chat-v2", String(targetId));
+            const messagesRef = collection(userDocRef, "messages");
+
+            for (const url of imageUrls) {
+                await addDoc(messagesRef, {
+                    message: url,
+                    contentType: "image",
+                    created_at: serverTimestamp(),
+                    sender_id: currentUserId || "me",
+                    seen_by: [currentUserId || "me"],
+                });
+            }
+
+            await updateDoc(userDocRef, {
+                last_msg: {
+                    message: "Photo",
+                    seen_by: [currentUserId || "me"],
+                    created_at: serverTimestamp(),
+                },
+            });
+
+            // Determine receiverId from selectedUser.user_id array
+            const receiverId = Array.isArray(selectedUser?.user_id)
+                ? selectedUser.user_id.find((id) => id !== currentUserId && id !== "me")
+                : null;
+
+            // Send Chat Notification via API
+            if (receiverId) {
+                try {
+                    await axios.post(
+                        `${BASE_URL}/users/chat-message-notification/${receiverId}`,
+                        {
+                            title: "Sent a photo",
+                            messageBody: "Sent a photo",
+                            body: "Sent a photo",
+                            attachments: attachments,
+                            senderName: user?.name || user?.userName || user?.first_name || "User",
+                        },
+                        {
+                            headers: {
+                                Authorization: token ? `Bearer ${token}` : undefined,
+                            },
+                        }
+                    );
+                } catch (notifError) {
+                    console.error("Error sending chat image notification:", notifError);
+                }
+            }
+        } catch (error) {
+            console.error("Error uploading & sending image to chat-v2:", error);
         }
     };
 
     return (
         <div className="py-4 lg:py-8 padding-x min-h-screen bg-[#F8F9FB] flex items-center justify-center">
             {/* Outer Card Container */}
-            <div className="w-full max-w-[1320px] bg-white rounded-[24px] lg:rounded-[32px] p-4 lg:p-6 shadow-sm border border-gray-100 min-h-[82vh] flex flex-col">
-                <div className="w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-full">
+            <div className="w-full max-w-[1320px] bg-white rounded-[24px] lg:rounded-[32px] p-4 lg:p-6 shadow-sm border border-gray-100 min-h-[82vh] h-auto lg:h-[82vh] flex flex-col overflow-hidden">
+                <div className="w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-full min-h-0 overflow-hidden">
                     {/* Left Sidebar */}
                     <div
-                        className={`lg:col-span-4 h-full ${showMobileChat ? "hidden lg:block" : "block"
+                        className={`lg:col-span-4 h-full min-h-0 flex flex-col overflow-hidden ${showMobileChat ? "hidden lg:flex" : "flex"
                             }`}
                     >
                         <ChatSidebar
@@ -310,13 +536,14 @@ const ChatV2 = () => {
 
                     {/* Right Main Chat Window */}
                     <div
-                        className={`lg:col-span-8 h-full flex flex-col ${showMobileChat ? "block" : "hidden lg:flex"
+                        className={`lg:col-span-8 h-full min-h-0 flex flex-col overflow-hidden ${showMobileChat ? "flex" : "hidden lg:flex"
                             }`}
                     >
                         <ChatWindow
                             selectedUser={selectedUser}
                             messages={messages}
                             onSendMessage={handleSendMessage}
+                            onSendImage={handleSendImage}
                             currentUserId={currentUserId}
                             onBackMobile={() => setShowMobileChat(false)}
                         />

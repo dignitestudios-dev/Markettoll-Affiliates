@@ -10,14 +10,19 @@ const ChatHeader = ({
   onReportUser,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  const name = selectedUser?.user_name || selectedUser?.name || selectedUser?.lastMessage?.profileName || "Select a chat";
-  const orderId = selectedUser?.order_id ? `#${selectedUser.order_id}` : "";
+  if (!selectedUser) return null;
+
+  const name = selectedUser?.user_name || selectedUser?.name || selectedUser?.lastMessage?.profileName || "";
+  const orderId = (selectedUser?.order_id || selectedUser?.orderId) ? `#${selectedUser.order_id || selectedUser.orderId}` : "";
   const image =
     selectedUser?.image ||
     selectedUser?.profileImage ||
-    selectedUser?.lastMessage?.profileImage ||
-    "/chat-img.png";
+    selectedUser?.lastMessage?.profileImage;
+
+  const initial = name ? name.trim().charAt(0).toUpperCase() : "?";
+  const hasCustomImage = image && image !== "/chat-img.png" && !imgError;
 
   return (
     <div className="w-full py-3 px-4 border-b border-gray-100 flex items-center justify-between bg-white rounded-t-2xl">
@@ -32,14 +37,18 @@ const ChatHeader = ({
           </button>
         )}
 
-        <img
-          src={image}
-          alt={name}
-          className="w-10 h-10 rounded-full object-cover border border-gray-100"
-          onError={(e) => {
-            e.target.src = "/chat-img.png";
-          }}
-        />
+        {hasCustomImage ? (
+          <img
+            src={image}
+            alt={name}
+            className="w-10 h-10 rounded-full object-cover border border-gray-100 shrink-0"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-[#0098EA] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 uppercase">
+            {initial}
+          </div>
+        )}
         <div>
           <h3 className="font-semibold text-gray-900 text-sm md:text-base leading-tight">
             {name}

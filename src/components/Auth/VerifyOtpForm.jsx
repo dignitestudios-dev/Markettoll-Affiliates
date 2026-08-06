@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
+import { FaArrowLeftLong } from "react-icons/fa6";
 import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import { toast } from "react-toastify";
@@ -202,13 +203,9 @@ const VerifyOtpForm = () => {
         <button
           type="button"
           onClick={handleNavigateToBack}
-          className="absolute top-5 left-4 md:left-8"
+          className="absolute top-5 left-4 md:left-8 text-gray-700 hover:text-black transition-colors"
         >
-          <img
-            src="/left-arrow-icon.png"
-            alt="left arrow icon"
-            className="w-[35px]"
-          />
+          <FaArrowLeftLong className="w-[28px] h-[28px]" />
         </button>
         <h2 className="blue-text text-[36px] font-bold">Verification</h2>
         <p className="text-base font-medium lg:w-[90%]">
