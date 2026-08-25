@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import WelcomePopup from "./WelcomePopup";
+import AdminChatFloatingButton from "./AdminChatFloatingButton";
 import { AuthContext } from "../../context/authContext";
 
 const Layout = ({ page }) => {
@@ -12,13 +13,15 @@ const Layout = ({ page }) => {
   };
 
   return (
-    <div>
+    <div className="relative">
       <Navbar />
       {page}
       <Footer />
+      <AdminChatFloatingButton />
       {/* <WelcomePopup closeModal={closeModal} onclick={handleCloseModal} /> */}
     </div>
   );
 };
 
 export default Layout;
+

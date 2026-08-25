@@ -331,8 +331,15 @@ const AppRoutes = () => {
           path="/chats"
           element={
             <RoleProtectedRoute>
-              {/* <Layout page={<ChatPage />} /> */}
               <Layout page={<ChatV2 />} />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-chat"
+          element={
+            <RoleProtectedRoute>
+              <Layout page={<ChatPage />} />
             </RoleProtectedRoute>
           }
         />

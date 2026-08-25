@@ -43,6 +43,7 @@ const allowedPathsForRoles = {
     "/cart",
     "/order-details/:orderId",
     "/chats",
+    "/admin-chat",
     "/favourites",
     "/account/peronal-info",
     "/account/my-wallet",

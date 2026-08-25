@@ -110,7 +110,8 @@ const MessageBoard = ({
       };
 
       const res = await axios.post(
-        `${BASE_URL}/users/chat-message-notification/${seller?.id}`,
+        // `${BASE_URL}/users/chat-message-notification/${seller?.id}`,
+        `${BASE_URL}/users/chat-message-notification/67a2643f5892074cacec9d27`,
         notificationData,
         {
           headers: {
@@ -242,16 +243,14 @@ const MessageBoard = ({
                     </p>
                   )}
                 <div
-                  className={`w-full px-2 flex flex-col ${
-                    item.senderId !== userId ? "items-start" : "items-end"
-                  }`}
+                  className={`w-full px-2 flex flex-col ${item.senderId !== userId ? "items-start" : "items-end"
+                    }`}
                 >
                   <div
-                    className={`min-w-auto max-w-[50%] ${
-                      item.senderId !== userId
+                    className={`min-w-auto max-w-[50%] ${item.senderId !== userId
                         ? "bg-[#F7F7F7] text-[#000000]"
                         : "blue-bg text-white"
-                    } p-3 rounded-xl text-wrap break-words text-xs lg:text-sm`}
+                      } p-3 rounded-xl text-wrap break-words text-xs lg:text-sm`}
                   >
                     {item.content}
                   </div>
