@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 const ChatPage = () => {
   const { user } = useContext(AuthContext);
   const userId = user?._id;
-  const adminId = "6759530c2f12b98bc6a5c19b";
+  const adminId = "67a2643f5892074cacec9d27";
   const chatId = userId ? `chat_${userId}_${adminId}` : null;
 
   const [message, setMessage] = useState("");
@@ -113,6 +113,8 @@ const ChatPage = () => {
     setMessage("");
     setShowEmojiPicker(false);
 
+    const isFirstMsg = messages.length === 0;
+
     const messageData = {
       senderId: userId,
       text: currentMsg,
@@ -123,15 +125,54 @@ const ChatPage = () => {
       const messagesRef = collection(db, "Adminchats", chatId, "messages");
       await addDoc(messagesRef, messageData);
 
-      await setDoc(doc(db, "userChats", userId), {
-        user: {
-          name: user?.name || user?.userName || "User",
-          pic: user?.profileImage || "",
+      if (isFirstMsg) {
+        await setDoc(
+          doc(db, "Adminchats", chatId),
+          {
+            isautomatedmsg: true,
+          },
+          { merge: true }
+        );
+      }
+
+      await setDoc(
+        doc(db, "userChats", userId),
+        {
+          user: {
+            name: user?.name || user?.userName || "User",
+            pic: user?.profileImage || "",
+          },
+          chatId: chatId,
+          lastMessage: currentMsg,
+          timestamp: new Date().toISOString(),
         },
-        chatId: chatId,
-        lastMessage: currentMsg,
-        timestamp: new Date().toISOString(),
-      });
+        { merge: true }
+      );
+
+      if (isFirstMsg) {
+        const automatedReplyText =
+          "Thank you for contacting the MarketToll Support Team. We have received your message, and one of our team members will reach out to you shortly to assist you. We appreciate your patience and look forward to helping you.";
+
+        await addDoc(messagesRef, {
+          senderId: adminId,
+          text: automatedReplyText,
+          timestamp: new Date().toISOString(),
+        });
+
+        await setDoc(
+          doc(db, "userChats", userId),
+          {
+            user: {
+              name: user?.name || user?.userName || "User",
+              pic: user?.profileImage || "",
+            },
+            chatId: chatId,
+            lastMessage: automatedReplyText,
+            timestamp: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+      }
 
       sendNotification(currentMsg);
     } catch (error) {

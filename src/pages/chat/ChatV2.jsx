@@ -84,6 +84,10 @@ export const createChatRoom = async ({
             return existingRoom.id;
         }
 
+        const isNormalChat = !orderId || orderId === "" || orderId === "null";
+        const automatedReplyText =
+            "Thank you for contacting the MarketToll Support Team. We have received your message, and one of our team members will reach out to you shortly to assist you. We appreciate your patience and look forward to helping you.";
+
         // Create a new chat room with ONLY [userId, adminId] in user_id array
         const newRoomData = {
             user_id: [userId, adminId],
@@ -92,9 +96,10 @@ export const createChatRoom = async ({
             chat_status: true,
             is_online: false,
             created_at: serverTimestamp(),
+            ...(isNormalChat ? { isautomatedmsg: true } : {}),
             last_msg: {
-                message: initialMessage || "Chat started",
-                seen_by: [userId],
+                message: isNormalChat && initialMessage ? automatedReplyText : (initialMessage || "Chat started"),
+                seen_by: isNormalChat && initialMessage ? [adminId] : [userId],
                 created_at: serverTimestamp(),
             },
         };
@@ -114,6 +119,15 @@ export const createChatRoom = async ({
                 seen_by: [userId],
                 created_at: serverTimestamp(),
             });
+
+            if (isNormalChat) {
+                await addDoc(messagesRef, {
+                    message: automatedReplyText,
+                    sender_id: adminId,
+                    seen_by: [adminId],
+                    created_at: serverTimestamp(),
+                });
+            }
         }
 
         return newRoomRef.id;
@@ -282,7 +296,7 @@ const ChatV2 = () => {
         const targetUserId = navData?.adminId || navData?.id || navData?.lastMessage?.id || "admin_id";
         const userName = navData?.userName || navData?.name || navData?.lastMessage?.profileName || navData?.profileName || "Admin";
         const orderId = navData?.orderId || navData?.order_id || "";
-
+console.log(orderId,"orderId====")
         const handleAutoCreate = async () => {
             try {
                 const roomId = await createChatRoom({
@@ -363,6 +377,10 @@ const ChatV2 = () => {
             const userDocRef = doc(db, "chat-v2", String(targetId));
             const messagesRef = collection(userDocRef, "messages");
 
+            const isNormalChat = !selectedUser?.order_id || selectedUser?.order_id === "" || selectedUser?.order_id === "null";
+            const isFirstMsg = messages.length === 0;
+            const shouldSendAutomated = isNormalChat && isFirstMsg;
+
             const newMsgData = {
                 message: text,
                 created_at: serverTimestamp(),
@@ -379,7 +397,34 @@ const ChatV2 = () => {
                     seen_by: [currentUserId || "me"],
                     created_at: serverTimestamp(),
                 },
+                ...(shouldSendAutomated ? { isautomatedmsg: true } : {}),
             });
+
+            // If it's the first message in normal chat (not order specific), send automated support response
+            if (shouldSendAutomated) {
+                const adminId = Array.isArray(selectedUser?.user_id)
+                    ? selectedUser.user_id.find((id) => id !== currentUserId && id !== "me") || "admin_id"
+                    : "admin_id";
+
+                const automatedReplyText =
+                    "Thank you for contacting the MarketToll Support Team. We have received your message, and one of our team members will reach out to you shortly to assist you. We appreciate your patience and look forward to helping you.";
+
+                await addDoc(messagesRef, {
+                    message: automatedReplyText,
+                    sender_id: adminId,
+                    seen_by: [adminId],
+                    created_at: serverTimestamp(),
+                });
+
+                await updateDoc(userDocRef, {
+                    last_msg: {
+                        message: automatedReplyText,
+                        seen_by: [adminId],
+                        created_at: serverTimestamp(),
+                    },
+                    isautomatedmsg: true,
+                });
+            }
 
             // Send notification for text message
             const receiverId = Array.isArray(selectedUser?.user_id)

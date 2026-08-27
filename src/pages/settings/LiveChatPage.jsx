@@ -55,6 +55,7 @@ const LiveChatPage = () => {
     if (message.trim() === "") return;
 
     const chatId = `chat_${userId}_${adminId}`;
+    const isFirstMsg = messages.length === 0;
 
     const messageData = {
       senderId: userId,
@@ -65,15 +66,56 @@ const LiveChatPage = () => {
     try {
       const messagesRef = collection(db, "Adminchats", chatId, "messages");
       await addDoc(messagesRef, messageData);
-      await setDoc(doc(db, "userChats", userId), {
-        user: {
-          name: user?.name,
-          pic: user?.profileImage,
+
+      if (isFirstMsg) {
+        await setDoc(
+          doc(db, "Adminchats", chatId),
+          {
+            isautomatedmsg: true,
+          },
+          { merge: true }
+        );
+      }
+
+      await setDoc(
+        doc(db, "userChats", userId),
+        {
+          user: {
+            name: user?.name,
+            pic: user?.profileImage,
+          },
+          chatId,
+          lastMessage: message,
+          timestamp: new Date().toISOString(),
         },
-        chatId,
-        lastMessage: message,
-        timestamp: new Date().toISOString(),
-      });
+        { merge: true }
+      );
+
+      if (isFirstMsg) {
+        const automatedReplyText =
+          "Thank you for contacting the MarketToll Support Team. We have received your message, and one of our team members will reach out to you shortly to assist you. We appreciate your patience and look forward to helping you.";
+
+        await addDoc(messagesRef, {
+          senderId: adminId,
+          text: automatedReplyText,
+          timestamp: new Date().toISOString(),
+        });
+
+        await setDoc(
+          doc(db, "userChats", userId),
+          {
+            user: {
+              name: user?.name,
+              pic: user?.profileImage,
+            },
+            chatId,
+            lastMessage: automatedReplyText,
+            timestamp: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+      }
+
       sendNotification();
       setMessage("");
     } catch (error) {

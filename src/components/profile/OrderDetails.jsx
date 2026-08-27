@@ -87,7 +87,7 @@ const OrderDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const order = orderData || location?.state?.data;
-
+console.log(order,orderData,"orderData")
   const status = resolveOrderStatus(order, 0, false);
   const statusStyle = STATUS_STYLES[status] || STATUS_STYLES.Processing;
 
