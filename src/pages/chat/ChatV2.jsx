@@ -53,7 +53,7 @@ export const createChatRoom = async ({
             const orderQuery = query(
                 chatRef,
                 where("user_id", "array-contains", userId),
-                where("order_id", "==", orderId),
+                where("order_id", "==", String(orderId)),
                 where("chat_status", "==", true)
             );
             const orderSnapshot = await getDocs(orderQuery);
@@ -73,9 +73,10 @@ export const createChatRoom = async ({
 
         const snapshot = await getDocs(q);
         const existingRoom = snapshot.docs.find((docSnap) => {
-            const orderIds = docSnap.data()?.order_id || "";
+            const orderIds = String(docSnap.data()?.order_id || "");
+            const targetOrderId = String(orderId || "");
             const userIds = docSnap.data()?.user_id || [];
-            return orderIds === orderId && userIds.includes(userId);
+            return orderIds === targetOrderId && userIds.includes(userId);
         });
 
         // Return existing room ID if found
@@ -84,7 +85,6 @@ export const createChatRoom = async ({
             return existingRoom.id;
         }
 
-        const isNormalChat = !orderId || orderId === "" || orderId === "null";
         const automatedReplyText =
             "Thank you for contacting the MarketToll Support Team. We have received your message, and one of our team members will reach out to you shortly to assist you. We appreciate your patience and look forward to helping you.";
 
@@ -92,14 +92,14 @@ export const createChatRoom = async ({
         const newRoomData = {
             user_id: [userId, adminId],
             user_name: userName,
-            order_id: orderId,
+            order_id: orderId ? String(orderId) : "",
             chat_status: true,
             is_online: false,
             created_at: serverTimestamp(),
-            ...(isNormalChat ? { isautomatedmsg: true } : {}),
+            ...(initialMessage ? { isautomatedmsg: true } : {}),
             last_msg: {
-                message: isNormalChat && initialMessage ? automatedReplyText : (initialMessage || "Chat started"),
-                seen_by: isNormalChat && initialMessage ? [adminId] : [userId],
+                message: initialMessage ? automatedReplyText : (initialMessage || "Chat started"),
+                seen_by: initialMessage ? [adminId] : [userId],
                 created_at: serverTimestamp(),
             },
         };
@@ -120,14 +120,12 @@ export const createChatRoom = async ({
                 created_at: serverTimestamp(),
             });
 
-            if (isNormalChat) {
-                await addDoc(messagesRef, {
-                    message: automatedReplyText,
-                    sender_id: adminId,
-                    seen_by: [adminId],
-                    created_at: serverTimestamp(),
-                });
-            }
+            await addDoc(messagesRef, {
+                message: automatedReplyText,
+                sender_id: adminId,
+                seen_by: [adminId],
+                created_at: serverTimestamp(),
+            });
         }
 
         return newRoomRef.id;
@@ -377,9 +375,8 @@ console.log(orderId,"orderId====")
             const userDocRef = doc(db, "chat-v2", String(targetId));
             const messagesRef = collection(userDocRef, "messages");
 
-            const isNormalChat = !selectedUser?.order_id || selectedUser?.order_id === "" || selectedUser?.order_id === "null";
             const isFirstMsg = messages.length === 0;
-            const shouldSendAutomated = isNormalChat && isFirstMsg;
+            const shouldSendAutomated = isFirstMsg;
 
             const newMsgData = {
                 message: text,
@@ -400,7 +397,7 @@ console.log(orderId,"orderId====")
                 ...(shouldSendAutomated ? { isautomatedmsg: true } : {}),
             });
 
-            // If it's the first message in normal chat (not order specific), send automated support response
+            // If it's the first message in this chat room, send automated support response
             if (shouldSendAutomated) {
                 const adminId = Array.isArray(selectedUser?.user_id)
                     ? selectedUser.user_id.find((id) => id !== currentUserId && id !== "me") || "admin_id"

@@ -7,12 +7,9 @@ const OrderTrackingCard = ({
   status,
   products = [],
   onViewOrderDetails,
+  orderIdNumber
 }) => {
   const styles = STATUS_STYLES[status] || STATUS_STYLES.Processing;
-  const displayId =
-    typeof orderId === "string"
-      ? orderId.slice(-4).toUpperCase()
-      : String(orderId || "").slice(-4).toUpperCase();
 
   return (
     <div
@@ -27,7 +24,7 @@ const OrderTrackingCard = ({
       <div className="w-full flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#D6D6D6]">
         <div className="flex flex-wrap items-center gap-3">
           <h3 className="text-xl md:text-2xl font-bold text-black leading-[30px]">
-            Order ID # {displayId}
+            Order ID # {orderIdNumber}
           </h3>
           <span
             className={`inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-base font-semibold ${styles.bg} ${styles.text}`}

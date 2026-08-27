@@ -70,9 +70,8 @@ const OrdersReceived = () => {
       },
     });
   };
-
   if (loading) return <Loader />;
-
+  
   return (
     <div className="w-full">
       <OrderStatusTabs activeTab={activeTab} onChange={setActiveTab} />
@@ -80,11 +79,13 @@ const OrdersReceived = () => {
       <div className="w-full flex flex-col gap-4 mt-6 min-h-[40vh]">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order, index) => {
+            console.log(order?.orderId,"order?._id==")
             const status = resolveOrderStatus(order, index, false);
             return (
               <OrderTrackingCard
                 key={order?._id || index}
                 orderId={order?._id}
+                orderIdNumber={order?.orderId}
                 status={status}
                 products={extractReceivedProducts(order)}
                 onViewOrderDetails={() => handleNavigate(order)}

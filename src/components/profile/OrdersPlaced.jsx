@@ -85,6 +85,7 @@ const OrdersPlaced = () => {
               <OrderTrackingCard
                 key={order?._id || index}
                 orderId={order?._id}
+                orderIdNumber={order?.orderId}
                 status={status}
                 products={extractPlacedProducts(order)}
                 onViewOrderDetails={() => handleNavigate(order)}
