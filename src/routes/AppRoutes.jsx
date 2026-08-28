@@ -38,6 +38,7 @@ import WouldAddService from "../components/OnboardProfileSetup/WouldAddService";
 import AddProductPage from "../pages/addProduct/AddProductPage";
 import ProductReviewPage from "../pages/addProduct/ProductReviewPage";
 import EditProductPage from "../pages/addProduct/EditProductPage";
+import ManageDiscountsPage from "../pages/Discount/ManageDiscountsPage";
 import WouldYouBoostProduct from "../components/BoostPost/WouldYouBoostProduct";
 import AddServicePage from "../pages/addService/AddServicePage";
 import ServiceReviewPage from "../pages/addService/ServiceReviewPage";
@@ -224,6 +225,14 @@ const AppRoutes = () => {
           element={
             <RoleProtectedRoute>
               <Layout page={<WouldYouBoostProduct />} />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/manage-discount"
+          element={
+            <RoleProtectedRoute>
+              <Layout page={<ManageDiscountsPage />} />
             </RoleProtectedRoute>
           }
         />

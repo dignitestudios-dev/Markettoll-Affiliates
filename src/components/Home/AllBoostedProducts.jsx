@@ -133,56 +133,116 @@ export default function AllBoostedProducts() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {myProducts?.map((item) => (
-          <div
-            key={item._id}
-            className="bg-white rounded-[20px] p-3 relative w-full custom-shadow cursor-pointer"
-          >
-            <div className="relative">
-              <img
-                src={item?.images?.[0]?.url}
-                alt={item?.name}
-                className="w-full h-64 object-contain border border-gray-100 rounded-2xl"
-              />
+        {myProducts?.map((item) => {
+          const pricing = item?.pricing;
+          const hasDiscount =
+            Boolean(pricing?.discount) ||
+            (pricing?.discountedPrice !== undefined &&
+              pricing?.originalPrice !== undefined &&
+              Number(pricing?.discountedPrice) <
+                Number(pricing?.originalPrice));
 
-              <span className="absolute top-3 left-3 h-[40px] w-[121px] bg-[#00AAD5] text-white px-3 py-1 rounded-[12px] text-[16px] font-semibold flex items-center gap-1">
-                Boosted
-                <img src={Airplane} className="w-6 h-6" alt="" />
-              </span>
+          const discountType =
+            pricing?.discount?.type?.toUpperCase() ||
+            (pricing?.discountAmount ? "FIXED_AMOUNT" : "");
 
-              <button
-                type="button"
-                className="absolute z-10 top-4 right-4"
-                onClick={() =>
-                  item?.isWishListed
-                    ? handleRemoveFromFavorite(item)
-                    : handleAddToFavorite(item)
-                }
-              >
-                {item?.isWishListed ? (
-                  <FaHeart className="text-white text-2xl" />
-                ) : (
-                  <FiHeart className="text-white text-2xl" />
-                )}
-              </button>
-            </div>
+          const discountBadgeLabel =
+            discountType === "PERCENTAGE"
+              ? `${
+                  pricing?.discount?.value ||
+                  Math.round(
+                    ((Number(pricing?.originalPrice) -
+                      Number(pricing?.discountedPrice)) /
+                      Number(pricing?.originalPrice)) *
+                      100
+                  )
+                }% OFF`
+              : pricing?.discountAmount || pricing?.discount?.value
+              ? `$${
+                  pricing?.discountAmount || pricing?.discount?.value
+                } OFF`
+              : "";
 
-            <div onClick={() => navigate(`/products/${item?._id}`)}>
-              <h2 className="mt-3 text-[16px] font-semibold">{item?.name}</h2>
-              <p className="text-gray-500 text-sm">
-                {item?.fulfillmentMethod?.selfPickup && "Self Pickup "}
-                {item?.fulfillmentMethod?.delivery && "Delivery"}
-              </p>
+          const originalPrice =
+            pricing?.originalPrice !== undefined
+              ? Number(pricing.originalPrice)
+              : Number(item?.price || 0);
 
-              <div className="flex justify-between items-center mt-3">
-                <span className="text-[#606060] font-bold text-lg">★ 0</span>
-                <span className="text-[#003DAC] font-bold text-lg">
-                  ${item.price.toFixed(2)}
+          const finalPrice = hasDiscount
+            ? Number(pricing?.discountedPrice)
+            : Number(item?.price || 0);
+
+          return (
+            <div
+              key={item._id}
+              className="bg-white rounded-[20px] p-3 relative w-full custom-shadow cursor-pointer"
+            >
+              <div className="relative">
+                <img
+                  src={item?.images?.[0]?.url}
+                  alt={item?.name}
+                  className="w-full h-64 object-contain border border-gray-100 rounded-2xl"
+                  onClick={() => navigate(`/products/${item?._id}`)}
+                />
+
+                <span className="absolute top-3 left-3 h-[40px] w-[121px] bg-[#00AAD5] text-white px-3 py-1 rounded-[12px] text-[16px] font-semibold flex items-center gap-1">
+                  Boosted
+                  <img src={Airplane} className="w-6 h-6" alt="" />
                 </span>
+
+                {hasDiscount && (
+                  <span className="absolute top-3 right-12 bg-[#E53935] text-white px-2.5 py-1 rounded-[10px] text-xs font-extrabold shadow-md tracking-wide">
+                    {discountBadgeLabel}
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  className="absolute z-10 top-4 right-4"
+                  onClick={() =>
+                    item?.isWishListed
+                      ? handleRemoveFromFavorite(item)
+                      : handleAddToFavorite(item)
+                  }
+                >
+                  {item?.isWishListed ? (
+                    <FaHeart className="text-white text-2xl" />
+                  ) : (
+                    <FiHeart className="text-white text-2xl" />
+                  )}
+                </button>
+              </div>
+
+              <div onClick={() => navigate(`/products/${item?._id}`)}>
+                <h2 className="mt-3 text-[16px] font-semibold truncate">
+                  {item?.name}
+                </h2>
+                <p className="text-gray-500 text-sm">
+                  {item?.fulfillmentMethod?.selfPickup && "Self Pickup "}
+                  {item?.fulfillmentMethod?.delivery && "Delivery"}
+                </p>
+
+                <div className="flex justify-between items-center mt-3">
+                  <span className="text-[#606060] font-bold text-lg">★ 0</span>
+                  <div className="flex items-baseline gap-1.5">
+                    <span
+                      className={`font-bold text-lg ${
+                        hasDiscount ? "text-[#E53935]" : "text-[#003DAC]"
+                      }`}
+                    >
+                      ${finalPrice.toFixed(2)}
+                    </span>
+                    {hasDiscount && (
+                      <span className="text-xs text-gray-400 line-through font-medium">
+                        ${originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {loading &&
           Array(4)

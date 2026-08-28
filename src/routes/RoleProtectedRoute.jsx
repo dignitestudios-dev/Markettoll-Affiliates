@@ -22,6 +22,7 @@ const allowedPathsForRoles = {
     "/add-location",
     "/add-service-or-product",
     "/add-product",
+    "/manage-discount",
     "/product-review",
     "/would-you-boost-your-product",
     "/add-service",

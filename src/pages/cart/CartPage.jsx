@@ -79,12 +79,26 @@ const CartPage = () => {
 
   const [totalPrice, setTotalPrice] = useState(0);
   useEffect(() => {
-    cartProducts.reduce((total, cartItem) => {
-      const price = cartItem.product.price;
-      const quantity = cartItem.quantity;
-      setTotalPrice(total + price * quantity);
-      return total + price * quantity;
+    if (!Array.isArray(cartProducts)) {
+      setTotalPrice(0);
+      return;
+    }
+    const total = cartProducts.reduce((acc, cartItem) => {
+      const pricing = cartItem?.pricing || cartItem?.product?.pricing;
+      const hasDiscount =
+        Boolean(pricing?.discount) ||
+        (pricing?.discountedPrice !== undefined &&
+          pricing?.originalPrice !== undefined &&
+          Number(pricing?.discountedPrice) < Number(pricing?.originalPrice));
+
+      const price = hasDiscount
+        ? Number(pricing?.discountedPrice)
+        : Number(cartItem?.product?.price || 0);
+
+      const quantity = Number(cartItem?.quantity || 1);
+      return acc + price * quantity;
     }, 0);
+    setTotalPrice(total);
   }, [cartProducts]);
 
   const removeCartProducts = async () => {

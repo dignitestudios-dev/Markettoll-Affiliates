@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
-import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { MdOutlineKeyboardArrowRight, MdOutlineDiscount } from "react-icons/md";
 import { FiPlus } from "react-icons/fi";
 import { AuthContext } from "../../context/authContext";
 import { toast } from "react-toastify";
@@ -75,10 +75,25 @@ export const Popup = ({ showPopup, handleShowPopup }) => {
       navigate("/add-service", { state: { from: "/add-service-or-product" } });
     }
   };
+  const handleNavigateToManageDiscount = () => {
+    if (
+      userProfile?.stripeConnectedAccount?.id == null ||
+      userProfile?.stripeConnectedAccount?.id == undefined
+    ) {
+      toast.warn("Add Your Bank Account First");
+      navigate("/settings/payment", {
+        state: { from: "/add-service-or-product" },
+      });
+    } else {
+      navigate("/manage-discount", {
+        state: { from: "/add-service-or-product" },
+      });
+    }
+  };
   return (
     showPopup && (
       <div className="w-full h-screen fixed z-50 bg-[rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden ">
-        <div className="w-[90%] lg:w-[532px] h-[288px] relative rounded-[12px] bg-white py-12 px-5 flex flex-col items-center justify-center gap-3">
+        <div className="w-[90%] lg:w-[532px] h-auto py-10 relative rounded-[12px] bg-white px-5 flex flex-col items-center justify-center gap-3">
           <button
             type="button"
             onClick={handleShowPopup}
@@ -112,6 +127,19 @@ export const Popup = ({ showPopup, handleShowPopup }) => {
                 <FiPlus className="w-full h-full text-white" />
               </div>
               <span className="text-sm font-medium">Add Service</span>
+            </div>
+            <MdOutlineKeyboardArrowRight className="text-xl" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavigateToManageDiscount()}
+            className="w-full md:w-[343px] h-[56px] rounded-[14px] p-4 bg-[#F2F2F2] flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-[32px] h-[32px] blue-bg rounded-full flex items-center justify-center p-2">
+                <MdOutlineDiscount className="w-full h-full text-white" />
+              </div>
+              <span className="text-sm font-medium">Manage Discount On Product</span>
             </div>
             <MdOutlineKeyboardArrowRight className="text-xl" />
           </button>

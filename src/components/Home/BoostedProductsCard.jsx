@@ -115,68 +115,109 @@ export default function BoostedProducts() {
         ) : (
           <div className="marquee-wrapper">
             <div className="marquee  cursor-pointer">
-              {[...myProducts, ...myProducts]?.map((item, index) => (
-                <div
-                  onClick={() => navigate(`/products/${item?._id}`)}
-                  key={index}
-                  className="bg-white cursor-pointer text-black rounded-3xl p-4
-                           min-w-[280px] max-w-[280px] flex-shrink-0 mx-3"
-                >
-                  <div className="relative">
-                    <img
-                      src={item?.images?.[0]?.url}
-                      alt={item?.name}
-                      className="w-[266px] h-[276px] object-contain
-                               border border-gray-100 rounded-2xl"
-                    />
+              {[...myProducts, ...myProducts]?.map((item, index) => {
+                const pricing = item?.pricing;
+                const hasDiscount =
+                  Boolean(pricing?.discount) ||
+                  (pricing?.discountedPrice !== undefined &&
+                    pricing?.originalPrice !== undefined &&
+                    Number(pricing?.discountedPrice) <
+                      Number(pricing?.originalPrice));
 
-                    <span
-                      className="absolute top-3 left-3 h-[40px] w-[121px]
-                                   bg-[#00AAD5] text-white px-3 py-1
-                                   rounded-[12px] text-[16px] font-semibold
-                                   flex items-center gap-1"
-                    >
-                      Boosted
-                      <img src={Airplane} className="w-6 h-6" alt="" />
-                    </span>
+                const discountType =
+                  pricing?.discount?.type?.toUpperCase() ||
+                  (pricing?.discountAmount ? "FIXED_AMOUNT" : "");
 
-                    {/* <button
-                      type="button"
-                      className="absolute z-10 top-4 right-4"
-                      onClick={() =>
-                        item?.isWishListed
-                          ? handleRemoveFromFavorite(item)
-                          : handleAddToFavorite(item)
-                      }
-                    >
-                      {item?.isWishListed ? (
-                        <FaHeart className="text-white text-2xl" />
-                      ) : (
-                        <FiHeart className="text-white text-2xl" />
+                const discountBadgeLabel =
+                  discountType === "PERCENTAGE"
+                    ? `${
+                        pricing?.discount?.value ||
+                        Math.round(
+                          ((Number(pricing?.originalPrice) -
+                            Number(pricing?.discountedPrice)) /
+                            Number(pricing?.originalPrice)) *
+                            100
+                        )
+                      }% OFF`
+                    : pricing?.discountAmount || pricing?.discount?.value
+                    ? `$${
+                        pricing?.discountAmount || pricing?.discount?.value
+                      } OFF`
+                    : "";
+
+                const originalPrice =
+                  pricing?.originalPrice !== undefined
+                    ? Number(pricing.originalPrice)
+                    : Number(item?.price || 0);
+
+                const finalPrice = hasDiscount
+                  ? Number(pricing?.discountedPrice)
+                  : Number(item?.price || 0);
+
+                return (
+                  <div
+                    onClick={() => navigate(`/products/${item?._id}`)}
+                    key={index}
+                    className="bg-white cursor-pointer text-black rounded-3xl p-4
+                             min-w-[280px] max-w-[280px] flex-shrink-0 mx-3"
+                  >
+                    <div className="relative">
+                      <img
+                        src={item?.images?.[0]?.url}
+                        alt={item?.name}
+                        className="w-[266px] h-[276px] object-contain
+                                 border border-gray-100 rounded-2xl"
+                      />
+
+                      <span
+                        className="absolute top-3 left-3 h-[40px] w-[121px]
+                                     bg-[#00AAD5] text-white px-3 py-1
+                                     rounded-[12px] text-[16px] font-semibold
+                                     flex items-center gap-1"
+                      >
+                        Boosted
+                        <img src={Airplane} className="w-6 h-6" alt="" />
+                      </span>
+
+                      {hasDiscount && (
+                        <span className="absolute top-3 right-3 bg-[#E53935] text-white px-2.5 py-1 rounded-[10px] text-xs font-extrabold shadow-md tracking-wide">
+                          {discountBadgeLabel}
+                        </span>
                       )}
-                    </button> */}
-                  </div>
+                    </div>
 
-                  <div>
-                    <h2 className="mt-3 text-[16px] font-semibold">
-                      {item?.name}
-                    </h2>
-                    <p className="text-gray-500 text-sm">
-                      {item?.fulfillmentMethod?.selfPickup && "Self Pickup "}
-                      {item?.fulfillmentMethod?.delivery && "Delivery"}
-                    </p>
+                    <div>
+                      <h2 className="mt-3 text-[16px] font-semibold truncate">
+                        {item?.name}
+                      </h2>
+                      <p className="text-gray-500 text-sm">
+                        {item?.fulfillmentMethod?.selfPickup && "Self Pickup "}
+                        {item?.fulfillmentMethod?.delivery && "Delivery"}
+                      </p>
 
-                    <div className="flex justify-between items-center mt-3">
-                      <span className="text-[#606060] font-bold text-lg">
-                        ★ 0
-                      </span>
-                      <span className="text-[#003DAC] font-bold text-lg">
-                        ${item.price.toFixed(2)}
-                      </span>
+                      <div className="flex justify-between items-center mt-3">
+                        <span className="text-[#606060] font-bold text-lg">
+                          ★ 0
+                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span
+                            className={`font-bold text-lg ${
+                              hasDiscount ? "text-[#E53935]" : "text-[#003DAC]"
+                            }`}
+                          >
+                            ${finalPrice.toFixed(2)}
+                          </span>
+                          {hasDiscount && (
+                            <span className="text-xs text-gray-400 line-through font-medium">
+                              ${originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

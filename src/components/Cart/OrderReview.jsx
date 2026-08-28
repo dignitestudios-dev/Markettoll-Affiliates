@@ -114,9 +114,38 @@ const OrderReview = ({
                   </div>
                   <div className="md:flex flex-col items-start gap-1 hidden">
                     <span className="text-[#9D9D9DDD] text-sm">Price</span>
-                    <span className="font-semibold text-[20px] blue-text">
-                      ${deliverProduct?.product?.price?.toFixed(2)}
-                    </span>
+                    {(() => {
+                      const pricing = deliverProduct?.pricing || deliverProduct?.product?.pricing;
+                      const hasDiscount =
+                        Boolean(pricing?.discount) ||
+                        (pricing?.discountedPrice !== undefined &&
+                          pricing?.originalPrice !== undefined &&
+                          Number(pricing?.discountedPrice) < Number(pricing?.originalPrice));
+                      const finalPrice = hasDiscount
+                        ? Number(pricing?.discountedPrice)
+                        : Number(deliverProduct?.product?.price || 0);
+                      const originalPrice =
+                        pricing?.originalPrice !== undefined
+                          ? Number(pricing.originalPrice)
+                          : Number(deliverProduct?.product?.price || 0);
+
+                      return (
+                        <div className="flex items-baseline gap-1.5">
+                          <span
+                            className={`font-semibold text-[20px] ${
+                              hasDiscount ? "text-[#E53935]" : "blue-text"
+                            }`}
+                          >
+                            ${finalPrice.toFixed(2)}
+                          </span>
+                          {hasDiscount && (
+                            <span className="text-xs text-gray-400 line-through font-medium">
+                              ${originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               );
@@ -127,17 +156,6 @@ const OrderReview = ({
 
       <div className="w-full">
         <p className="text-base font-bold">Pickup Orders</p>
-        {/* <div className="flex items-center justify-start gap-3 my-4">
-          <img
-            src="/seller-profile-img.png"
-            alt="seller profile"
-            className="w-[25.2px] h-[25.2px]"
-          />
-          <span className="text-base font-medium">Adam Mill</span>
-          <Link to="/seller" className="text-[13px] font-semibold underline">
-            View Profile
-          </Link>
-        </div> */}
         {pickupProducts && pickupProducts?.length > 0 && (
           <div className="w-full">
             {pickupProducts?.map((deliverProduct, index) => {
@@ -165,9 +183,38 @@ const OrderReview = ({
                   </div>
                   <div className="md:flex flex-col items-start gap-1 hidden">
                     <span className="text-[#9D9D9DDD] text-sm">Price</span>
-                    <span className="font-semibold text-[20px] blue-text">
-                      ${deliverProduct?.product?.price?.toFixed(2)}
-                    </span>
+                    {(() => {
+                      const pricing = deliverProduct?.pricing || deliverProduct?.product?.pricing;
+                      const hasDiscount =
+                        Boolean(pricing?.discount) ||
+                        (pricing?.discountedPrice !== undefined &&
+                          pricing?.originalPrice !== undefined &&
+                          Number(pricing?.discountedPrice) < Number(pricing?.originalPrice));
+                      const finalPrice = hasDiscount
+                        ? Number(pricing?.discountedPrice)
+                        : Number(deliverProduct?.product?.price || 0);
+                      const originalPrice =
+                        pricing?.originalPrice !== undefined
+                          ? Number(pricing.originalPrice)
+                          : Number(deliverProduct?.product?.price || 0);
+
+                      return (
+                        <div className="flex items-baseline gap-1.5">
+                          <span
+                            className={`font-semibold text-[20px] ${
+                              hasDiscount ? "text-[#E53935]" : "blue-text"
+                            }`}
+                          >
+                            ${finalPrice.toFixed(2)}
+                          </span>
+                          {hasDiscount && (
+                            <span className="text-xs text-gray-400 line-through font-medium">
+                              ${originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               );

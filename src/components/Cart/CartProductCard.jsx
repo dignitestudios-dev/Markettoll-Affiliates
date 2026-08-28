@@ -70,14 +70,61 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
   //   return <Loader />;
   // }
 
+  const pricing = products?.pricing || products?.product?.pricing;
+  const hasDiscount =
+    Boolean(pricing?.discount) ||
+    (pricing?.discountedPrice !== undefined &&
+      pricing?.originalPrice !== undefined &&
+      Number(pricing?.discountedPrice) < Number(pricing?.originalPrice));
+
+  const discountType =
+    pricing?.discount?.type?.toUpperCase() ||
+    (pricing?.discountAmount ? "FIXED_AMOUNT" : "");
+
+  const discountBadgeLabel =
+    discountType === "PERCENTAGE"
+      ? `${
+          pricing?.discount?.value ||
+          Math.round(
+            ((Number(pricing?.originalPrice) - Number(pricing?.discountedPrice)) /
+              Number(pricing?.originalPrice)) *
+              100
+          )
+        }% OFF`
+      : pricing?.discountAmount || pricing?.discount?.value
+      ? `$${pricing?.discountAmount || pricing?.discount?.value} OFF`
+      : "";
+
+  const originalPrice =
+    pricing?.originalPrice !== undefined
+      ? Number(pricing.originalPrice)
+      : Number(products?.product?.price || 0);
+
+  const finalPrice = hasDiscount
+    ? Number(pricing?.discountedPrice)
+    : Number(products?.product?.price || 0);
+
+  const productImgUrl =
+    products?.product?.images?.[0]?.url ||
+    products?.product?.images?.[0] ||
+    products?.product?.productImages?.[0] ||
+    "/placeholder-product.png";
+
   return (
     <div className="border-t py-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <img
-          src={products?.product?.images[0].url}
-          alt="product image"
-          className="w-[80px] h-[80px] rounded-[15px]"
-        />
+        <div className="relative">
+          <img
+            src={productImgUrl}
+            alt="product image"
+            className="w-[80px] h-[80px] rounded-[15px] object-cover"
+          />
+          {hasDiscount && (
+            <div className="absolute -top-1 -left-1 bg-[#E53935] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">
+              {discountBadgeLabel}
+            </div>
+          )}
+        </div>
         <div className="flex flex-col items-start justify-center gap-1">
           <span className="text-base font-semibold">
             {products?.product?.name}
@@ -85,10 +132,26 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
           <span className="text-sm font-normal text-[#9D9D9DDD]">
             {products?.fulfillmentMethod?.delivery ? "Delivery" : "Pickup"}
           </span>
-          <span className="font-semibold text-[16px] blue-text">
-            ${products?.product?.price}.00
-          </span>
-          <div className="md:hidden">
+          <div className="flex items-center gap-2">
+            <span
+              className={`font-bold text-[16px] ${
+                hasDiscount ? "text-[#E53935]" : "blue-text"
+              }`}
+            >
+              ${finalPrice.toFixed(2)}
+            </span>
+            {hasDiscount && (
+              <span className="text-xs text-gray-400 line-through">
+                ${originalPrice.toFixed(2)}
+              </span>
+            )}
+            {hasDiscount && (
+              <span className="bg-red-50 text-[#E53935] border border-red-200 text-[10px] font-extrabold px-1.5 py-0.5 rounded">
+                {discountType === "PERCENTAGE" ? "% OFF" : "FIXED"}
+              </span>
+            )}
+          </div>
+          <div className="md:hidden mt-1">
             <div className="flex items-center justify-center">
               <button
                 type="button"
@@ -119,9 +182,25 @@ const CartProductCard = ({ products, fetchCartProducts }) => {
       </div>
       <div className="md:flex flex-col items-start gap-1 hidden">
         <span className="text-[#9D9D9DDD] text-sm">Price</span>
-        <span className="font-semibold text-[20px] blue-text">
-          ${products?.product?.price}.00
-        </span>
+        <div className="flex items-baseline gap-1.5">
+          <span
+            className={`font-bold text-[20px] ${
+              hasDiscount ? "text-[#E53935]" : "blue-text"
+            }`}
+          >
+            ${finalPrice.toFixed(2)}
+          </span>
+          {hasDiscount && (
+            <span className="text-xs text-gray-400 line-through font-medium">
+              ${originalPrice.toFixed(2)}
+            </span>
+          )}
+        </div>
+        {hasDiscount && (
+          <span className="bg-red-50 text-[#E53935] border border-red-200 text-[10px] font-extrabold px-1.5 py-0.5 rounded tracking-wider">
+            {discountBadgeLabel} ({discountType === "PERCENTAGE" ? "% OFF" : "FIXED"})
+          </span>
+        )}
       </div>
       <div className="hidden md:flex flex-col items-end">
         <button

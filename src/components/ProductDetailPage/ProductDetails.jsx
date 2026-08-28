@@ -397,13 +397,42 @@ const ProductDetails = () => {
                   )}
                 </div>
 
-                <div className="flex items-center justify-end gap-4">
-                  <h3 className="text-[24px] font-bold">
+                <div className="flex items-center justify-end gap-3 flex-wrap">
+                  {Boolean(product?.pricing?.discount) && (
+                    <span className="text-base text-gray-400 line-through font-medium">
+                      $
+                      {Number(product?.pricing?.originalPrice) % 1 === 0
+                        ? `${Number(product?.pricing?.originalPrice)}.00`
+                        : product?.pricing?.originalPrice}
+                    </span>
+                  )}
+                  <h3
+                    className={`text-[24px] font-bold ${
+                      Boolean(product?.pricing?.discount)
+                        ? "text-[#E53935]"
+                        : "blue-text"
+                    }`}
+                  >
                     $
-                    {String(product?.price)?.includes(".")
+                    {product?.pricing?.discountedPrice !== undefined
+                      ? Number(product.pricing.discountedPrice) % 1 === 0
+                        ? `${Number(product.pricing.discountedPrice)}.00`
+                        : product.pricing.discountedPrice
+                      : String(product?.price)?.includes(".")
                       ? product?.price
                       : `${product?.price}.00`}
                   </h3>
+                  {Boolean(product?.pricing?.discount) && (
+                    <span className="bg-[#E53935] text-white text-xs font-extrabold px-3 py-1 rounded-lg shadow-sm">
+                      {product?.pricing?.discount?.type?.toUpperCase() ===
+                      "PERCENTAGE"
+                        ? `${product?.pricing?.discount?.value}% OFF`
+                        : `$${
+                            product?.pricing?.discountAmount ||
+                            product?.pricing?.discount?.value
+                          } OFF`}
+                    </span>
+                  )}
                   {product?.seller === userProfile?._id && (
                     <>
                       <button

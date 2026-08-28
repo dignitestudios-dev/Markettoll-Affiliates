@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import ProductList from "../../components/Home/ProductList";
-import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { MdOutlineKeyboardArrowRight, MdOutlineDiscount } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { AuthContext } from "../../context/authContext";
 import axios from "axios";
@@ -169,6 +169,21 @@ const Popup = ({ openModal, onclick }) => {
                 <FiPlus className="w-full h-full text-white" />
               </div>
               <span className="text-sm font-medium">Add Service</span>
+            </div>
+            <div>
+              <MdOutlineKeyboardArrowRight className="text-xl" />
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavigate("/manage-discount", "discount")}
+            className="w-[343px] bg-[#F2F2F2] rounded-[14px] p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center justify-start gap-2">
+              <div className="blue-bg rounded-full w-[32px] p-2 h-[32px] flex items-center justify-center">
+                <MdOutlineDiscount className="w-full h-full text-white" />
+              </div>
+              <span className="text-sm font-medium">Manage Discount On Product</span>
             </div>
             <div>
               <MdOutlineKeyboardArrowRight className="text-xl" />
