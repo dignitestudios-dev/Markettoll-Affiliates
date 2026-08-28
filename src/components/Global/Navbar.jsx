@@ -552,6 +552,28 @@ const Navbar = () => {
           </button>
         )}
 
+        {loc?.pathname != "/login" && (
+          <Link
+            to={
+              user
+                ? `https://markettoll-live.vercel.app?token=${encodeURIComponent(
+                    JSON.stringify(user)
+                  )}`
+                : `https://markettoll-live.vercel.app?token=${
+                    userProfile?.token || ""
+                  }`
+            }
+            target="_blank"
+            className="bg-white text-red-500 px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-[10px] font-semibold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 hover:bg-red-50 transition-all duration-300 shadow-sm"
+          >
+            <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-red-500"></span>
+            </span>
+            Live
+          </Link>
+        )}
+
         {user && loc?.pathname != "/login" ? (
           <button type="button" onClick={() => setOpenSidebar(!openSidebar)}>
             <TbMenu2 className="text-2xl text-white" />
