@@ -99,14 +99,48 @@ const FavoriteProductCard = ({ product, handleRemoveFromFavorite }) => {
         />
       </div>
       <div className="w-full" onClick={handleNavigateToProductDetails}>
-        <h4 className="mt-2 font-medium text-base">
+        <h4 className="mt-2 font-semibold text-base text-gray-900 truncate" title={product?.productDetails?.name}>
           {product?.productDetails?.name}
         </h4>
-        <p className="my-1 text-sm text-[#9D9D9DDD]">
-          {product?.productDetails?.fulfillmentMethod?.selfPickup
-            ? "Pickup"
-            : "Delivery"}
-        </p>
+        <div className="flex flex-wrap items-center gap-1.5 my-2">
+          {/* Fulfillment Tag */}
+          <span
+            className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${
+              product?.productDetails?.fulfillmentMethod?.selfPickup
+                ? "bg-amber-50 text-amber-700 border-amber-200"
+                : "bg-blue-50 text-[#003DAC] border-blue-200"
+            }`}
+          >
+            {product?.productDetails?.fulfillmentMethod?.selfPickup
+              ? "Pickup"
+              : "Delivery"}
+          </span>
+
+          {/* Stock Tag */}
+          <span
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+              Number(pDetails?.quantity ?? 0) > 0
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : "bg-rose-50 text-rose-600 border-rose-200"
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                Number(pDetails?.quantity ?? 0) > 0
+                  ? "bg-emerald-500"
+                  : "bg-rose-500"
+              }`}
+            />
+            {Number(pDetails?.quantity ?? 0) > 0
+              ? `Stock: ${pDetails?.quantity}`
+              : "Out of Stock"}
+          </span>
+
+          {/* Sold Tag */}
+          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200 flex items-center gap-1">
+            Sold: <span className="font-semibold text-gray-900">{pDetails?.quantitySold ?? product?.quantitySold ?? 0}</span>
+          </span>
+        </div>
         <div className="w-full flex items-center justify-between">
           <ProductRating productAvgRating={safeAvgRating} />
           <div className="flex items-center gap-2">

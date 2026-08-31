@@ -214,13 +214,46 @@ export default function AllBoostedProducts() {
               </div>
 
               <div onClick={() => navigate(`/products/${item?._id}`)}>
-                <h2 className="mt-3 text-[16px] font-semibold truncate">
+                <h2 className="mt-3 text-[16px] font-semibold truncate" title={item?.name}>
                   {item?.name}
                 </h2>
-                <p className="text-gray-500 text-sm">
-                  {item?.fulfillmentMethod?.selfPickup && "Self Pickup "}
-                  {item?.fulfillmentMethod?.delivery && "Delivery"}
-                </p>
+                <div className="flex flex-wrap items-center gap-1.5 my-2">
+                  {/* Fulfillment Tag */}
+                  <span
+                    className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${
+                      item?.fulfillmentMethod?.selfPickup
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-blue-50 text-[#003DAC] border-blue-200"
+                    }`}
+                  >
+                    {item?.fulfillmentMethod?.selfPickup ? "Pickup" : "Delivery"}
+                  </span>
+
+                  {/* Stock Tag */}
+                  <span
+                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                      Number(item?.quantity ?? 0) > 0
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-rose-50 text-rose-600 border-rose-200"
+                    }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        Number(item?.quantity ?? 0) > 0
+                          ? "bg-emerald-500"
+                          : "bg-rose-500"
+                      }`}
+                    />
+                    {Number(item?.quantity ?? 0) > 0
+                      ? `Stock: ${item?.quantity}`
+                      : "Out of Stock"}
+                  </span>
+
+                  {/* Sold Tag */}
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200 flex items-center gap-1">
+                    Sold: <span className="font-semibold text-gray-900">{item?.quantitySold ?? 0}</span>
+                  </span>
+                </div>
 
                 <div className="flex justify-between items-center mt-3">
                   <span className="text-[#606060] font-bold text-lg">★ 0</span>

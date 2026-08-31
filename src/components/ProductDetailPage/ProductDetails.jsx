@@ -483,6 +483,27 @@ const ProductDetails = () => {
                     Category
                   </p>
                   <p className="text-[13px] font-medium">{product?.category}</p>
+                  <p className="text-[13px] text-[#7C7C7C] font-medium">Stock</p>
+                  <p className="text-[13px] font-semibold flex items-center gap-1.5">
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full ${
+                        Number(product?.quantity ?? 0) > 0
+                          ? "bg-emerald-500"
+                          : "bg-rose-500"
+                      }`}
+                    />
+                    <span
+                      className={
+                        Number(product?.quantity ?? 0) > 0
+                          ? "text-emerald-700"
+                          : "text-rose-600"
+                      }
+                    >
+                      {Number(product?.quantity ?? 0) > 0
+                        ? `${product?.quantity} in stock`
+                        : "Out of stock"}
+                    </span>
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-y-3">
                   <p className="text-[13px] text-[#7C7C7C] font-medium">
@@ -494,6 +515,10 @@ const ProductDetails = () => {
                   </p>
                   <p className="text-[13px] font-medium">
                     {product?.subCategory}
+                  </p>
+                  <p className="text-[13px] text-[#7C7C7C] font-medium">Sold</p>
+                  <p className="text-[13px] font-semibold text-gray-800">
+                    {product?.quantitySold !== undefined ? `${product?.quantitySold} units sold` : "0 units sold"}
                   </p>
                 </div>
               </div>
