@@ -361,7 +361,7 @@ const Navbar = () => {
                 >
                   Markettoll Vision
                 </Link>
-                <Link
+                {/* <Link
                   to={`https://markettoll-live.vercel.app?token=${userProfile?.token}`}
                   target="_blank"
                   className="bg-white text-red-500 px-4 py-1.5 rounded-[10px] font-semibold text-sm flex items-center gap-2 hover:bg-red-50 transition-all duration-300 shadow-sm"
@@ -371,7 +371,7 @@ const Navbar = () => {
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                   </span>
                   Live
-                </Link>
+                </Link> */}
 
                 <Link
                   to="/login"
@@ -551,7 +551,7 @@ const Navbar = () => {
             <NotificationsDropdown openNotifications={openNotifications} />
           </button>
         )}
-
+{/* 
         {loc?.pathname != "/login" && (
           <Link
             to={
@@ -572,7 +572,7 @@ const Navbar = () => {
             </span>
             Live
           </Link>
-        )}
+        )} */}
 
         {user && loc?.pathname != "/login" ? (
           <button type="button" onClick={() => setOpenSidebar(!openSidebar)}>
