@@ -305,7 +305,7 @@ const Navbar = () => {
                 >
                   Markettoll Vision
                 </Link>
-                <Link
+                {/* <Link
                   to={`https://markettoll-live.vercel.app?token=${encodeURIComponent(
                     JSON.stringify(user)
                   )}`}
@@ -317,7 +317,7 @@ const Navbar = () => {
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                   </span>
                   Live
-                </Link>
+                </Link> */}
               </>
             )}
             <button
