@@ -471,6 +471,9 @@ const Navbar = () => {
                     >
                       Settings
                     </Link>
+                    {/* // */}
+                    {/* // */}
+                    {/* // */}
                   </li>
                   <li className="text-xs font-medium py-0.5">
                     <Link to="/sign-up" state={{ role: "influencer" }}>
